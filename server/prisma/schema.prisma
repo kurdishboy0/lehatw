@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 1. Roles & Statuses
+enum Role {
+  STUDENT
+  HR
+  ADMIN
+}
+
+enum HRStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// 2. Core User Table
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  password   String? // Made optional for social logins!
+  googleId   String?  @unique // For Google Login
+  linkedinId String?  @unique // For LinkedIn Login
+  role       Role     @default(STUDENT)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  // --- FIELDS FOR OTP ---
+  resetOtp        String? // Stores the 6-digit code
+  resetOtpExpires DateTime? // Stores when the code expires (e.g., in 15 mins)
+
+  studentProfile StudentProfile?
+  hrProfile      HRProfile?
+
+  // --- NEW: Link to Applications ---
+  applications Application[] @relation("StudentApplications")
+
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+}
+
+// 3. Student Profiles (Public)
+model StudentProfile {
+  id             Int     @id @default(autoincrement())
+  userId         Int     @unique
+  user           User    @relation(fields: [userId], references: [id])
+  fullName       String
+  university     String
+  fieldOfStudy   String
+  graduationYear Int?
+  bio            String?
+  photoUrl       String?
+  resumeUrl      String? // Optional CV/resume on file; auto-attaches to job applications
+  portfolioUrl   String?
+  linkedinUrl    String?
+  githubUrl      String?
+  huggingFaceUrl String?
+
+  skills       StudentSkill[]
+  customSkills CustomSkill[]
+}
+
+// 4. HR Profiles (Requires Admin Approval)
+model HRProfile {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  user        User     @relation(fields: [userId], references: [id])
+  
+  // Fields matching your React form
+  companyName String
+  industry    String   
+  jobTitle    String   
+  crNumber    String   
+
+  // Made optional so they don't crash if omitted
+  website     String?
+  phone       String?
+  address     String?
+  taxId       String?
+  
+  status      HRStatus @default(PENDING)
+
+  jobPosts JobPost[] // Links HR to the jobs they post
+}
+
+// 5a. Broad Academic Subject Areas (e.g. Engineering & Technology, Health & Medical Sciences)
+// Groups Fields of Study (Category) the way Kurdistan Region university faculties are organized.
+model SubjectArea {
+  id         Int        @id @default(autoincrement())
+  name_en    String
+  name_ar    String
+  name_ckb   String
+  categories Category[]
+}
+
+// 5. Multilingual Skill Categories (Fields of Study)
+model Category {
+  id            Int          @id @default(autoincrement())
+  name_en       String
+  name_ar       String
+  name_ckb      String
+  subjectAreaId Int?
+  subjectArea   SubjectArea? @relation(fields: [subjectAreaId], references: [id])
+  skills        Skill[]
+}
+
+// 6. Multilingual Master Skills List
+model Skill {
+  id         Int      @id @default(autoincrement())
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  name_en    String
+  name_ar    String
+  name_ckb   String
+
+  students StudentSkill[]
+  jobPosts JobPostSkill[] // Links Skills to Job Posts
+}
+
+// 7. Mapping Students to Skills
+model StudentSkill {
+  id               Int            @id @default(autoincrement())
+  studentProfileId Int
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  skillId          Int
+  skill            Skill          @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  proficiency      String // e.g., "Beginner", "Intermediate", "Expert"
+}
+
+// 8. The "Other" Skills (Pending Admin Review)
+model CustomSkill {
+  id               Int            @id @default(autoincrement())
+  studentProfileId Int
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  name             String
+  isApproved       Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+}
+
+// --- PHASE 1 MATCHING ENGINE --- //
+
+// 9. HR Job Posts (The Target for Matching)
+// 9. HR Job Posts
+model JobPost {
+  id               Int            @id @default(autoincrement())
+  hrProfileId      Int
+  hrProfile        HRProfile      @relation(fields: [hrProfileId], references: [id], onDelete: Cascade)
+  title            String
+  description      String? // Summary / about the role
+  responsibilities String? // Key responsibilities, one per line
+  requirements     String? // Requirements / qualifications, one per line
+  benefits         String? // What we offer, one per line (optional)
+  location         String?
+  employmentType   String? // e.g. Full-Time, Part-Time, Internship, Contract
+  workMode         String? // e.g. On-Site, Remote, Hybrid
+  experienceLevel  String? // e.g. "1-3 years of experience"
+  education        String? // e.g. "Bachelor's degree in Computer Science"
+  requiresCv       Boolean        @default(true)
+  isActive         Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+
+  skills       JobPostSkill[]
+  applications Application[]
+}
+
+// 10. Required Skills mapped to a Job Post
+model JobPostSkill {
+  id        Int     @id @default(autoincrement())
+  jobPostId Int
+  jobPost   JobPost @relation(fields: [jobPostId], references: [id], onDelete: Cascade)
+  skillId   Int
+  skill     Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+}
+
+// 11. Applications
+model Application {
+  id          Int      @id @default(autoincrement())
+  jobPostId   Int
+  jobPost     JobPost  @relation(fields: [jobPostId], references: [id], onDelete: Cascade)
+  studentId   Int
+  student     User     @relation("StudentApplications", fields: [studentId], references: [id], onDelete: Cascade)
+  status      String   @default("PENDING")
+  coverLetter String?
+  cvUrl       String?  // NEW: Store attached CV path/link
+  createdAt   DateTime @default(now())
+
+  @@unique([jobPostId, studentId])
+}
+
+// 12. Direct Messages (student-to-student, and any user-to-user contact)
+model Message {
+  id          Int      @id @default(autoincrement())
+  senderId    Int
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  recipientId Int
+  recipient   User     @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+  content     String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([senderId, recipientId])
+  @@index([recipientId, senderId])
+}

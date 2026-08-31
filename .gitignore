@@ -1,2 +1,7 @@
-node_modules 
-.env 
+node_modules
+.env
+
+/generated/prisma
+
+server/uploads/*
+!server/uploads/.gitkeep

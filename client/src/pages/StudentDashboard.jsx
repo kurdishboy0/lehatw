@@ -1,0 +1,756 @@
+import { useState, useEffect, useRef, useMemo } from 'react';
+import axios from 'axios';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { authHeader } from '../auth';
+
+const PROFICIENCY_LEVELS = ['Beginner', 'Intermediate', 'Expert'];
+// Mirrors server/utils/skillText.js's validation: letters (any language), numbers,
+// spaces, and a small set of punctuation seen in real skill names.
+const CUSTOM_SKILL_REGEX = /^[\p{L}\p{N}\s\-.&/+#()]+$/u;
+
+const cardStyle = {
+  border: '1px solid #e2e8f0', borderRadius: '14px', padding: '24px',
+  backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+};
+
+const sectionHeadingStyle = {
+  margin: '0 0 16px 0', fontSize: '16px', color: '#1a202c',
+  paddingBottom: '10px', borderBottom: '2px solid #ebf4ff'
+};
+
+const inputStyle = { padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '14px', width: '100%', boxSizing: 'border-box' };
+const labelStyle = { display: 'block', fontSize: '13px', fontWeight: '600', color: '#4a5568', marginBottom: '6px' };
+
+function initials(name) {
+  return (name || '').trim().split(/\s+/).slice(0, 2).map(w => w.charAt(0).toUpperCase()).join('');
+}
+
+function MetaRow({ icon, label, value }) {
+  if (!value) return null;
+  return (
+    <div style={{ display: 'flex', gap: '10px' }}>
+      <span style={{ fontSize: '18px' }}>{icon}</span>
+      <div>
+        <div style={{ fontSize: '12px', color: '#718096', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.03em' }}>{label}</div>
+        <div style={{ fontSize: '14px', color: '#2d3748', fontWeight: '600', marginTop: '2px' }}>{value}</div>
+      </div>
+    </div>
+  );
+}
+
+function localizedCategoryName(cat, lang) {
+  if (lang === 'ar') return cat.name_ar;
+  if (lang === 'ckb') return cat.name_ckb;
+  return cat.name_en;
+}
+
+// Levenshtein edit distance, used to suggest the nearest real skill when a
+// student's typed custom skill looks like a typo of one already in the catalog.
+function editDistance(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, (_, i) => [i, ...Array(n).fill(0)]);
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+
+// Finds the closest skill name to `input` among `allSkillNames`, if it's close
+// enough to plausibly be a typo (small edit distance relative to word length).
+function findNearestSkill(input, allSkillNames) {
+  const target = input.trim().toLowerCase();
+  if (target.length < 3) return null;
+
+  let best = null;
+  let bestDistance = Infinity;
+  for (const name of allSkillNames) {
+    const candidate = name.toLowerCase();
+    if (candidate === target) return null; // exact match — no suggestion needed
+    const distance = editDistance(target, candidate);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = name;
+    }
+  }
+
+  const threshold = target.length <= 5 ? 1 : 2;
+  return bestDistance <= threshold ? best : null;
+}
+
+function StudentDashboard() {
+  const { t, i18n } = useTranslation();
+  const [profile, setProfile] = useState(null);
+  const [searchParams] = useSearchParams();
+  // Deep-link support from the user menu: ?edit=1 or ?section=skills opens the edit form on load.
+  const [isEditing, setIsEditing] = useState(() => {
+    const section = searchParams.get('section');
+    return searchParams.get('edit') === '1' || section === 'skills';
+  });
+
+  const [formData, setFormData] = useState({
+    fullName: '',
+    university: '',
+    fieldOfStudy: '',
+    graduationYear: '',
+    bio: '',
+    portfolioUrl: '',
+    linkedinUrl: '',
+    githubUrl: ''
+  });
+
+  // --- NEW SKILLS STATE ---
+  const [categories, setCategories] = useState([]);
+  const [selectedSkills, setSelectedSkills] = useState([]); // Format: [{ skillId: 1, proficiency: 'Intermediate' }]
+  const [customSkills, setCustomSkills] = useState([]);     // Format: ['MedSAM2', 'TensorFlow']
+  const [customInput, setCustomInput] = useState('');
+  const [expandedAreas, setExpandedAreas] = useState({});
+  const [skillSearch, setSkillSearch] = useState('');
+
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [applications, setApplications] = useState([]);
+
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState('');
+  const photoInputRef = useRef(null);
+
+  const [uploadingResume, setUploadingResume] = useState(false);
+  const [resumeError, setResumeError] = useState('');
+  const resumeInputRef = useRef(null);
+
+  const navigate = useNavigate();
+  const skillsSectionRef = useRef(null);
+  const applicationsSectionRef = useRef(null);
+
+  const proficiencyLabel = (level) => t(`studentDashboard.proficiency_${level.toLowerCase()}`);
+
+  // 1. Fetch Profile AND Skills when page loads
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+
+      try {
+        const appsRes = await axios.get('http://localhost:5000/api/applications/mine', config);
+        setApplications(appsRes.data);
+      } catch (err) {
+        console.error("Failed to load applications:", err);
+      }
+
+      try {
+        // A. Always fetch the master skill categories
+        const skillsRes = await axios.get('http://localhost:5000/api/skills', config);
+        setCategories(skillsRes.data);
+
+        // B. Try to fetch the user's profile
+        try {
+          const profileRes = await axios.get('http://localhost:5000/api/student/profile', config);
+          const profileData = profileRes.data;
+
+          setProfile(profileData);
+          setFormData({
+            fullName: profileData.fullName || '',
+            university: profileData.university || '',
+            fieldOfStudy: profileData.fieldOfStudy || '',
+            graduationYear: profileData.graduationYear || '',
+            bio: profileData.bio || '',
+            portfolioUrl: profileData.portfolioUrl || '',
+            linkedinUrl: profileData.linkedinUrl || '',
+            githubUrl: profileData.githubUrl || ''
+          });
+
+          // Pre-load their saved standard skills
+          if (profileData.skills) {
+            setSelectedSkills(profileData.skills.map(s => ({
+              skillId: s.skillId,
+              proficiency: s.proficiency || 'Intermediate'
+            })));
+
+            // Auto-expand the subject areas the student already has skills in,
+            // so returning to edit their profile doesn't hide their own selections.
+            const areasToExpand = {};
+            profileData.skills.forEach(s => {
+              const subjectAreaId = s.skill?.category?.subjectAreaId;
+              if (subjectAreaId) areasToExpand[subjectAreaId] = true;
+            });
+            setExpandedAreas(areasToExpand);
+          }
+
+          // Pre-load their saved custom skills
+          if (profileData.customSkills) {
+            setCustomSkills(profileData.customSkills.map(cs => cs.name));
+          }
+        } catch (profileErr) {
+          // If 404, it just means they haven't created a profile yet. That's okay!
+          if (profileErr.response?.status !== 404) {
+            setError(t('studentDashboard.error_load_profile'));
+          }
+        }
+      } catch (err) {
+        console.error("Dashboard Load Error:", err);
+        setError(t('studentDashboard.error_load'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` excluded: don't refetch on language switch
+  }, [navigate]);
+
+  // Deep-link support from the user menu: ?section=skills / ?section=applications scrolls to that section.
+  useEffect(() => {
+    if (loading) return;
+    const section = searchParams.get('section');
+    if (section === 'skills') {
+      setTimeout(() => skillsSectionRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    } else if (section === 'applications') {
+      setTimeout(() => applicationsSectionRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    }
+  }, [loading, searchParams]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // --- PHOTO UPLOAD ---
+  const handlePhotoSelect = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file later
+    if (!file) return;
+
+    setPhotoError('');
+    setUploadingPhoto(true);
+    try {
+      const form = new FormData();
+      form.append('photo', file);
+      const res = await axios.post('http://localhost:5000/api/student/profile/photo', form, {
+        headers: { ...authHeader(), 'Content-Type': 'multipart/form-data' }
+      });
+      setProfile((prev) => (prev ? { ...prev, photoUrl: res.data.photoUrl } : prev));
+    } catch (err) {
+      setPhotoError(err.response?.data?.message || t('studentDashboard.error_upload_photo'));
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  // --- RESUME/CV UPLOAD (optional; auto-attaches to job applications) ---
+  const handleResumeSelect = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    setResumeError('');
+    setUploadingResume(true);
+    try {
+      const form = new FormData();
+      form.append('resume', file);
+      const res = await axios.post('http://localhost:5000/api/student/profile/resume', form, {
+        headers: { ...authHeader(), 'Content-Type': 'multipart/form-data' }
+      });
+      setProfile((prev) => (prev ? { ...prev, resumeUrl: res.data.resumeUrl } : prev));
+    } catch (err) {
+      setResumeError(err.response?.data?.message || t('studentDashboard.error_upload_resume'));
+    } finally {
+      setUploadingResume(false);
+    }
+  };
+
+  const handleRemoveResume = async () => {
+    setResumeError('');
+    try {
+      await axios.delete('http://localhost:5000/api/student/profile/resume', { headers: authHeader() });
+      setProfile((prev) => (prev ? { ...prev, resumeUrl: null } : prev));
+    } catch (err) {
+      setResumeError(err.response?.data?.message || t('studentDashboard.error_remove_resume'));
+    }
+  };
+
+  // --- NEW SKILL HANDLERS ---
+  const toggleSkill = (skillId) => {
+    const exists = selectedSkills.find(s => s.skillId === skillId);
+    if (exists) {
+      setSelectedSkills(selectedSkills.filter(s => s.skillId !== skillId)); // Uncheck
+    } else {
+      setSelectedSkills([...selectedSkills, { skillId, proficiency: 'Intermediate' }]); // Check
+      // Keep the skill's subject area expanded so it stays visible after clearing a search.
+      const ownerCategory = categories.find(cat => cat.skills.some(sk => sk.id === skillId));
+      if (ownerCategory?.subjectArea) {
+        setExpandedAreas(prev => ({ ...prev, [ownerCategory.subjectArea.id]: true }));
+      }
+    }
+  };
+
+  const updateProficiency = (skillId, level) => {
+    setSelectedSkills(selectedSkills.map(s => (s.skillId === skillId ? { ...s, proficiency: level } : s)));
+  };
+
+  const toggleArea = (areaId) => {
+    setExpandedAreas(prev => ({ ...prev, [areaId]: !prev[areaId] }));
+  };
+
+  // Group the flat category list into { area, categories } buckets by Subject Area,
+  // so the skill picker doesn't render 200+ checkboxes flat on one page.
+  const groupedBySubjectArea = useMemo(() => {
+    const map = new Map();
+    categories.forEach(cat => {
+      const area = cat.subjectArea || { id: 'other', name_en: 'Other', name_ar: 'أخرى', name_ckb: 'تر' };
+      if (!map.has(area.id)) map.set(area.id, { area, categories: [] });
+      map.get(area.id).categories.push(cat);
+    });
+    return Array.from(map.values());
+  }, [categories]);
+
+  const selectedCountInCategory = (cat) => cat.skills.filter(sk => selectedSkills.some(s => s.skillId === sk.id)).length;
+  const selectedCountInArea = (areaCategories) => areaCategories.reduce((sum, cat) => sum + selectedCountInCategory(cat), 0);
+
+  // Flat list of every catalog skill, used for exact-match folding and typo suggestions.
+  const allSkills = useMemo(() => categories.flatMap(cat => cat.skills), [categories]);
+
+  // If what they're typing looks like a typo of a real skill, suggest it instead
+  // of letting them create a near-duplicate custom entry.
+  const nearestSkillSuggestion = useMemo(() => {
+    const name = findNearestSkill(customInput, allSkills.map(s => s.name_en));
+    return name ? allSkills.find(s => s.name_en === name) : null;
+  }, [customInput, allSkills]);
+
+  // When searching, skip the accordion entirely and show only matching skills across all categories.
+  const skillSearchResults = useMemo(() => {
+    const query = skillSearch.trim().toLowerCase();
+    if (!query) return null;
+    return categories
+      .map(cat => ({ ...cat, skills: cat.skills.filter(sk => sk.name_en.toLowerCase().includes(query)) }))
+      .filter(cat => cat.skills.length > 0);
+  }, [categories, skillSearch]);
+
+  // Mirrors the server-side character/length rules, so a bad entry is caught
+  // immediately instead of round-tripping to the API first.
+  const isValidSkillText = (name) => name.length >= 2 && name.length <= 50 && CUSTOM_SKILL_REGEX.test(name);
+
+  const addSkillSelection = (skillId) => {
+    if (selectedSkills.some(s => s.skillId === skillId)) return;
+    setSelectedSkills(prev => [...prev, { skillId, proficiency: 'Intermediate' }]);
+    const ownerCategory = categories.find(cat => cat.skills.some(sk => sk.id === skillId));
+    if (ownerCategory?.subjectArea) {
+      setExpandedAreas(prev => ({ ...prev, [ownerCategory.subjectArea.id]: true }));
+    }
+  };
+
+  const handleAddCustomSkill = () => {
+    const trimmed = customInput.trim().replace(/\s+/g, ' ');
+    if (!trimmed) return;
+
+    if (!isValidSkillText(trimmed)) {
+      setError(t('studentDashboard.error_invalid_skill_chars'));
+      return;
+    }
+    setError('');
+
+    // Exact case-insensitive match to a real skill: select it instead of creating
+    // a near-duplicate custom tag (e.g. typing "python" when "Python" exists).
+    const exactMatch = allSkills.find(s => s.name_en.toLowerCase() === trimmed.toLowerCase());
+    if (exactMatch) {
+      addSkillSelection(exactMatch.id);
+      setCustomInput('');
+      return;
+    }
+
+    if (!customSkills.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
+      setCustomSkills([...customSkills, trimmed]);
+    }
+    setCustomInput('');
+  };
+
+  const handleUseSuggestedSkill = () => {
+    if (!nearestSkillSuggestion) return;
+    addSkillSelection(nearestSkillSuggestion.id);
+    setCustomInput('');
+  };
+
+  const handleRemoveCustomSkill = (skillName) => {
+    setCustomSkills(customSkills.filter(name => name !== skillName));
+  };
+
+  // 3. Submit the form (Profile + Skills)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage('');
+    setError('');
+
+    const token = localStorage.getItem('token');
+    const config = { headers: { Authorization: `Bearer ${token}` } };
+
+    try {
+      // Step 1: Save the Profile Details
+      if (profile) {
+        // UPDATE (PUT)
+        await axios.put('http://localhost:5000/api/student/profile', formData, config);
+      } else {
+        // CREATE (POST)
+        const dataToSubmit = { ...formData, graduationYear: parseInt(formData.graduationYear) };
+        await axios.post('http://localhost:5000/api/student/profile', dataToSubmit, config);
+      }
+
+      // Step 2: Save the Skills (Only works if they have a profile now)
+      await axios.post(
+        'http://localhost:5000/api/skills/save',
+        { standardSkills: selectedSkills, customSkills },
+        config
+      );
+
+      // Step 3: Refresh local data to show the updates
+      const refreshedProfile = await axios.get('http://localhost:5000/api/student/profile', config);
+      setProfile(refreshedProfile.data);
+
+      setMessage(t('studentDashboard.success_save'));
+      setIsEditing(false);
+    } catch (err) {
+      setError(err.response?.data?.message || t('studentDashboard.error_save'));
+    }
+  };
+
+  if (loading) return <h3 style={{ textAlign: 'center' }}>{t('studentDashboard.loading')}</h3>;
+
+  const avatar = (size) => (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      {profile?.photoUrl ? (
+        <img
+          src={profile.photoUrl}
+          alt={profile.fullName}
+          style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', border: '3px solid white', boxShadow: '0 0 0 1px #e2e8f0' }}
+        />
+      ) : (
+        <div style={{
+          width: size, height: size, borderRadius: '50%', backgroundColor: '#3182ce', color: 'white',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size / 2.6, fontWeight: 'bold',
+          border: '3px solid white', boxShadow: '0 0 0 1px #e2e8f0'
+        }}>
+          {initials(formData.fullName) || '🎓'}
+        </div>
+      )}
+      <button
+        type="button"
+        onClick={() => photoInputRef.current?.click()}
+        disabled={uploadingPhoto}
+        title={t('studentDashboard.change_photo')}
+        style={{
+          position: 'absolute', bottom: 0, insetInlineEnd: 0, width: '30px', height: '30px', borderRadius: '50%',
+          backgroundColor: '#2d3748', color: 'white', border: '2px solid white', cursor: uploadingPhoto ? 'wait' : 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px'
+        }}
+      >
+        {uploadingPhoto ? '…' : '📷'}
+      </button>
+      <input ref={photoInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoSelect} style={{ display: 'none' }} />
+    </div>
+  );
+
+  const renderCategoryBlock = (cat) => (
+    <div key={cat.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '15px', backgroundColor: '#f8fafc' }}>
+      <h5 style={{ margin: '0 0 10px 0', color: '#334155' }}>{localizedCategoryName(cat, i18n.language)}</h5>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {cat.skills.map(skill => {
+          const selected = selectedSkills.find(s => s.skillId === skill.id);
+          return (
+            <div key={skill.id} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', minWidth: '180px' }}>
+                <input type="checkbox" checked={Boolean(selected)} onChange={() => toggleSkill(skill.id)} />
+                <span>{skill.name_en}</span>
+              </label>
+              {selected && (
+                <select value={selected.proficiency} onChange={(e) => updateProficiency(skill.id, e.target.value)} style={{ padding: '4px', borderRadius: '4px' }}>
+                  {PROFICIENCY_LEVELS.map(level => (
+                    <option key={level} value={level}>{proficiencyLabel(level)}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: '760px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <h2 style={{ margin: 0 }}>{t('studentDashboard.heading')}</h2>
+
+      {message && <p style={{ color: 'green', fontWeight: 'bold', margin: 0 }}>{message}</p>}
+      {error && <p style={{ color: 'red', fontWeight: 'bold', margin: 0 }}>{error}</p>}
+      {photoError && <p style={{ color: 'red', fontWeight: 'bold', margin: 0 }}>{photoError}</p>}
+
+      {/* VIEW MODE */}
+      {profile && !isEditing ? (
+        <>
+          {/* PROFILE HEADER */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
+              {avatar(88)}
+              <div style={{ flex: 1, minWidth: '200px' }}>
+                <h1 style={{ margin: '0 0 4px 0', fontSize: '22px', color: '#1a202c' }}>{profile.fullName}</h1>
+                <div style={{ color: '#718096', fontSize: '14px' }}>{profile.university} · {profile.fieldOfStudy}</div>
+                {uploadingPhoto && <div style={{ fontSize: '12px', color: '#a0aec0', marginTop: '4px' }}>{t('studentDashboard.uploading_photo')}</div>}
+              </div>
+              <button onClick={() => setIsEditing(true)} style={{ padding: '9px 18px', cursor: 'pointer', backgroundColor: '#edf2f7', color: '#2d3748', border: '1px solid #e2e8f0', borderRadius: '8px', fontWeight: '600', fontSize: '13px' }}>
+                ✏️ {t('studentDashboard.edit_profile')}
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '18px', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #edf2f7' }}>
+              <MetaRow icon="🏫" label={t('studentDashboard.university_label')} value={profile.university} />
+              <MetaRow icon="📚" label={t('studentDashboard.major_label')} value={profile.fieldOfStudy} />
+              <MetaRow icon="🎓" label={t('studentDashboard.class_of_label')} value={profile.graduationYear} />
+            </div>
+
+            {profile.bio && (
+              <p style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #edf2f7', color: '#4a5568', fontSize: '14px', lineHeight: '1.7' }}>{profile.bio}</p>
+            )}
+
+            {(profile.linkedinUrl || profile.githubUrl || profile.portfolioUrl || profile.resumeUrl) && (
+              <div style={{ display: 'flex', gap: '10px', marginTop: '18px', flexWrap: 'wrap' }}>
+                {profile.linkedinUrl && <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 LinkedIn</a>}
+                {profile.githubUrl && <a href={profile.githubUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 GitHub</a>}
+                {profile.portfolioUrl && <a href={profile.portfolioUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 Portfolio</a>}
+                {profile.resumeUrl && <a href={profile.resumeUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', fontWeight: '600', color: '#2f855a', textDecoration: 'none', backgroundColor: '#f0fff4', padding: '6px 14px', borderRadius: '20px' }}>📄 {t('studentDashboard.view_resume')}</a>}
+              </div>
+            )}
+          </div>
+
+          {/* SKILLS */}
+          <div style={cardStyle}>
+            <h3 style={sectionHeadingStyle} ref={skillsSectionRef}>🧩 {t('studentDashboard.my_skills_heading')}</h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {profile.skills && profile.skills.length > 0 ? (
+                profile.skills.map((item) => (
+                  <span key={item.id} style={{ backgroundColor: '#e7f3ff', color: '#0056b3', padding: '6px 12px', borderRadius: '20px', fontSize: '13px', border: '1px solid #b8daff' }}>
+                    <strong>{item.skill.name_en}</strong> <span style={{ fontSize: '11px', color: '#666' }}>({proficiencyLabel(item.proficiency)})</span>
+                  </span>
+                ))
+              ) : (
+                <p style={{ color: '#a0aec0', fontSize: '14px', width: '100%', margin: 0 }}>{t('studentDashboard.no_standard_skills')}</p>
+              )}
+
+              {profile.customSkills && profile.customSkills.map((cs) => (
+                <span key={cs.id} style={{ backgroundColor: '#fff3cd', color: '#856404', padding: '6px 12px', borderRadius: '20px', fontSize: '13px', border: '1px solid #ffeeba' }}>
+                  {cs.name} <em>{t('studentDashboard.custom_label')}</em>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* APPLICATIONS */}
+          <div style={cardStyle}>
+            <h3 style={sectionHeadingStyle} ref={applicationsSectionRef}>📄 {t('studentDashboard.my_applications_heading')}</h3>
+            {applications.length === 0 ? (
+              <p style={{ color: '#a0aec0', fontSize: '14px', margin: 0 }}>
+                {t('studentDashboard.no_applications')} <Link to="/jobs" style={{ color: '#3182ce' }}>{t('studentDashboard.browse_jobs_link')}</Link>.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {applications.map(app => (
+                  <div key={app.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <div>
+                      <strong style={{ color: '#1a202c' }}>{app.jobPost.title}</strong>
+                      <div style={{ fontSize: '13px', color: '#718096' }}>{app.jobPost.hrProfile?.companyName}</div>
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#856404', backgroundColor: '#fff3cd', padding: '4px 10px', borderRadius: '12px' }}>
+                      {app.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        /* FORM MODE */
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <p style={{ margin: 0, color: '#718096' }}>{profile ? t('studentDashboard.welcome_update') : t('studentDashboard.welcome_create')}</p>
+
+          {/* PHOTO */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+              {avatar(80)}
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: '#4a5568' }}>{t('studentDashboard.change_photo')}</div>
+                <div style={{ fontSize: '12px', color: '#a0aec0', marginTop: '2px' }}>{t('studentDashboard.photo_hint')}</div>
+                {uploadingPhoto && <div style={{ fontSize: '12px', color: '#3182ce', marginTop: '2px' }}>{t('studentDashboard.uploading_photo')}</div>}
+              </div>
+            </div>
+          </div>
+
+          {/* RESUME / CV (optional; auto-attaches to job applications) */}
+          <div style={cardStyle}>
+            <h3 style={sectionHeadingStyle}>📄 {t('studentDashboard.section_resume')} <span style={{ fontWeight: 'normal', color: '#a0aec0', fontSize: '13px' }}>{t('common.optional')}</span></h3>
+            {resumeError && <p style={{ color: 'red', fontSize: '13px', marginTop: 0 }}>{resumeError}</p>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => resumeInputRef.current?.click()}
+                disabled={uploadingResume}
+                style={{ padding: '10px 18px', backgroundColor: '#edf2f7', color: '#2d3748', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingResume ? 'wait' : 'pointer', fontWeight: '600', fontSize: '13px' }}
+              >
+                {profile?.resumeUrl ? t('studentDashboard.change_resume') : t('studentDashboard.upload_resume')}
+              </button>
+              {profile?.resumeUrl && (
+                <>
+                  <a href={profile.resumeUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#3182ce', fontWeight: '600' }}>{t('studentDashboard.view_resume')}</a>
+                  <button type="button" onClick={handleRemoveResume} style={{ background: 'none', border: 'none', color: '#e53e3e', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+                    {t('studentDashboard.remove_resume')}
+                  </button>
+                </>
+              )}
+              <input ref={resumeInputRef} type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleResumeSelect} style={{ display: 'none' }} />
+            </div>
+            <div style={{ fontSize: '12px', color: '#a0aec0', marginTop: '10px' }}>
+              {uploadingResume ? t('studentDashboard.uploading_resume') : !profile?.resumeUrl ? t('studentDashboard.no_resume') : t('studentDashboard.resume_hint')}
+            </div>
+          </div>
+
+          {/* BASIC INFO */}
+          <div style={cardStyle}>
+            <h3 style={sectionHeadingStyle}>📋 {t('studentDashboard.section_basic_info')}</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={labelStyle}>{t('studentDashboard.full_name_placeholder')}</label>
+                <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>{t('studentDashboard.university_placeholder')}</label>
+                <input type="text" name="university" value={formData.university} onChange={handleChange} required style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>{t('studentDashboard.field_of_study_placeholder')}</label>
+                <input type="text" name="fieldOfStudy" value={formData.fieldOfStudy} onChange={handleChange} required style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>{t('studentDashboard.graduation_year_placeholder')}</label>
+                <input type="number" name="graduationYear" value={formData.graduationYear} onChange={handleChange} required style={inputStyle} />
+              </div>
+            </div>
+          </div>
+
+          {/* ABOUT */}
+          <div style={cardStyle}>
+            <h3 style={sectionHeadingStyle}>📝 {t('studentDashboard.section_about')}</h3>
+            <textarea name="bio" placeholder={t('studentDashboard.bio_placeholder')} value={formData.bio || ''} onChange={handleChange} rows="4" style={{ ...inputStyle, resize: 'vertical' }} />
+          </div>
+
+          {/* LINKS */}
+          <div style={cardStyle}>
+            <h3 style={sectionHeadingStyle}>🔗 {t('studentDashboard.section_links')}</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <input type="url" name="linkedinUrl" placeholder={t('studentDashboard.linkedin_placeholder')} value={formData.linkedinUrl || ''} onChange={handleChange} style={inputStyle} />
+              <input type="url" name="githubUrl" placeholder={t('studentDashboard.github_placeholder')} value={formData.githubUrl || ''} onChange={handleChange} style={inputStyle} />
+              <input type="url" name="portfolioUrl" placeholder={t('studentDashboard.portfolio_placeholder')} value={formData.portfolioUrl || ''} onChange={handleChange} style={inputStyle} />
+            </div>
+          </div>
+
+          {/* SKILLS SELECTION */}
+          <div style={cardStyle} ref={skillsSectionRef}>
+            <h3 style={sectionHeadingStyle}>🧩 {t('studentDashboard.select_skills_heading')}</h3>
+
+            <input
+              type="text"
+              placeholder={t('studentDashboard.skills_search_placeholder')}
+              value={skillSearch}
+              onChange={(e) => setSkillSearch(e.target.value)}
+              style={{ ...inputStyle, marginBottom: '14px' }}
+            />
+
+            {skillSearchResults ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {skillSearchResults.length === 0 ? (
+                  <p style={{ color: '#a0aec0', fontSize: '14px', margin: 0 }}>{t('studentDashboard.skills_search_empty')}</p>
+                ) : (
+                  skillSearchResults.map(renderCategoryBlock)
+                )}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {groupedBySubjectArea.map(({ area, categories: areaCategories }) => {
+                  const isOpen = Boolean(expandedAreas[area.id]);
+                  const count = selectedCountInArea(areaCategories);
+                  return (
+                    <div key={area.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+                      <button
+                        type="button"
+                        onClick={() => toggleArea(area.id)}
+                        style={{
+                          width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          padding: '14px 16px', background: isOpen ? '#ebf8ff' : '#f8fafc', border: 'none', cursor: 'pointer', textAlign: 'start'
+                        }}
+                      >
+                        <span style={{ fontWeight: '600', color: '#1a202c', fontSize: '14px' }}>{localizedCategoryName(area, i18n.language)}</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          {count > 0 && (
+                            <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#22543d', backgroundColor: '#c6f6d5', padding: '2px 9px', borderRadius: '10px' }}>{count}</span>
+                          )}
+                          <span style={{ fontSize: '12px', color: '#a0aec0' }}>{isOpen ? '▲' : '▼'}</span>
+                        </span>
+                      </button>
+                      {isOpen && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', backgroundColor: 'white' }}>
+                          {areaCategories.map(renderCategoryBlock)}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* CUSTOM SKILL ENTRY */}
+            <h4 style={{ marginTop: '18px', marginBottom: '10px', fontSize: '14px', color: '#1a202c' }}>{t('studentDashboard.manual_skill_heading')}</h4>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input type="text" placeholder={t('studentDashboard.manual_skill_placeholder')} value={customInput} onChange={(e) => setCustomInput(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
+              <button type="button" onClick={handleAddCustomSkill} style={{ padding: '10px 20px', backgroundColor: '#4a5568', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>{t('studentDashboard.add')}</button>
+            </div>
+
+            {nearestSkillSuggestion && (
+              <div style={{ marginTop: '8px', fontSize: '13px', color: '#718096' }}>
+                {t('studentDashboard.did_you_mean')} <strong>{nearestSkillSuggestion.name_en}</strong>?{' '}
+                <button type="button" onClick={handleUseSuggestedSkill} style={{ background: 'none', border: 'none', color: '#3182ce', fontWeight: '600', cursor: 'pointer', padding: 0, fontSize: '13px' }}>
+                  {t('studentDashboard.use_this_skill')}
+                </button>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
+              {customSkills.map(skillName => (
+                <span key={skillName} style={{ backgroundColor: '#edf2f7', padding: '6px 12px', borderRadius: '16px', display: 'flex', gap: '6px', fontSize: '13px' }}>
+                  {skillName}
+                  <button type="button" onClick={() => handleRemoveCustomSkill(skillName)} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}>×</button>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button type="submit" style={{ padding: '12px 20px', backgroundColor: '#3182ce', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', flex: 1, fontWeight: 'bold', fontSize: '15px' }}>
+              {profile ? t('studentDashboard.save_changes') : t('studentDashboard.create_profile')}
+            </button>
+            {profile && (
+              <button type="button" onClick={() => setIsEditing(false)} style={{ padding: '12px 20px', backgroundColor: '#edf2f7', color: '#4a5568', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>{t('studentDashboard.cancel')}</button>
+            )}
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
+
+export default StudentDashboard;
