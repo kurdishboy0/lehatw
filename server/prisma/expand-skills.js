@@ -18,7 +18,17 @@ const EXPANSIONS = {
     { en: 'TensorFlow', ar: 'TensorFlow', ckb: 'TensorFlow' },
     { en: 'PyTorch', ar: 'PyTorch', ckb: 'PyTorch' },
     { en: 'Neural Networks', ar: 'الشبكات العصبية', ckb: 'تۆڕی عەسبی' },
-    { en: 'Reinforcement Learning', ar: 'التعلم المعزز', ckb: 'فێربوونی بەهێزکراو' }
+    { en: 'Reinforcement Learning', ar: 'التعلم المعزز', ckb: 'فێربوونی بەهێزکراو' },
+    { en: 'Machine Learning', ar: 'تعلم الآلة', ckb: 'فێربوونی ئامێر' },
+    { en: 'Deep Learning', ar: 'التعلم العميق', ckb: 'فێربوونی قووڵ' },
+    { en: 'Supervised Learning', ar: 'التعلم الخاضع للإشراف', ckb: 'فێربوونی سەرپەرشتیکراو' },
+    { en: 'Unsupervised Learning', ar: 'التعلم غير الخاضع للإشراف', ckb: 'فێربوونی بەبێ سەرپەرشتی' },
+    { en: 'Computer Vision', ar: 'الرؤية الحاسوبية', ckb: 'بینینی کۆمپیوتەری' },
+    { en: 'Scikit-learn', ar: 'Scikit-learn', ckb: 'Scikit-learn' },
+    { en: 'Feature Engineering', ar: 'هندسة الخصائص', ckb: 'ئەندازیاری تایبەتمەندی' },
+    { en: 'Model Deployment (MLOps)', ar: 'نشر النماذج (MLOps)', ckb: 'بڵاوکردنەوەی مۆدێل (MLOps)' },
+    { en: 'Large Language Models (LLMs)', ar: 'نماذج اللغة الكبيرة', ckb: 'مۆدێلی گەورەی زمان (LLM)' },
+    { en: 'Generative AI', ar: 'الذكاء الاصطناعي التوليدي', ckb: 'زیرەکی دەستکردی بەرهەمهێنەر' }
   ],
   'Server Administration': [
     { en: 'Linux Administration', ar: 'إدارة لينكس', ckb: 'کارگێڕی لینەکس' },

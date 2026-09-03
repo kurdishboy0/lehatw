@@ -69,12 +69,12 @@ function UserMenu({ user, onLogout }) {
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
           background: 'none', border: 'none', cursor: 'pointer',
           padding: '6px 12px', fontSize: '11px', fontWeight: '600',
-          color: open ? '#3182ce' : '#4a5568', minWidth: '56px'
+          color: open ? '#1B2A4A' : '#4a5568', minWidth: '56px'
         }}
       >
         <span style={{
           width: '22px', height: '22px', borderRadius: '50%',
-          backgroundColor: '#3182ce', color: 'white',
+          backgroundColor: '#1B2A4A', color: 'white',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: '11px', fontWeight: 'bold'
         }}>

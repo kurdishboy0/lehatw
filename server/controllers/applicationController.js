@@ -1,4 +1,5 @@
 const prisma = require('../db');
+const { notifyUser } = require('../utils/notify');
 
 // 1. Student applies to a job post
 const applyToJob = async (req, res) => {
@@ -9,7 +10,10 @@ const applyToJob = async (req, res) => {
 
     const { jobPostId, coverLetter } = req.body;
 
-    const job = await prisma.jobPost.findUnique({ where: { id: Number(jobPostId) } });
+    const job = await prisma.jobPost.findUnique({
+      where: { id: Number(jobPostId) },
+      include: { hrProfile: { select: { userId: true, companyName: true } } }
+    });
     if (!job || !job.isActive) {
       return res.status(404).json({ message: "Job post not found or no longer active." });
     }
@@ -18,7 +22,7 @@ const applyToJob = async (req, res) => {
     // already on file in the student's profile, if any.
     let cvUrl = null;
     if (req.file) {
-      cvUrl = `http://localhost:5000/uploads/resumes/${req.file.filename}`;
+      cvUrl = `/uploads/resumes/${req.file.filename}`;
     } else {
       const profile = await prisma.studentProfile.findUnique({ where: { userId: req.user.id }, select: { resumeUrl: true } });
       cvUrl = profile?.resumeUrl || null;
@@ -35,6 +39,19 @@ const applyToJob = async (req, res) => {
         coverLetter: coverLetter || null,
         cvUrl: cvUrl || null
       }
+    });
+
+    notifyUser(job.hrProfile.userId, {
+      type: 'APPLICATION_RECEIVED',
+      title: 'New application received',
+      body: `A student applied to "${job.title}".`,
+      link: `/hr-dashboard`
+    });
+    notifyUser(req.user.id, {
+      type: 'APPLICATION_SUBMITTED',
+      title: 'Application submitted',
+      body: `Your application to "${job.title}" at ${job.hrProfile.companyName} was sent.`,
+      link: `/student-dashboard`
     });
 
     res.status(201).json({ message: "Application submitted!", application });

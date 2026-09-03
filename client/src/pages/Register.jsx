@@ -9,6 +9,7 @@ function Register() {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
@@ -27,14 +28,14 @@ function Register() {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/auth/register', {
+      await axios.post('/api/auth/register', {
         email: email,
         password: password,
-        role: 'STUDENT'
+        role: 'STUDENT',
+        personalPhone: phone
       });
 
-      alert(t('register.success'));
-      navigate('/login');
+      navigate(`/verify-phone?email=${encodeURIComponent(email)}`);
     } catch (err) {
       console.error("Registration Error:", err);
       setError(err.response?.data?.message || t('register.error_default'));
@@ -45,7 +46,7 @@ function Register() {
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await axios.post('http://localhost:5000/api/auth/google', {
+        const res = await axios.post('/api/auth/google', {
           token: tokenResponse.access_token,
         });
 
@@ -81,14 +82,29 @@ function Register() {
       {error && <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}>{error}</p>}
 
       <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
-        <input
-          type="email"
-          placeholder={t('register.email_placeholder')}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{ padding: '12px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0' }}
-        />
+        <div className="field-wrap">
+          <input
+            type="email"
+            placeholder={t('register.email_placeholder')}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={{ padding: '12px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%', boxSizing: 'border-box' }}
+          />
+          <span className="required-asterisk">*</span>
+        </div>
+
+        <div className="field-wrap">
+          <input
+            type="tel"
+            placeholder={t('register.phone_placeholder')}
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+            style={{ padding: '12px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%', boxSizing: 'border-box' }}
+          />
+          <span className="required-asterisk">*</span>
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
           <div style={{ position: 'relative', display: 'flex' }}>
@@ -100,6 +116,7 @@ function Register() {
               required
               style={{ padding: '12px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%', boxSizing: 'border-box' }}
             />
+            <span style={{ position: 'absolute', insetInlineEnd: '40px', top: '12px', color: '#e53e3e', fontWeight: '700', fontSize: '15px', pointerEvents: 'none' }}>*</span>
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}

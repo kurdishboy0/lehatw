@@ -66,7 +66,7 @@ function JobDetail() {
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/jobs/${jobId}`);
+        const res = await axios.get(`/api/jobs/${jobId}`);
         setJob(res.data);
       } catch (err) {
         console.error(err);
@@ -80,7 +80,7 @@ function JobDetail() {
 
   useEffect(() => {
     if (user?.role !== 'STUDENT') return;
-    axios.get('http://localhost:5000/api/student/profile', { headers: authHeader() })
+    axios.get('/api/student/profile', { headers: authHeader() })
       .then(res => setProfileResumeUrl(res.data.resumeUrl || null))
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount, `user` is stable for the page's lifetime
@@ -94,7 +94,7 @@ function JobDetail() {
       form.append('coverLetter', coverLetter);
       if (cvFile) form.append('cv', cvFile);
 
-      await axios.post('http://localhost:5000/api/applications', form, {
+      await axios.post('/api/applications', form, {
         headers: { ...authHeader(), 'Content-Type': 'multipart/form-data' }
       });
       setApplyStatus(t('jobDetail.application_submitted'));
@@ -111,7 +111,7 @@ function JobDetail() {
 
   return (
     <div style={{ maxWidth: '900px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <Link to="/jobs" style={{ color: '#3182ce', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
+      <Link to="/jobs" style={{ color: '#1B2A4A', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
         {t('jobDetail.back')}
       </Link>
 
@@ -134,7 +134,7 @@ function JobDetail() {
               <div style={metaLabelStyle}>{t('jobDetail.section_skills')}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
                 {job.skills.map(s => (
-                  <span key={s.skillId} style={{ backgroundColor: '#edf2f7', color: '#2b6cb0', fontSize: '12px', padding: '4px 10px', borderRadius: '12px' }}>
+                  <span key={s.skillId} style={{ backgroundColor: '#edf2f7', color: '#14213B', fontSize: '12px', padding: '4px 10px', borderRadius: '12px' }}>
                     {s.skill.name_en}
                   </span>
                 ))}
@@ -169,7 +169,7 @@ function JobDetail() {
 
             {!user ? (
               <p style={{ color: '#718096', fontSize: '14px' }}>
-                <Link to="/login" style={{ color: '#3182ce', fontWeight: '600', textDecoration: 'none' }}>{t('jobDetail.login_link')}</Link> {t('jobDetail.login_prompt')}
+                <Link to="/login" style={{ color: '#1B2A4A', fontWeight: '600', textDecoration: 'none' }}>{t('jobDetail.login_link')}</Link> {t('jobDetail.login_prompt')}
               </p>
             ) : user.role !== 'STUDENT' ? null : applying ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -185,7 +185,7 @@ function JobDetail() {
                   <div style={{ fontSize: '13px', color: '#2d3748', backgroundColor: '#f0fff4', border: '1px solid #c6f6d5', borderRadius: '6px', padding: '10px 12px' }}>
                     📄 {t('jobDetail.cv_using_profile')} <a href={profileResumeUrl} target="_blank" rel="noreferrer" style={{ color: '#2f855a', fontWeight: '600' }}>{t('jobDetail.cv_view')}</a>
                     {' · '}
-                    <button type="button" onClick={() => setUseDifferentCv(true)} style={{ background: 'none', border: 'none', color: '#3182ce', fontWeight: '600', cursor: 'pointer', padding: 0, fontSize: '13px' }}>
+                    <button type="button" onClick={() => setUseDifferentCv(true)} style={{ background: 'none', border: 'none', color: '#1B2A4A', fontWeight: '600', cursor: 'pointer', padding: 0, fontSize: '13px' }}>
                       {t('jobDetail.cv_upload_different')}
                     </button>
                   </div>
@@ -203,7 +203,7 @@ function JobDetail() {
                       {job.requiresCv ? t('jobDetail.cv_file_required') : t('jobDetail.cv_file_optional')}
                     </div>
                     {profileResumeUrl && (
-                      <button type="button" onClick={() => { setUseDifferentCv(false); setCvFile(null); }} style={{ background: 'none', border: 'none', color: '#3182ce', fontWeight: '600', cursor: 'pointer', padding: 0, fontSize: '13px', marginTop: '4px' }}>
+                      <button type="button" onClick={() => { setUseDifferentCv(false); setCvFile(null); }} style={{ background: 'none', border: 'none', color: '#1B2A4A', fontWeight: '600', cursor: 'pointer', padding: 0, fontSize: '13px', marginTop: '4px' }}>
                         {t('jobDetail.cv_use_profile_instead')}
                       </button>
                     )}
@@ -211,7 +211,7 @@ function JobDetail() {
                 )}
 
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <button onClick={submitApplication} style={{ padding: '10px 20px', backgroundColor: '#3182ce', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+                  <button onClick={submitApplication} style={{ padding: '10px 20px', backgroundColor: '#1B2A4A', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
                     {t('jobDetail.submit_application')}
                   </button>
                   <button onClick={() => setApplying(false)} style={{ padding: '10px 20px', backgroundColor: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
@@ -220,7 +220,7 @@ function JobDetail() {
                 </div>
               </div>
             ) : (
-              <button onClick={() => setApplying(true)} style={{ padding: '12px 28px', backgroundColor: '#3182ce', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px' }}>
+              <button onClick={() => setApplying(true)} style={{ padding: '12px 28px', backgroundColor: '#1B2A4A', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px' }}>
                 {t('jobDetail.apply_now')}
               </button>
             )}

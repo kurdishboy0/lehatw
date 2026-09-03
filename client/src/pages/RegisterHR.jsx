@@ -36,7 +36,7 @@ function RegisterHR() {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/auth/register', {
+      await axios.post('/api/auth/register', {
         email: email,
         password: password,
         role: 'HR',
@@ -62,15 +62,30 @@ function RegisterHR() {
       {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
 
       <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
-        <input type="text" placeholder={t('registerHr.company_name_placeholder')} value={companyName} onChange={(e) => setCompanyName(e.target.value)} required style={{ padding: '10px', fontSize: '16px' }} />
-        <input type="url" placeholder={t('registerHr.website_placeholder')} value={website} onChange={(e) => setWebsite(e.target.value)} required style={{ padding: '10px', fontSize: '16px' }} />
-        <input type="tel" placeholder={t('registerHr.phone_placeholder')} value={phone} onChange={(e) => setPhone(e.target.value)} required style={{ padding: '10px', fontSize: '16px' }} />
-        <input type="text" placeholder={t('registerHr.address_placeholder')} value={address} onChange={(e) => setAddress(e.target.value)} required style={{ padding: '10px', fontSize: '16px' }} />
-        <input type="text" placeholder={t('registerHr.tax_id_placeholder')} value={taxId} onChange={(e) => setTaxId(e.target.value)} style={{ padding: '10px', fontSize: '16px' }} />
+        <div className="field-wrap">
+          <input type="text" placeholder={t('registerHr.company_name_placeholder')} value={companyName} onChange={(e) => setCompanyName(e.target.value)} required style={{ padding: '10px', fontSize: '16px', width: '100%', boxSizing: 'border-box' }} />
+          <span className="required-asterisk">*</span>
+        </div>
+        <div className="field-wrap">
+          <input type="url" placeholder={t('registerHr.website_placeholder')} value={website} onChange={(e) => setWebsite(e.target.value)} required style={{ padding: '10px', fontSize: '16px', width: '100%', boxSizing: 'border-box' }} />
+          <span className="required-asterisk">*</span>
+        </div>
+        <div className="field-wrap">
+          <input type="tel" placeholder={t('registerHr.phone_placeholder')} value={phone} onChange={(e) => setPhone(e.target.value)} required style={{ padding: '10px', fontSize: '16px', width: '100%', boxSizing: 'border-box' }} />
+          <span className="required-asterisk">*</span>
+        </div>
+        <div className="field-wrap">
+          <input type="text" placeholder={t('registerHr.address_placeholder')} value={address} onChange={(e) => setAddress(e.target.value)} required style={{ padding: '10px', fontSize: '16px', width: '100%', boxSizing: 'border-box' }} />
+          <span className="required-asterisk">*</span>
+        </div>
+        <input type="text" placeholder={t('registerHr.tax_id_placeholder')} value={taxId} onChange={(e) => setTaxId(e.target.value)} style={{ padding: '10px', fontSize: '16px', width: '100%', boxSizing: 'border-box' }} />
 
         <hr style={{ border: '0.5px solid #eee', width: '100%' }} />
 
-        <input type="email" placeholder={t('registerHr.email_placeholder')} value={email} onChange={(e) => setEmail(e.target.value)} required style={{ padding: '10px', fontSize: '16px' }} />
+        <div className="field-wrap">
+          <input type="email" placeholder={t('registerHr.email_placeholder')} value={email} onChange={(e) => setEmail(e.target.value)} required style={{ padding: '10px', fontSize: '16px', width: '100%', boxSizing: 'border-box' }} />
+          <span className="required-asterisk">*</span>
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
           <div style={{ position: 'relative', display: 'flex' }}>
@@ -82,6 +97,7 @@ function RegisterHR() {
               required
               style={{ padding: '10px', fontSize: '16px', width: '100%', boxSizing: 'border-box' }}
             />
+            <span style={{ position: 'absolute', right: '40px', top: '50%', transform: 'translateY(-50%)', color: '#e53e3e', fontWeight: '700', fontSize: '15px', pointerEvents: 'none' }}>*</span>
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -122,7 +138,7 @@ function RegisterHR() {
           </span>
         </div>
 
-        <button type="submit" style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#0056b3', color: 'white', border: 'none' }}>
+        <button type="submit" style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#1B2A4A', color: 'white', border: 'none' }}>
           {t('registerHr.submit')}
         </button>
       </form>

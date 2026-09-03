@@ -19,8 +19,8 @@ const sectionHeadingStyle = {
   paddingBottom: '10px', borderBottom: '2px solid #ebf4ff'
 };
 
-const inputStyle = { padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '14px', width: '100%', boxSizing: 'border-box' };
-const labelStyle = { display: 'block', fontSize: '13px', fontWeight: '600', color: '#4a5568', marginBottom: '6px' };
+const inputStyle = { padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '15px', width: '100%', boxSizing: 'border-box' };
+const labelStyle = { display: 'block', fontSize: '14px', fontWeight: '600', color: '#4a5568', marginBottom: '6px' };
 
 function initials(name) {
   return (name || '').trim().split(/\s+/).slice(0, 2).map(w => w.charAt(0).toUpperCase()).join('');
@@ -32,8 +32,8 @@ function MetaRow({ icon, label, value }) {
     <div style={{ display: 'flex', gap: '10px' }}>
       <span style={{ fontSize: '18px' }}>{icon}</span>
       <div>
-        <div style={{ fontSize: '12px', color: '#718096', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.03em' }}>{label}</div>
-        <div style={{ fontSize: '14px', color: '#2d3748', fontWeight: '600', marginTop: '2px' }}>{value}</div>
+        <div style={{ fontSize: '13px', color: '#718096', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.03em' }}>{label}</div>
+        <div style={{ fontSize: '15px', color: '#2d3748', fontWeight: '600', marginTop: '2px' }}>{value}</div>
       </div>
     </div>
   );
@@ -143,7 +143,7 @@ function StudentDashboard() {
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
       try {
-        const appsRes = await axios.get('http://localhost:5000/api/applications/mine', config);
+        const appsRes = await axios.get('/api/applications/mine', config);
         setApplications(appsRes.data);
       } catch (err) {
         console.error("Failed to load applications:", err);
@@ -151,12 +151,12 @@ function StudentDashboard() {
 
       try {
         // A. Always fetch the master skill categories
-        const skillsRes = await axios.get('http://localhost:5000/api/skills', config);
+        const skillsRes = await axios.get('/api/skills', config);
         setCategories(skillsRes.data);
 
         // B. Try to fetch the user's profile
         try {
-          const profileRes = await axios.get('http://localhost:5000/api/student/profile', config);
+          const profileRes = await axios.get('/api/student/profile', config);
           const profileData = profileRes.data;
 
           setProfile(profileData);
@@ -236,7 +236,7 @@ function StudentDashboard() {
     try {
       const form = new FormData();
       form.append('photo', file);
-      const res = await axios.post('http://localhost:5000/api/student/profile/photo', form, {
+      const res = await axios.post('/api/student/profile/photo', form, {
         headers: { ...authHeader(), 'Content-Type': 'multipart/form-data' }
       });
       setProfile((prev) => (prev ? { ...prev, photoUrl: res.data.photoUrl } : prev));
@@ -258,7 +258,7 @@ function StudentDashboard() {
     try {
       const form = new FormData();
       form.append('resume', file);
-      const res = await axios.post('http://localhost:5000/api/student/profile/resume', form, {
+      const res = await axios.post('/api/student/profile/resume', form, {
         headers: { ...authHeader(), 'Content-Type': 'multipart/form-data' }
       });
       setProfile((prev) => (prev ? { ...prev, resumeUrl: res.data.resumeUrl } : prev));
@@ -272,7 +272,7 @@ function StudentDashboard() {
   const handleRemoveResume = async () => {
     setResumeError('');
     try {
-      await axios.delete('http://localhost:5000/api/student/profile/resume', { headers: authHeader() });
+      await axios.delete('/api/student/profile/resume', { headers: authHeader() });
       setProfile((prev) => (prev ? { ...prev, resumeUrl: null } : prev));
     } catch (err) {
       setResumeError(err.response?.data?.message || t('studentDashboard.error_remove_resume'));
@@ -397,22 +397,22 @@ function StudentDashboard() {
       // Step 1: Save the Profile Details
       if (profile) {
         // UPDATE (PUT)
-        await axios.put('http://localhost:5000/api/student/profile', formData, config);
+        await axios.put('/api/student/profile', formData, config);
       } else {
         // CREATE (POST)
         const dataToSubmit = { ...formData, graduationYear: parseInt(formData.graduationYear) };
-        await axios.post('http://localhost:5000/api/student/profile', dataToSubmit, config);
+        await axios.post('/api/student/profile', dataToSubmit, config);
       }
 
       // Step 2: Save the Skills (Only works if they have a profile now)
       await axios.post(
-        'http://localhost:5000/api/skills/save',
+        '/api/skills/save',
         { standardSkills: selectedSkills, customSkills },
         config
       );
 
       // Step 3: Refresh local data to show the updates
-      const refreshedProfile = await axios.get('http://localhost:5000/api/student/profile', config);
+      const refreshedProfile = await axios.get('/api/student/profile', config);
       setProfile(refreshedProfile.data);
 
       setMessage(t('studentDashboard.success_save'));
@@ -449,7 +449,7 @@ function StudentDashboard() {
         style={{
           position: 'absolute', bottom: 0, insetInlineEnd: 0, width: '30px', height: '30px', borderRadius: '50%',
           backgroundColor: '#2d3748', color: 'white', border: '2px solid white', cursor: uploadingPhoto ? 'wait' : 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px'
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px'
         }}
       >
         {uploadingPhoto ? '…' : '📷'}
@@ -501,10 +501,10 @@ function StudentDashboard() {
               {avatar(88)}
               <div style={{ flex: 1, minWidth: '200px' }}>
                 <h1 style={{ margin: '0 0 4px 0', fontSize: '22px', color: '#1a202c' }}>{profile.fullName}</h1>
-                <div style={{ color: '#718096', fontSize: '14px' }}>{profile.university} · {profile.fieldOfStudy}</div>
-                {uploadingPhoto && <div style={{ fontSize: '12px', color: '#a0aec0', marginTop: '4px' }}>{t('studentDashboard.uploading_photo')}</div>}
+                <div style={{ color: '#718096', fontSize: '15px' }}>{profile.university} · {profile.fieldOfStudy}</div>
+                {uploadingPhoto && <div style={{ fontSize: '13px', color: '#a0aec0', marginTop: '4px' }}>{t('studentDashboard.uploading_photo')}</div>}
               </div>
-              <button onClick={() => setIsEditing(true)} style={{ padding: '9px 18px', cursor: 'pointer', backgroundColor: '#edf2f7', color: '#2d3748', border: '1px solid #e2e8f0', borderRadius: '8px', fontWeight: '600', fontSize: '13px' }}>
+              <button onClick={() => setIsEditing(true)} style={{ padding: '9px 18px', cursor: 'pointer', backgroundColor: '#edf2f7', color: '#2d3748', border: '1px solid #e2e8f0', borderRadius: '8px', fontWeight: '600', fontSize: '14px' }}>
                 ✏️ {t('studentDashboard.edit_profile')}
               </button>
             </div>
@@ -516,15 +516,15 @@ function StudentDashboard() {
             </div>
 
             {profile.bio && (
-              <p style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #edf2f7', color: '#4a5568', fontSize: '14px', lineHeight: '1.7' }}>{profile.bio}</p>
+              <p style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #edf2f7', color: '#4a5568', fontSize: '15px', lineHeight: '1.7' }}>{profile.bio}</p>
             )}
 
             {(profile.linkedinUrl || profile.githubUrl || profile.portfolioUrl || profile.resumeUrl) && (
               <div style={{ display: 'flex', gap: '10px', marginTop: '18px', flexWrap: 'wrap' }}>
-                {profile.linkedinUrl && <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 LinkedIn</a>}
-                {profile.githubUrl && <a href={profile.githubUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 GitHub</a>}
-                {profile.portfolioUrl && <a href={profile.portfolioUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 Portfolio</a>}
-                {profile.resumeUrl && <a href={profile.resumeUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', fontWeight: '600', color: '#2f855a', textDecoration: 'none', backgroundColor: '#f0fff4', padding: '6px 14px', borderRadius: '20px' }}>📄 {t('studentDashboard.view_resume')}</a>}
+                {profile.linkedinUrl && <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 LinkedIn</a>}
+                {profile.githubUrl && <a href={profile.githubUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 GitHub</a>}
+                {profile.portfolioUrl && <a href={profile.portfolioUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 Portfolio</a>}
+                {profile.resumeUrl && <a href={profile.resumeUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', fontWeight: '600', color: '#2f855a', textDecoration: 'none', backgroundColor: '#f0fff4', padding: '6px 14px', borderRadius: '20px' }}>📄 {t('studentDashboard.view_resume')}</a>}
               </div>
             )}
           </div>
@@ -535,16 +535,16 @@ function StudentDashboard() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {profile.skills && profile.skills.length > 0 ? (
                 profile.skills.map((item) => (
-                  <span key={item.id} style={{ backgroundColor: '#e7f3ff', color: '#0056b3', padding: '6px 12px', borderRadius: '20px', fontSize: '13px', border: '1px solid #b8daff' }}>
-                    <strong>{item.skill.name_en}</strong> <span style={{ fontSize: '11px', color: '#666' }}>({proficiencyLabel(item.proficiency)})</span>
+                  <span key={item.id} style={{ backgroundColor: '#e7f3ff', color: '#0056b3', padding: '6px 12px', borderRadius: '20px', fontSize: '14px', border: '1px solid #b8daff' }}>
+                    <strong>{item.skill.name_en}</strong> <span style={{ fontSize: '12px', color: '#666' }}>({proficiencyLabel(item.proficiency)})</span>
                   </span>
                 ))
               ) : (
-                <p style={{ color: '#a0aec0', fontSize: '14px', width: '100%', margin: 0 }}>{t('studentDashboard.no_standard_skills')}</p>
+                <p style={{ color: '#a0aec0', fontSize: '15px', width: '100%', margin: 0 }}>{t('studentDashboard.no_standard_skills')}</p>
               )}
 
               {profile.customSkills && profile.customSkills.map((cs) => (
-                <span key={cs.id} style={{ backgroundColor: '#fff3cd', color: '#856404', padding: '6px 12px', borderRadius: '20px', fontSize: '13px', border: '1px solid #ffeeba' }}>
+                <span key={cs.id} style={{ backgroundColor: '#fff3cd', color: '#856404', padding: '6px 12px', borderRadius: '20px', fontSize: '14px', border: '1px solid #ffeeba' }}>
                   {cs.name} <em>{t('studentDashboard.custom_label')}</em>
                 </span>
               ))}
@@ -555,7 +555,7 @@ function StudentDashboard() {
           <div style={cardStyle}>
             <h3 style={sectionHeadingStyle} ref={applicationsSectionRef}>📄 {t('studentDashboard.my_applications_heading')}</h3>
             {applications.length === 0 ? (
-              <p style={{ color: '#a0aec0', fontSize: '14px', margin: 0 }}>
+              <p style={{ color: '#a0aec0', fontSize: '15px', margin: 0 }}>
                 {t('studentDashboard.no_applications')} <Link to="/jobs" style={{ color: '#3182ce' }}>{t('studentDashboard.browse_jobs_link')}</Link>.
               </p>
             ) : (
@@ -564,9 +564,9 @@ function StudentDashboard() {
                   <div key={app.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                     <div>
                       <strong style={{ color: '#1a202c' }}>{app.jobPost.title}</strong>
-                      <div style={{ fontSize: '13px', color: '#718096' }}>{app.jobPost.hrProfile?.companyName}</div>
+                      <div style={{ fontSize: '14px', color: '#718096' }}>{app.jobPost.hrProfile?.companyName}</div>
                     </div>
-                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#856404', backgroundColor: '#fff3cd', padding: '4px 10px', borderRadius: '12px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#856404', backgroundColor: '#fff3cd', padding: '4px 10px', borderRadius: '12px' }}>
                       {app.status}
                     </span>
                   </div>
@@ -585,37 +585,37 @@ function StudentDashboard() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
               {avatar(80)}
               <div>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: '#4a5568' }}>{t('studentDashboard.change_photo')}</div>
-                <div style={{ fontSize: '12px', color: '#a0aec0', marginTop: '2px' }}>{t('studentDashboard.photo_hint')}</div>
-                {uploadingPhoto && <div style={{ fontSize: '12px', color: '#3182ce', marginTop: '2px' }}>{t('studentDashboard.uploading_photo')}</div>}
+                <div style={{ fontSize: '14px', fontWeight: '600', color: '#4a5568' }}>{t('studentDashboard.change_photo')}</div>
+                <div style={{ fontSize: '13px', color: '#a0aec0', marginTop: '2px' }}>{t('studentDashboard.photo_hint')}</div>
+                {uploadingPhoto && <div style={{ fontSize: '13px', color: '#3182ce', marginTop: '2px' }}>{t('studentDashboard.uploading_photo')}</div>}
               </div>
             </div>
           </div>
 
           {/* RESUME / CV (optional; auto-attaches to job applications) */}
           <div style={cardStyle}>
-            <h3 style={sectionHeadingStyle}>📄 {t('studentDashboard.section_resume')} <span style={{ fontWeight: 'normal', color: '#a0aec0', fontSize: '13px' }}>{t('common.optional')}</span></h3>
-            {resumeError && <p style={{ color: 'red', fontSize: '13px', marginTop: 0 }}>{resumeError}</p>}
+            <h3 style={sectionHeadingStyle}>📄 {t('studentDashboard.section_resume')} <span style={{ fontWeight: 'normal', color: '#a0aec0', fontSize: '14px' }}>{t('common.optional')}</span></h3>
+            {resumeError && <p style={{ color: 'red', fontSize: '14px', marginTop: 0 }}>{resumeError}</p>}
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 onClick={() => resumeInputRef.current?.click()}
                 disabled={uploadingResume}
-                style={{ padding: '10px 18px', backgroundColor: '#edf2f7', color: '#2d3748', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingResume ? 'wait' : 'pointer', fontWeight: '600', fontSize: '13px' }}
+                style={{ padding: '10px 18px', backgroundColor: '#edf2f7', color: '#2d3748', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingResume ? 'wait' : 'pointer', fontWeight: '600', fontSize: '14px' }}
               >
                 {profile?.resumeUrl ? t('studentDashboard.change_resume') : t('studentDashboard.upload_resume')}
               </button>
               {profile?.resumeUrl && (
                 <>
-                  <a href={profile.resumeUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#3182ce', fontWeight: '600' }}>{t('studentDashboard.view_resume')}</a>
-                  <button type="button" onClick={handleRemoveResume} style={{ background: 'none', border: 'none', color: '#e53e3e', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+                  <a href={profile.resumeUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', color: '#3182ce', fontWeight: '600' }}>{t('studentDashboard.view_resume')}</a>
+                  <button type="button" onClick={handleRemoveResume} style={{ background: 'none', border: 'none', color: '#e53e3e', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>
                     {t('studentDashboard.remove_resume')}
                   </button>
                 </>
               )}
               <input ref={resumeInputRef} type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleResumeSelect} style={{ display: 'none' }} />
             </div>
-            <div style={{ fontSize: '12px', color: '#a0aec0', marginTop: '10px' }}>
+            <div style={{ fontSize: '13px', color: '#a0aec0', marginTop: '10px' }}>
               {uploadingResume ? t('studentDashboard.uploading_resume') : !profile?.resumeUrl ? t('studentDashboard.no_resume') : t('studentDashboard.resume_hint')}
             </div>
           </div>
@@ -625,19 +625,19 @@ function StudentDashboard() {
             <h3 style={sectionHeadingStyle}>📋 {t('studentDashboard.section_basic_info')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div style={{ gridColumn: '1 / -1' }}>
-                <label style={labelStyle}>{t('studentDashboard.full_name_placeholder')}</label>
+                <label style={labelStyle}>{t('studentDashboard.full_name_placeholder')} <span style={{ color: '#e53e3e' }}>*</span></label>
                 <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required style={inputStyle} />
               </div>
               <div>
-                <label style={labelStyle}>{t('studentDashboard.university_placeholder')}</label>
+                <label style={labelStyle}>{t('studentDashboard.university_placeholder')} <span style={{ color: '#e53e3e' }}>*</span></label>
                 <input type="text" name="university" value={formData.university} onChange={handleChange} required style={inputStyle} />
               </div>
               <div>
-                <label style={labelStyle}>{t('studentDashboard.field_of_study_placeholder')}</label>
+                <label style={labelStyle}>{t('studentDashboard.field_of_study_placeholder')} <span style={{ color: '#e53e3e' }}>*</span></label>
                 <input type="text" name="fieldOfStudy" value={formData.fieldOfStudy} onChange={handleChange} required style={inputStyle} />
               </div>
               <div>
-                <label style={labelStyle}>{t('studentDashboard.graduation_year_placeholder')}</label>
+                <label style={labelStyle}>{t('studentDashboard.graduation_year_placeholder')} <span style={{ color: '#e53e3e' }}>*</span></label>
                 <input type="number" name="graduationYear" value={formData.graduationYear} onChange={handleChange} required style={inputStyle} />
               </div>
             </div>
@@ -674,7 +674,7 @@ function StudentDashboard() {
             {skillSearchResults ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {skillSearchResults.length === 0 ? (
-                  <p style={{ color: '#a0aec0', fontSize: '14px', margin: 0 }}>{t('studentDashboard.skills_search_empty')}</p>
+                  <p style={{ color: '#a0aec0', fontSize: '15px', margin: 0 }}>{t('studentDashboard.skills_search_empty')}</p>
                 ) : (
                   skillSearchResults.map(renderCategoryBlock)
                 )}
@@ -694,12 +694,12 @@ function StudentDashboard() {
                           padding: '14px 16px', background: isOpen ? '#ebf8ff' : '#f8fafc', border: 'none', cursor: 'pointer', textAlign: 'start'
                         }}
                       >
-                        <span style={{ fontWeight: '600', color: '#1a202c', fontSize: '14px' }}>{localizedCategoryName(area, i18n.language)}</span>
+                        <span style={{ fontWeight: '600', color: '#1a202c', fontSize: '15px' }}>{localizedCategoryName(area, i18n.language)}</span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           {count > 0 && (
-                            <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#22543d', backgroundColor: '#c6f6d5', padding: '2px 9px', borderRadius: '10px' }}>{count}</span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#22543d', backgroundColor: '#c6f6d5', padding: '2px 9px', borderRadius: '10px' }}>{count}</span>
                           )}
-                          <span style={{ fontSize: '12px', color: '#a0aec0' }}>{isOpen ? '▲' : '▼'}</span>
+                          <span style={{ fontSize: '13px', color: '#a0aec0' }}>{isOpen ? '▲' : '▼'}</span>
                         </span>
                       </button>
                       {isOpen && (
@@ -714,16 +714,16 @@ function StudentDashboard() {
             )}
 
             {/* CUSTOM SKILL ENTRY */}
-            <h4 style={{ marginTop: '18px', marginBottom: '10px', fontSize: '14px', color: '#1a202c' }}>{t('studentDashboard.manual_skill_heading')}</h4>
+            <h4 style={{ marginTop: '18px', marginBottom: '10px', fontSize: '15px', color: '#1a202c' }}>{t('studentDashboard.manual_skill_heading')}</h4>
             <div style={{ display: 'flex', gap: '10px' }}>
               <input type="text" placeholder={t('studentDashboard.manual_skill_placeholder')} value={customInput} onChange={(e) => setCustomInput(e.target.value)} style={{ ...inputStyle, flex: 1 }} />
               <button type="button" onClick={handleAddCustomSkill} style={{ padding: '10px 20px', backgroundColor: '#4a5568', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>{t('studentDashboard.add')}</button>
             </div>
 
             {nearestSkillSuggestion && (
-              <div style={{ marginTop: '8px', fontSize: '13px', color: '#718096' }}>
+              <div style={{ marginTop: '8px', fontSize: '14px', color: '#718096' }}>
                 {t('studentDashboard.did_you_mean')} <strong>{nearestSkillSuggestion.name_en}</strong>?{' '}
-                <button type="button" onClick={handleUseSuggestedSkill} style={{ background: 'none', border: 'none', color: '#3182ce', fontWeight: '600', cursor: 'pointer', padding: 0, fontSize: '13px' }}>
+                <button type="button" onClick={handleUseSuggestedSkill} style={{ background: 'none', border: 'none', color: '#3182ce', fontWeight: '600', cursor: 'pointer', padding: 0, fontSize: '14px' }}>
                   {t('studentDashboard.use_this_skill')}
                 </button>
               </div>
@@ -731,7 +731,7 @@ function StudentDashboard() {
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
               {customSkills.map(skillName => (
-                <span key={skillName} style={{ backgroundColor: '#edf2f7', padding: '6px 12px', borderRadius: '16px', display: 'flex', gap: '6px', fontSize: '13px' }}>
+                <span key={skillName} style={{ backgroundColor: '#edf2f7', padding: '6px 12px', borderRadius: '16px', display: 'flex', gap: '6px', fontSize: '14px' }}>
                   {skillName}
                   <button type="button" onClick={() => handleRemoveCustomSkill(skillName)} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}>×</button>
                 </span>

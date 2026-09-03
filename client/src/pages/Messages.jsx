@@ -14,7 +14,7 @@ function initials(name) {
 function Avatar({ name, size = 44 }) {
   return (
     <div style={{
-      width: size, height: size, borderRadius: '50%', backgroundColor: '#3182ce', color: 'white',
+      width: size, height: size, borderRadius: '50%', backgroundColor: '#1B2A4A', color: 'white',
       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size / 2.6, fontWeight: 'bold', flexShrink: 0
     }}>
       {initials(name) || '👤'}
@@ -39,7 +39,7 @@ function ConversationList({ conversations, loading, activeUserId, onSelect, t })
             onClick={() => onSelect(c.userId)}
             style={{
               display: 'flex', alignItems: 'center', gap: '12px', width: '100%', textAlign: 'start',
-              padding: '14px 20px', background: c.userId === activeUserId ? '#ebf8ff' : 'none', border: 'none',
+              padding: '14px 20px', background: c.userId === activeUserId ? '#FCF6E3' : 'none', border: 'none',
               borderBottom: '1px solid #f1f1f1', cursor: 'pointer'
             }}
           >
@@ -57,7 +57,7 @@ function ConversationList({ conversations, loading, activeUserId, onSelect, t })
             </div>
             {c.unreadCount > 0 && (
               <span style={{
-                backgroundColor: '#3182ce', color: 'white', fontSize: '11px', fontWeight: 'bold',
+                backgroundColor: '#1B2A4A', color: 'white', fontSize: '11px', fontWeight: 'bold',
                 borderRadius: '10px', padding: '2px 7px', minWidth: '18px', textAlign: 'center', flexShrink: 0
               }}>
                 {c.unreadCount}
@@ -81,7 +81,7 @@ function ThreadPane({ userId, onActivity, t }) {
 
   const fetchThread = useCallback(async (isInitial) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/messages/${userId}`, { headers: authHeader() });
+      const res = await axios.get(`/api/messages/${userId}`, { headers: authHeader() });
       setOtherUser(res.data.otherUser);
       setThreadMessages(res.data.messages);
       if (isInitial) setLoading(false);
@@ -113,7 +113,7 @@ function ThreadPane({ userId, onActivity, t }) {
     const content = draft.trim();
     setDraft('');
     try {
-      await axios.post('http://localhost:5000/api/messages', { recipientId: Number(userId), content }, { headers: authHeader() });
+      await axios.post('/api/messages', { recipientId: Number(userId), content }, { headers: authHeader() });
       fetchThread(false);
       onActivity();
     } catch (err) {
@@ -139,7 +139,7 @@ function ThreadPane({ userId, onActivity, t }) {
             <div key={msg.id} style={{ display: 'flex', justifyContent: mine ? 'flex-end' : 'flex-start' }}>
               <div style={{
                 maxWidth: '70%', padding: '10px 14px', borderRadius: '14px', fontSize: '14px',
-                backgroundColor: mine ? '#3182ce' : 'white', color: mine ? 'white' : '#2d3748',
+                backgroundColor: mine ? '#1B2A4A' : 'white', color: mine ? 'white' : '#2d3748',
                 border: mine ? 'none' : '1px solid #e2e8f0'
               }}>
                 {msg.content}
@@ -158,7 +158,7 @@ function ThreadPane({ userId, onActivity, t }) {
           placeholder={t('messages.thread_placeholder')}
           style={{ flex: 1, padding: '10px 14px', borderRadius: '20px', border: '1px solid #cbd5e0' }}
         />
-        <button type="submit" style={{ padding: '10px 22px', backgroundColor: '#3182ce', color: 'white', border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' }}>
+        <button type="submit" style={{ padding: '10px 22px', backgroundColor: '#1B2A4A', color: 'white', border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' }}>
           {t('messages.send')}
         </button>
       </form>
@@ -176,7 +176,7 @@ function Messages() {
 
   const fetchConversations = useCallback(async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/messages', { headers: authHeader() });
+      const res = await axios.get('/api/messages', { headers: authHeader() });
       setConversations(res.data);
     } catch (err) {
       console.error(err);

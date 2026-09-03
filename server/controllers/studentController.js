@@ -166,7 +166,7 @@ const uploadProfilePhoto = async (req, res) => {
       return res.status(404).json({ message: "Please create your profile before uploading a photo." });
     }
 
-    const photoUrl = `http://localhost:5000/uploads/student-photos/${req.file.filename}`;
+    const photoUrl = `/uploads/student-photos/${req.file.filename}`;
 
     const updatedProfile = await prisma.studentProfile.update({
       where: { userId: req.user.id },
@@ -201,7 +201,7 @@ const uploadResume = async (req, res) => {
       return res.status(404).json({ message: "Please create your profile before uploading a resume." });
     }
 
-    const resumeUrl = `http://localhost:5000/uploads/resumes/${req.file.filename}`;
+    const resumeUrl = `/uploads/resumes/${req.file.filename}`;
 
     const updatedProfile = await prisma.studentProfile.update({
       where: { userId: req.user.id },

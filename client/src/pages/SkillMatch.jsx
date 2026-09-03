@@ -31,7 +31,7 @@ function Avatar({ photoUrl, fullName, size = 44 }) {
   }
   return (
     <div style={{
-      width: size, height: size, borderRadius: '50%', backgroundColor: '#3182ce', color: 'white',
+      width: size, height: size, borderRadius: '50%', backgroundColor: '#1B2A4A', color: 'white',
       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size / 2.6, fontWeight: 'bold', flexShrink: 0
     }}>
       {initials(fullName) || '🎓'}
@@ -66,7 +66,7 @@ function StudentCard({ student, t, scoreLabel }) {
       {(skillNames.length > 0 || customNames.length > 0) && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
           {skillNames.map((name, i) => (
-            <span key={`s-${i}`} style={{ fontSize: '11px', backgroundColor: '#ebf8ff', color: '#2b6cb0', padding: '4px 10px', borderRadius: '12px' }}>{name}</span>
+            <span key={`s-${i}`} style={{ fontSize: '11px', backgroundColor: '#FCF6E3', color: '#14213B', padding: '4px 10px', borderRadius: '12px' }}>{name}</span>
           ))}
           {customNames.map((name, i) => (
             <span key={`c-${i}`} style={{ fontSize: '11px', backgroundColor: '#fff3cd', color: '#856404', padding: '4px 10px', borderRadius: '12px' }}>{name}</span>
@@ -75,7 +75,7 @@ function StudentCard({ student, t, scoreLabel }) {
       )}
 
       <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
-        <Link to={`/students/${student.id}`} style={{ flex: 1, textAlign: 'center', padding: '8px', backgroundColor: '#3182ce', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
+        <Link to={`/students/${student.id}`} style={{ flex: 1, textAlign: 'center', padding: '8px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
           {t('skillMatch.view_profile')}
         </Link>
       </div>
@@ -103,12 +103,12 @@ function SkillMatch() {
   const [recommended, setRecommended] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/skills/taxonomy').then(res => setTaxonomy(res.data)).catch(console.error);
+    axios.get('/api/skills/taxonomy').then(res => setTaxonomy(res.data)).catch(console.error);
   }, []);
 
   useEffect(() => {
     if (user?.role === 'STUDENT') {
-      axios.get('http://localhost:5000/api/match/similar', { headers: authHeader() })
+      axios.get('/api/match/similar', { headers: authHeader() })
         .then(res => setRecommended(res.data.matches))
         .catch(() => setRecommended([]));
     }
@@ -127,7 +127,7 @@ function SkillMatch() {
         if (selectedSkillIds.length > 0) params.set('skillIds', selectedSkillIds.join(','));
         if (search.trim()) params.set('q', search.trim());
 
-        const res = await axios.get(`http://localhost:5000/api/match/search?${params.toString()}`);
+        const res = await axios.get(`/api/match/search?${params.toString()}`);
         setStudents(res.data.students);
         setTotalPages(res.data.totalPages);
       } catch (err) {
@@ -195,7 +195,7 @@ function SkillMatch() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '24px', alignItems: 'start' }}>
+      <div className="sidebar-layout">
         {/* FILTER SIDEBAR */}
         <div style={{ ...cardStyle, position: 'sticky', top: '90px' }}>
           <h3 style={{ margin: '0 0 14px 0', fontSize: '15px', color: '#1a202c' }}>{t('skillMatch.browse_heading')}</h3>
@@ -262,11 +262,11 @@ function SkillMatch() {
 
               {totalPages > 1 && (
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '30px' }}>
-                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{ padding: '8px 16px', borderRadius: '6px', border: 'none', backgroundColor: page === 1 ? '#cbd5e0' : '#3182ce', color: 'white', cursor: page === 1 ? 'not-allowed' : 'pointer' }}>
+                  <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{ padding: '8px 16px', borderRadius: '6px', border: 'none', backgroundColor: page === 1 ? '#cbd5e0' : '#1B2A4A', color: 'white', cursor: page === 1 ? 'not-allowed' : 'pointer' }}>
                     {t('home.previous')}
                   </button>
                   <span style={{ fontWeight: 'bold', color: '#4a5568' }}>{page} / {totalPages}</span>
-                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={{ padding: '8px 16px', borderRadius: '6px', border: 'none', backgroundColor: page === totalPages ? '#cbd5e0' : '#3182ce', color: 'white', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}>
+                  <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={{ padding: '8px 16px', borderRadius: '6px', border: 'none', backgroundColor: page === totalPages ? '#cbd5e0' : '#1B2A4A', color: 'white', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}>
                     {t('home.next')}
                   </button>
                 </div>

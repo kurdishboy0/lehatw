@@ -16,12 +16,12 @@ a {
 }
 
 .nav-item:hover {
-  color: #3182ce !important;
+  color: #1B2A4A !important;
   background-color: #f7fafc;
 }
 
 .nav-item.active {
-  color: #3182ce !important;
+  color: #1B2A4A !important;
 }
 
 .nav-item.active .nav-item-underline {
@@ -42,4 +42,128 @@ a {
 
 .btn-hover:active {
   transform: translateY(1px);
+}
+
+.field-wrap {
+  position: relative;
+  display: block;
+}
+
+.required-asterisk {
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 14px;
+  color: #e53e3e;
+  font-weight: 700;
+  font-size: 15px;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* --- Responsive grid used for student/job card listings (3 columns on desktop) --- */
+.card-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 980px) {
+  .card-grid-3col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .card-grid-3col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Global responsive breakpoints (tablet & phone) --- */
+@media (max-width: 900px) {
+  header {
+    padding: 0 20px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  header {
+    padding: 0 12px !important;
+    min-height: 56px !important;
+  }
+  .nav-item-label {
+    display: none;
+  }
+  .nav-item {
+    min-width: auto !important;
+    padding: 6px 8px !important;
+  }
+  main {
+    padding: 12px !important;
+  }
+  footer {
+    padding: 32px 16px 16px 16px !important;
+  }
+  footer > div:first-child {
+    justify-content: flex-start !important;
+    gap: 28px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.7rem !important;
+  }
+}
+
+/* --- Sidebar + content layouts (Skill Match filters, etc.) collapse to one column on mobile --- */
+.sidebar-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .sidebar-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Home page entrance animations --- */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-fade-up {
+  animation: fadeSlideUp 0.6s ease both;
+}
+
+.animate-float {
+  animation: floatY 3s ease-in-out infinite;
+  display: inline-block;
+}
+
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(27, 42, 74, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up, .animate-float {
+    animation: none;
+  }
+  .hover-lift {
+    transition: none;
+  }
 }

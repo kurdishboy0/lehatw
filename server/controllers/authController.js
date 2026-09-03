@@ -1,7 +1,9 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken'); 
 const prisma = require('../db');
-const sendEmail = require('../utils/sendEmail'); 
+const sendEmail = require('../utils/sendEmail');
+const sendSms = require('../utils/sendSms');
+const { notifyAdmins } = require('../utils/notify');
 
 // --- NEW GOOGLE IMPORT ---
 const { OAuth2Client } = require('google-auth-library');
@@ -10,7 +12,7 @@ const { getDisplayName } = require('../utils/displayName');
 
 const registerUser = async (req, res) => {
   try {
-    const { email, password, role, companyName, website, phone, address, taxId } = req.body;
+    const { email, password, role, companyName, website, phone, address, taxId, personalPhone } = req.body;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -27,6 +29,8 @@ const registerUser = async (req, res) => {
       email: email,
       password: hashedPassword,
       role: finalRole,
+      // A student's own contact number, used for OTP verification below.
+      phone: finalRole === 'STUDENT' ? (personalPhone || null) : null,
     };
 
     // 1. Create the User FIRST so we have an ID to use
@@ -40,20 +44,27 @@ const registerUser = async (req, res) => {
         data: {
           userId: newUser.id,
           companyName: companyName || "Pending",
-          industry: "Pending", 
-          jobTitle: "Pending", 
-          crNumber: "Pending", 
+          industry: "Pending",
+          jobTitle: "Pending",
+          crNumber: "Pending",
           website: website || null,
           phone: phone || null,
           address: address || null,
           taxId: taxId || null
         }
       });
+
+      notifyAdmins({
+        type: 'HR_PENDING',
+        title: 'New company account pending approval',
+        body: `${companyName || newUser.email} signed up and is waiting for review.`,
+        link: '/admin-dashboard'
+      });
     }
 
     res.status(201).json({
       message: "User registered successfully!",
-      user: { id: newUser.id, email: newUser.email, role: newUser.role },
+      user: { id: newUser.id, email: newUser.email, role: newUser.role, phone: newUser.phone },
     });
   } catch (error) {
     console.error("Registration Error:", error);
@@ -78,6 +89,14 @@ const loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials!" });
+    }
+
+    if (user.phone && !user.phoneVerified) {
+      return res.status(403).json({
+        message: "Please verify your phone number to activate your account.",
+        code: "PHONE_NOT_VERIFIED",
+        email: user.email
+      });
     }
 
     const token = jwt.sign(
@@ -305,12 +324,96 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { 
-  registerUser, 
-  loginUser, 
-  googleLogin, 
-  linkedinLogin, 
-  forgotPassword, 
-  verifyOTP, 
-  resetPassword 
+// ==========================================
+// PHONE VERIFICATION (registration OTP)
+// ==========================================
+
+// Sends (or resends) a 6-digit code to verify the phone number on file, via
+// email or SMS. Channel defaults to email since it needs no extra setup;
+// SMS requires Twilio credentials to be configured on the server.
+const sendPhoneOtp = async (req, res) => {
+  try {
+    const { email, channel } = req.body;
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user || !user.phone) {
+      return res.status(404).json({ message: "No phone number on file for this account." });
+    }
+    if (user.phoneVerified) {
+      return res.status(400).json({ message: "This phone number is already verified." });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { email },
+      data: { phoneOtp: otp, phoneOtpExpires: otpExpires }
+    });
+
+    if (channel === 'sms') {
+      try {
+        await sendSms(user.phone, `Your Lehatw verification code is: ${otp}. It expires in 15 minutes.`);
+      } catch (smsError) {
+        if (smsError.message === 'SMS_NOT_CONFIGURED') {
+          return res.status(503).json({ message: "SMS delivery isn't set up on this server yet. Please use email instead." });
+        }
+        throw smsError;
+      }
+    } else {
+      await sendEmail(user.email, "Verify your phone - Lehatw", `Your verification code is: ${otp}\n\nIt will expire in 15 minutes.`);
+    }
+
+    res.status(200).json({ message: `Verification code sent via ${channel === 'sms' ? 'SMS' : 'email'}.` });
+  } catch (error) {
+    console.error("Send Phone OTP Error:", error);
+    res.status(500).json({ message: "Server error. Could not send verification code." });
+  }
+};
+
+const verifyPhoneOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user || user.phoneOtp !== otp) {
+      return res.status(400).json({ message: "Invalid code." });
+    }
+    if (!user.phoneOtpExpires || user.phoneOtpExpires < new Date()) {
+      return res.status(400).json({ message: "Code has expired. Please request a new one." });
+    }
+
+    const verifiedUser = await prisma.user.update({
+      where: { email },
+      data: { phoneVerified: true, phoneOtp: null, phoneOtpExpires: null }
+    });
+
+    const token = jwt.sign(
+      { id: verifiedUser.id, role: verifiedUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+    const name = await getDisplayName(verifiedUser);
+
+    res.status(200).json({
+      message: "Phone verified! You're all set.",
+      token,
+      user: { id: verifiedUser.id, email: verifiedUser.email, role: verifiedUser.role, name }
+    });
+  } catch (error) {
+    console.error("Verify Phone OTP Error:", error);
+    res.status(500).json({ message: "Server error during verification." });
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  googleLogin,
+  linkedinLogin,
+  forgotPassword,
+  verifyOTP,
+  resetPassword,
+  sendPhoneOtp,
+  verifyPhoneOtp
 };

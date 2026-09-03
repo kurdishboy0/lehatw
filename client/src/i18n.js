@@ -7,6 +7,7 @@ const resources = {
   en: {
     translation: {
       common: {
+        site_name: "Lehatw",
         loading: "Loading...",
         save: "Save",
         cancel: "Cancel",
@@ -24,10 +25,21 @@ const resources = {
         jobs: "Jobs",
         skill_match: "Skill Match",
         messaging: "Messaging",
+        about: "About Us",
         me: "Me",
         login: "Login",
         student_signup: "Student Signup",
         company_signup: "Company Signup"
+      },
+
+      notifications: {
+        title: "Notifications",
+        mark_all_read: "Mark all as read",
+        empty: "You're all caught up.",
+        just_now: "Just now",
+        minutes_ago: "{{count}}m ago",
+        hours_ago: "{{count}}h ago",
+        days_ago: "{{count}}d ago"
       },
 
       userMenu: {
@@ -81,6 +93,28 @@ const resources = {
         copyright: "© 2026 Lehatw. All rights reserved."
       },
 
+      aboutUs: {
+        title: "About Lehatw",
+        subtitle: "Connecting Kurdistan's computer science and engineering talent with the companies ready to hire them.",
+        mission_title: "Our Mission",
+        mission_body: "Lehatw exists to close the gap between graduating students and the local job market. We give students a real, skills-based profile instead of a plain resume, and we give companies a fast way to find candidates who actually match what a role needs.",
+        what_title: "What We Do",
+        what_body: "Lehatw is a trilingual (English, Arabic, Kurdish Sorani) talent platform. Students build a profile from a structured catalog of academic fields and skills, upload a CV, and apply to jobs directly on the platform. Companies post openings, search the student directory, and get ranked candidate matches based on shared, proficiency-weighted skills.",
+        students_title: "For Students",
+        students_body: "Create a profile, pick your field of study and skills (or add your own for admin review), attach a resume, and apply to jobs in a couple of clicks. Our Skill Match engine also helps you find peers with similar skills to learn from or collaborate with.",
+        companies_title: "For Companies",
+        companies_body: "Post a job once and get applicants automatically ranked by how well their skills match your requirements, or search the full student directory by field of study, university, or specific skills. Every company account is reviewed by our team before it goes live.",
+        goal_title: "Where We're Headed",
+        goal_body: "We're building toward a platform that makes hiring computer science and engineering graduates in Kurdistan faster, fairer, and driven by real, verifiable skills — not just who you know."
+      },
+
+      legal: {
+        privacy_title: "Privacy Policy",
+        terms_title: "Terms of Service",
+        contact_title: "Contact Us",
+        placeholder: "We're finalizing this page's content — check back soon."
+      },
+
       login: {
         title: "Login to Lehatw",
         email_placeholder: "Email address",
@@ -102,6 +136,7 @@ const resources = {
       register: {
         title: "Student Registration",
         email_placeholder: "Email address",
+        phone_placeholder: "Phone number (e.g. +964 750 123 4567)",
         password_placeholder: "Password",
         submit: "Register",
         password_error: "Password must be at least 8 characters long, contain one uppercase letter, one number, and one special character.",
@@ -113,6 +148,22 @@ const resources = {
         google_success: "Google authentication successful! 🎉",
         error_google: "Google authentication failed. Please try again.",
         error_google_cancel: "Google Login was canceled or failed."
+      },
+
+      verifyPhone: {
+        title: "Verify your phone",
+        subtitle: "We sent a 6-digit code to confirm you're a real, authorized user.",
+        via_email: "Email",
+        via_sms: "SMS",
+        code_placeholder: "6-digit code",
+        submit: "Verify",
+        verifying: "Verifying...",
+        no_code: "Didn't get a code?",
+        resend: "Resend",
+        missing_email: "We couldn't find your account. Please register again.",
+        back_to_register: "Back to registration",
+        error_send: "Could not send the code. Please try again.",
+        error_verify: "That code didn't work. Please try again."
       },
 
       registerHr: {
@@ -300,7 +351,18 @@ const resources = {
         loading: "Loading job posts...",
         no_jobs: "No active job posts right now. Check back soon!",
         view_details: "View Details",
-        error_load: "Failed to load job posts."
+        error_load: "Failed to load job posts.",
+        filters: "Filters",
+        clear_filters: "Clear",
+        filter_type: "Employment Type",
+        filter_location: "Location",
+        filter_mode: "Work Mode",
+        showing_count: "Showing {{count}} jobs",
+        sort_newest: "Newest first",
+        sort_oldest: "Oldest first",
+        posted_today: "Posted today",
+        posted_1_day: "Posted 1 day ago",
+        posted_days: "Posted {{count}} days ago"
       },
 
       jobDetail: {
@@ -412,6 +474,7 @@ const resources = {
   ar: {
     translation: {
       common: {
+        site_name: "لێهاتوو",
         loading: "جاري التحميل...",
         save: "حفظ",
         cancel: "إلغاء",
@@ -429,10 +492,21 @@ const resources = {
         jobs: "الوظائف",
         skill_match: "تطابق المهارات",
         messaging: "الرسائل",
+        about: "من نحن",
         me: "أنا",
         login: "تسجيل الدخول",
         student_signup: "تسجيل الطلاب",
         company_signup: "تسجيل الشركات"
+      },
+
+      notifications: {
+        title: "الإشعارات",
+        mark_all_read: "تعليم الكل كمقروء",
+        empty: "لا توجد إشعارات جديدة.",
+        just_now: "الآن",
+        minutes_ago: "قبل {{count}} دقيقة",
+        hours_ago: "قبل {{count}} ساعة",
+        days_ago: "قبل {{count}} يوم"
       },
 
       userMenu: {
@@ -486,6 +560,28 @@ const resources = {
         copyright: "© 2026 لێهاتوو. جميع الحقوق محفوظة."
       },
 
+      aboutUs: {
+        title: "عن لێهاتوو",
+        subtitle: "نربط مواهب علوم الحاسوب والهندسة في كوردستان بالشركات المستعدة لتوظيفهم.",
+        mission_title: "مهمتنا",
+        mission_body: "تأسست لێهاتوو لسد الفجوة بين الخريجين وسوق العمل المحلي. نمنح الطلاب ملفاً شخصياً حقيقياً قائماً على المهارات بدلاً من سيرة ذاتية عادية، ونمنح الشركات طريقة سريعة للعثور على مرشحين يطابقون فعلياً متطلبات الوظيفة.",
+        what_title: "ماذا نقدم",
+        what_body: "لێهاتوو منصة مواهب ثلاثية اللغة (الإنجليزية والعربية والكردية السورانية). يبني الطلاب ملفهم الشخصي من كتالوج منظم للتخصصات الأكاديمية والمهارات، ويرفعون سيرتهم الذاتية، ويتقدمون للوظائف مباشرة عبر المنصة. تنشر الشركات الوظائف، وتبحث في دليل الطلاب، وتحصل على ترشيحات مرتبة حسب تطابق المهارات.",
+        students_title: "للطلاب",
+        students_body: "أنشئ ملفك الشخصي، واختر تخصصك ومهاراتك (أو أضف مهارات جديدة تخضع لمراجعة الإدارة)، وأرفق سيرتك الذاتية، وتقدم للوظائف بضغطات قليلة. يساعدك محرك تطابق المهارات أيضاً في إيجاد زملاء بمهارات مشابهة للتعلم أو التعاون معهم.",
+        companies_title: "للشركات",
+        companies_body: "انشر وظيفة واحدة واحصل على متقدمين مرتبين تلقائياً حسب مدى تطابق مهاراتهم مع متطلباتك، أو ابحث في دليل الطلاب الكامل حسب التخصص أو الجامعة أو مهارات محددة. تتم مراجعة كل حساب شركة من قبل فريقنا قبل تفعيله.",
+        goal_title: "إلى أين نتجه",
+        goal_body: "نعمل على بناء منصة تجعل توظيف خريجي علوم الحاسوب والهندسة في كوردستان أسرع وأكثر عدالة، وقائماً على مهارات حقيقية وقابلة للتحقق - وليس فقط على المعارف الشخصية."
+      },
+
+      legal: {
+        privacy_title: "سياسة الخصوصية",
+        terms_title: "شروط الخدمة",
+        contact_title: "اتصل بنا",
+        placeholder: "نعمل على إعداد محتوى هذه الصفحة - تفضل بالعودة قريباً."
+      },
+
       login: {
         title: "تسجيل الدخول إلى لێهاتوو",
         email_placeholder: "البريد الإلكتروني",
@@ -507,6 +603,7 @@ const resources = {
       register: {
         title: "تسجيل الطلاب",
         email_placeholder: "البريد الإلكتروني",
+        phone_placeholder: "رقم الهاتف (مثال: 964 750 123 4567+)",
         password_placeholder: "كلمة المرور",
         submit: "تسجيل",
         password_error: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف كبير، ورقم، ورمز خاص.",
@@ -518,6 +615,22 @@ const resources = {
         google_success: "تم التحقق عبر جوجل بنجاح! 🎉",
         error_google: "فشلت المصادقة عبر جوجل. حاول مرة أخرى.",
         error_google_cancel: "تم إلغاء تسجيل الدخول عبر جوجل أو فشل."
+      },
+
+      verifyPhone: {
+        title: "تحقق من رقم هاتفك",
+        subtitle: "أرسلنا رمزاً مكوناً من 6 أرقام للتأكد من أنك مستخدم حقيقي ومخوّل.",
+        via_email: "البريد الإلكتروني",
+        via_sms: "رسالة نصية",
+        code_placeholder: "الرمز المكون من 6 أرقام",
+        submit: "تحقق",
+        verifying: "جارٍ التحقق...",
+        no_code: "لم تستلم الرمز؟",
+        resend: "إعادة الإرسال",
+        missing_email: "لم نتمكن من العثور على حسابك. الرجاء التسجيل مرة أخرى.",
+        back_to_register: "العودة إلى التسجيل",
+        error_send: "تعذر إرسال الرمز. حاول مرة أخرى.",
+        error_verify: "الرمز غير صحيح. حاول مرة أخرى."
       },
 
       registerHr: {
@@ -705,7 +818,18 @@ const resources = {
         loading: "جاري تحميل الوظائف...",
         no_jobs: "لا توجد وظائف نشطة حالياً. تحقق لاحقاً!",
         view_details: "عرض التفاصيل",
-        error_load: "فشل تحميل الوظائف."
+        error_load: "فشل تحميل الوظائف.",
+        filters: "الفلاتر",
+        clear_filters: "مسح",
+        filter_type: "نوع التوظيف",
+        filter_location: "الموقع",
+        filter_mode: "نمط العمل",
+        showing_count: "عرض {{count}} وظيفة",
+        sort_newest: "الأحدث أولاً",
+        sort_oldest: "الأقدم أولاً",
+        posted_today: "نُشرت اليوم",
+        posted_1_day: "نُشرت قبل يوم واحد",
+        posted_days: "نُشرت قبل {{count}} أيام"
       },
 
       jobDetail: {
@@ -817,6 +941,7 @@ const resources = {
   ckb: {
     translation: {
       common: {
+        site_name: "لێهاتوو",
         loading: "بارکردن...",
         save: "پاشەکەوتکردن",
         cancel: "پاشگەزبوونەوە",
@@ -834,10 +959,21 @@ const resources = {
         jobs: "کارەکان",
         skill_match: "گونجاندنی تواناکان",
         messaging: "پەیامەکان",
+        about: "دەربارەمان",
         me: "من",
         login: "چوونە ژوورەوە",
         student_signup: "خۆتۆمارکردنی قوتابی",
         company_signup: "خۆتۆمارکردنی کۆمپانیا"
+      },
+
+      notifications: {
+        title: "ئاگادارکردنەوەکان",
+        mark_all_read: "هەمووی وەک خوێندراوە نیشان بکە",
+        empty: "هیچ ئاگادارکردنەوەیەکی نوێ نییە.",
+        just_now: "ئێستا",
+        minutes_ago: "{{count}} خولەک لەمەوبەر",
+        hours_ago: "{{count}} کاتژمێر لەمەوبەر",
+        days_ago: "{{count}} ڕۆژ لەمەوبەر"
       },
 
       userMenu: {
@@ -891,6 +1027,28 @@ const resources = {
         copyright: "© ٢٠٢٦ لێهاتوو. هەموو مافەکان پارێزراون."
       },
 
+      aboutUs: {
+        title: "دەربارەی لێهاتوو",
+        subtitle: "بەستنەوەی بەهرەمەندانی زانستی کۆمپیوتەر و ئەندازیاری کوردستان بەو کۆمپانیایانەی ئامادەن بۆ دامەزراندنیان.",
+        mission_title: "ئەرکمان",
+        mission_body: "لێهاتوو دامەزراوە بۆ داخستنی بۆشایی نێوان دەرچووان و بازاڕی کاری ناوخۆیی. پرۆفایلێکی ڕاستەقینەی لەسەر بنەمای تواناکان بە قوتابیان دەدەین لە جیاتی سیڤییەکی ئاسایی، و ڕێگایەکی خێرا بە کۆمپانیاکان دەدەین بۆ دۆزینەوەی کاندیدە گونجاوەکان.",
+        what_title: "چیمان دەکات",
+        what_body: "لێهاتوو پلاتفۆرمێکی بەهرەمەندیی سێزمانییە (ئینگلیزی، عەرەبی، کوردیی سۆرانی). قوتابیان پرۆفایلی خۆیان لە کاتالۆگێکی ڕێکخراوی بواری خوێندن و تواناکان دروست دەکەن، سیڤییان بار دەکەن، و ڕاستەوخۆ بۆ کار داوا دەکەن. کۆمپانیاکانیش کار بڵاو دەکەنەوە، بەدوای ڕیزی قوتابیاندا دەگەڕێن، و کاندیدی ڕیزبەندیکراو بەپێی گونجانی تواناکان وەردەگرن.",
+        students_title: "بۆ قوتابیان",
+        students_body: "پرۆفایلەکەت دروست بکە، بواری خوێندن و تواناکانت هەڵبژێرە (یان تواناتی خۆت زیاد بکە کە پێداچوونەوەی بەڕێوەبەرایەتی پێویستە)، سیڤییەکەت هەڵبواسە، و بە چەند کرتەیەک داوای کار بکە. ئەندامی گونجاندنی تواناش یارمەتیت دەدات هاوپۆلانی خۆت بدۆزیتەوە بۆ فێربوون یان هاوکاری.",
+        companies_title: "بۆ کۆمپانیاکان",
+        companies_body: "یەک کار بڵاو بکەرەوە و داواکارەکان بەشێوەیەکی خۆکار بەپێی گونجانی تواناکانیان لەگەڵ پێداویستییەکانت ڕیزبەند وەربگرە، یان بەدوای هەموو ڕیزی قوتابیاندا بگەڕێ بەپێی بواری خوێندن، زانکۆ، یان تواناکانی دیاریکراو. هەموو هەژماری کۆمپانیایەک پێش چالاککردن لەلایەن تیمەکەمانەوە پێداچوونەوەی بۆ دەکرێت.",
+        goal_title: "بەرەو کوێ دەڕۆین",
+        goal_body: "کاردەکەین بۆ دروستکردنی پلاتفۆرمێک کە دامەزراندنی دەرچووانی زانستی کۆمپیوتەر و ئەندازیاری لە کوردستان خێراتر و دادپەروەرانەتر بکات، پشتبەستوو بە تواناکانی ڕاستەقینە و پشتڕاستکراوە - نەک تەنها بە ناسینی کەسانە."
+      },
+
+      legal: {
+        privacy_title: "سیاسەتی تایبەتێتی",
+        terms_title: "مەرجەکانی خزمەتگوزاری",
+        contact_title: "پەیوەندیمان پێوە بکە",
+        placeholder: "ئێمە لە ئامادەکردنی ناوەڕۆکی ئەم پەڕەیەداین - تکایە دواتر سەردانی بکەرەوە."
+      },
+
       login: {
         title: "چوونە ژوورەوەی لێهاتوو",
         email_placeholder: "ئیمەیل",
@@ -912,6 +1070,7 @@ const resources = {
       register: {
         title: "خۆتۆمارکردنی قوتابی",
         email_placeholder: "ئیمەیل",
+        phone_placeholder: "ژمارەی مۆبایل (نموونە: 964 750 123 4567+)",
         password_placeholder: "وشەی نهێنی",
         submit: "تۆمارکردن",
         password_error: "وشەی نهێنی دەبێت لانیکەم ٨ پیت بێت، لەگەڵ یەک پیتی گەورە، یەک ژمارە، و یەک هێمای تایبەت.",
@@ -923,6 +1082,22 @@ const resources = {
         google_success: "پشتڕاستکردنەوە بە گووگڵ سەرکەوتوو بوو! 🎉",
         error_google: "پشتڕاستکردنەوەی گووگڵ سەرنەکەوت. دووبارە هەوڵبدەرەوە.",
         error_google_cancel: "چوونە ژوورەوە بە گووگڵ هەڵوەشێنرایەوە یان سەرنەکەوت."
+      },
+
+      verifyPhone: {
+        title: "مۆبایلەکەت پشتڕاست بکەرەوە",
+        subtitle: "کۆدێکی ٦ ژمارەیمان ناردووە بۆ دڵنیابوونەوە کە تۆ بەکارهێنەرێکی ڕاستەقینە و مۆڵەتپێدراویت.",
+        via_email: "ئیمەیل",
+        via_sms: "نامەی نووسراو",
+        code_placeholder: "کۆدی ٦ ژمارەیی",
+        submit: "پشتڕاستکردنەوە",
+        verifying: "پشتڕاستکردنەوە...",
+        no_code: "کۆدەکەت وەرنەگرت؟",
+        resend: "دووبارە ناردنەوە",
+        missing_email: "هەژمارەکەت نەدۆزرایەوە. تکایە دووبارە تۆمار بکە.",
+        back_to_register: "گەڕانەوە بۆ تۆمارکردن",
+        error_send: "کۆدەکە نەنێردرا. دووبارە هەوڵبدەرەوە.",
+        error_verify: "کۆدەکە هەڵەیە. دووبارە هەوڵبدەرەوە."
       },
 
       registerHr: {
@@ -1110,7 +1285,18 @@ const resources = {
         loading: "کارەکان باردەکرێن...",
         no_jobs: "ئێستا هیچ کارێکی چالاک نییە. دواتر سەردانی ئێرە بکەرەوە!",
         view_details: "بینینی وردەکارییەکان",
-        error_load: "باردکردنی کارەکان سەرنەکەوت."
+        error_load: "باردکردنی کارەکان سەرنەکەوت.",
+        filters: "فلتەرەکان",
+        clear_filters: "سڕینەوە",
+        filter_type: "جۆری دامەزراندن",
+        filter_location: "شوێن",
+        filter_mode: "شێوازی کار",
+        showing_count: "پیشاندانی {{count}} کار",
+        sort_newest: "نوێترین یەکەم",
+        sort_oldest: "کۆنترین یەکەم",
+        posted_today: "ئەمڕۆ بڵاوکراوەتەوە",
+        posted_1_day: "١ ڕۆژ لەمەوبەر بڵاوکراوەتەوە",
+        posted_days: "{{count}} ڕۆژ لەمەوبەر بڵاوکراوەتەوە"
       },
 
       jobDetail: {

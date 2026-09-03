@@ -53,7 +53,7 @@ function HRJobPost() {
   useEffect(() => {
     const fetchSkills = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/jobs/skills');
+        const res = await axios.get('/api/jobs/skills');
         setAvailableSkills(res.data);
       } catch (err) {
         console.error("Failed to fetch skills:", err);
@@ -75,7 +75,7 @@ function HRJobPost() {
     setMessage('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/jobs', {
+      const response = await axios.post('/api/jobs', {
         title,
         location,
         employmentType,
@@ -101,7 +101,7 @@ function HRJobPost() {
   const findMatchingStudents = async () => {
     setIsMatching(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/jobs/${postedJobId}/matches`, { headers: authHeader() });
+      const response = await axios.get(`/api/jobs/${postedJobId}/matches`, { headers: authHeader() });
       setMatches(response.data.matches);
     } catch (error) {
       console.error(error);
@@ -131,7 +131,7 @@ function HRJobPost() {
           <h3 style={sectionHeadingStyle}>📋 {t('jobPost.section_basics')}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div style={{ gridColumn: '1 / -1' }}>
-              <label style={labelStyle}>{t('jobPost.title_label')}</label>
+              <label style={labelStyle}>{t('jobPost.title_label')} <span style={{ color: '#e53e3e' }}>*</span></label>
               <input type="text" placeholder={t('jobPost.title_placeholder')} value={title} onChange={(e) => setTitle(e.target.value)} required style={inputStyle} />
             </div>
 
@@ -201,7 +201,7 @@ function HRJobPost() {
             {availableSkills.map(skill => (
               <label key={skill.id} style={{
                 display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px',
-                backgroundColor: selectedSkills.includes(skill.id) ? '#ebf8ff' : '#f7fafc',
+                backgroundColor: selectedSkills.includes(skill.id) ? '#FCF6E3' : '#f7fafc',
                 border: selectedSkills.includes(skill.id) ? '1px solid #90cdf4' : '1px solid #e2e8f0',
                 padding: '6px 12px', borderRadius: '20px', cursor: 'pointer'
               }}>
@@ -227,7 +227,7 @@ function HRJobPost() {
         </div>
 
         <button type="submit" disabled={!!postedJobId} style={{
-          padding: '14px', backgroundColor: postedJobId ? '#a0aec0' : '#3182ce', color: 'white',
+          padding: '14px', backgroundColor: postedJobId ? '#a0aec0' : '#1B2A4A', color: 'white',
           border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px',
           cursor: postedJobId ? 'not-allowed' : 'pointer'
         }}>

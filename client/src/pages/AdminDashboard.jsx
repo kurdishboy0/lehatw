@@ -21,8 +21,8 @@ function AdminDashboard() {
       try {
         const config = { headers: authHeader() };
         const [hrRes, skillsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/admin/hr/pending', config),
-          axios.get('http://localhost:5000/api/admin/skills/pending', config)
+          axios.get('/api/admin/hr/pending', config),
+          axios.get('/api/admin/skills/pending', config)
         ]);
         setPendingHR(hrRes.data);
         setPendingSkills(skillsRes.data);
@@ -51,7 +51,7 @@ function AdminDashboard() {
     setMessage('');
     setError('');
     try {
-      await axios.put(`http://localhost:5000/api/admin/hr/${id}`, { status }, { headers: authHeader() });
+      await axios.put(`/api/admin/hr/${id}`, { status }, { headers: authHeader() });
       setMessage(status === 'APPROVED' ? t('adminDashboard.company_approved') : t('adminDashboard.company_rejected'));
       setPendingHR(pendingHR.filter(p => p.id !== id));
     } catch (err) {
@@ -63,7 +63,7 @@ function AdminDashboard() {
     setMessage('');
     setError('');
     try {
-      await axios.put(`http://localhost:5000/api/admin/skills/${id}`, { approve }, { headers: authHeader() });
+      await axios.put(`/api/admin/skills/${id}`, { approve }, { headers: authHeader() });
       setMessage(approve ? t('adminDashboard.skill_approved') : t('adminDashboard.skill_rejected'));
       setPendingSkills(pendingSkills.filter(s => s.id !== id));
     } catch (err) {

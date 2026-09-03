@@ -1,5 +1,6 @@
 const prisma = require('../db');
 const { normalize, validateSkillText, findExactSkillMatch } = require('../utils/skillText');
+const { notifyAdmins } = require('../utils/notify');
 
 // 1. Fetch the master list of all Categories (Fields of Study) and their Skills
 const getAllSkills = async (req, res) => {
@@ -82,6 +83,14 @@ const saveStudentSkills = async (req, res) => {
       }
     }
 
+    // Only notify admins about genuinely new pending names, not ones re-saved as-is.
+    const previouslyPending = await prisma.customSkill.findMany({
+      where: { studentProfileId: profile.id, isApproved: false },
+      select: { name: true }
+    });
+    const previouslyPendingNames = new Set(previouslyPending.map((s) => s.name.toLowerCase()));
+    const genuinelyNew = remainingCustom.filter((name) => !previouslyPendingNames.has(name.toLowerCase()));
+
     // Use a transaction to safely update everything at exactly the same time
     await prisma.$transaction([
       // A. Clear old standard skills so we don't get duplicates if they unchecked a box
@@ -110,6 +119,15 @@ const saveStudentSkills = async (req, res) => {
         }))
       })
     ]);
+
+    if (genuinelyNew.length > 0) {
+      notifyAdmins({
+        type: 'SKILL_PENDING',
+        title: 'New custom skill(s) pending review',
+        body: genuinelyNew.join(', '),
+        link: '/admin-dashboard'
+      });
+    }
 
     res.status(200).json({ message: "All skills saved successfully!" });
 

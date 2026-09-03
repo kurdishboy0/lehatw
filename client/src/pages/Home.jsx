@@ -11,7 +11,7 @@ function Avatar({ photoUrl, fullName, size }) {
   }
   return (
     <div style={{
-      width: size, height: size, borderRadius: '50%', backgroundColor: '#3182ce', color: 'white',
+      width: size, height: size, borderRadius: '50%', backgroundColor: '#1B2A4A', color: 'white',
       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size / 2.6, fontWeight: 'bold', flexShrink: 0
     }}>
       {(fullName || '').trim().split(/\s+/).slice(0, 2).map(w => w.charAt(0).toUpperCase()).join('') || '🎓'}
@@ -21,7 +21,7 @@ function Avatar({ photoUrl, fullName, size }) {
 
 function StudentCard({ student, t }) {
   return (
-    <div style={{
+    <div className="hover-lift" style={{
       border: '1px solid #e2e8f0', borderRadius: '14px', padding: '24px',
       backgroundColor: '#ffffff', boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
     }}>
@@ -36,7 +36,7 @@ function StudentCard({ student, t }) {
       {student.skills && student.skills.length > 0 && (
         <div style={{ marginTop: '16px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
           {student.skills.slice(0, 4).map(skillObj => (
-            <span key={skillObj.id} style={{ backgroundColor: '#edf2f7', color: '#2b6cb0', fontSize: '12px', padding: '5px 10px', borderRadius: '12px' }}>
+            <span key={skillObj.id} style={{ backgroundColor: '#edf2f7', color: '#14213B', fontSize: '12px', padding: '5px 10px', borderRadius: '12px' }}>
               {skillObj.skill.name_en}
             </span>
           ))}
@@ -46,7 +46,7 @@ function StudentCard({ student, t }) {
         </div>
       )}
 
-      <Link to={`/students/${student.id}`} style={{ display: 'inline-block', marginTop: '18px', fontSize: '14px', color: '#3182ce', fontWeight: '600', textDecoration: 'none' }}>
+      <Link to={`/students/${student.id}`} style={{ display: 'inline-block', marginTop: '18px', fontSize: '14px', color: '#1B2A4A', fontWeight: '600', textDecoration: 'none' }}>
         {t('skillMatch.view_profile')} →
       </Link>
     </div>
@@ -56,7 +56,7 @@ function StudentCard({ student, t }) {
 function JobCard({ job }) {
   return (
     <Link to={`/jobs/${job.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-      <div style={{
+      <div className="hover-lift" style={{
         border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px',
         backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
       }}>
@@ -93,7 +93,7 @@ function Home() {
     const fetchStudents = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`http://localhost:5000/api/student/all?page=${currentPage}`);
+        const res = await axios.get(`/api/student/all?page=${currentPage}`);
         setStudents(res.data.students);
         setTotalPages(res.data.totalPages);
       } catch (err) {
@@ -109,7 +109,7 @@ function Home() {
   }, [currentPage]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/jobs').then(res => setRecentJobs(res.data.slice(0, 4))).catch(console.error);
+    axios.get('/api/jobs').then(res => setRecentJobs(res.data.slice(0, 4))).catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -122,7 +122,7 @@ function Home() {
     setSearching(true);
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/search?q=${encodeURIComponent(query.trim())}`);
+        const res = await axios.get(`/api/search?q=${encodeURIComponent(query.trim())}`);
         setSearchResults(res.data);
       } catch (err) {
         console.error(err);
@@ -145,13 +145,13 @@ function Home() {
 
   return (
     <div style={{ maxWidth: '1100px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h1 style={{ fontSize: '2.6rem', color: '#2d3748', margin: '0 0 10px 0' }}>{t('home.title')} 🚀</h1>
+      <div className="animate-fade-up" style={{ textAlign: 'center', marginBottom: '30px' }}>
+        <h1 style={{ fontSize: '2.6rem', color: '#2d3748', margin: '0 0 10px 0' }}>{t('home.title')} <span className="animate-float" style={{ filter: 'grayscale(100%)' }}>🚀</span></h1>
         <p style={{ color: '#718096', fontSize: '1.25rem', margin: 0 }}>{t('home.subtitle')}</p>
       </div>
 
       {/* UNIVERSAL SEARCH BAR */}
-      <div style={{ maxWidth: '640px', margin: '0 auto 40px auto', position: 'relative' }}>
+      <div className="animate-fade-up" style={{ maxWidth: '640px', margin: '0 auto 40px auto', position: 'relative', animationDelay: '0.12s' }}>
         <input
           type="text"
           value={query}
@@ -199,7 +199,7 @@ function Home() {
               {searchResults.students.length > 0 && (
                 <div>
                   <h3 style={{ fontSize: '16px', color: '#1a202c' }}>🎓 {t('home.students_heading')}</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px', marginTop: '12px' }}>
+                  <div className="card-grid-3col" style={{ marginTop: '12px' }}>
                     {searchResults.students.map(student => <StudentCard key={student.id} student={student} t={t} />)}
                   </div>
                 </div>
@@ -214,7 +214,7 @@ function Home() {
             <div style={{ marginBottom: '48px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '20px', color: '#1a202c', margin: 0 }}>💼 {t('home.recent_jobs_heading')}</h2>
-                <Link to="/jobs" style={{ fontSize: '14px', color: '#3182ce', fontWeight: '600', textDecoration: 'none' }}>{t('home.view_all_jobs')}</Link>
+                <Link to="/jobs" style={{ fontSize: '14px', color: '#1B2A4A', fontWeight: '600', textDecoration: 'none' }}>{t('home.view_all_jobs')}</Link>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
                 {recentJobs.map(job => <JobCard key={job.id} job={job} />)}
@@ -230,7 +230,7 @@ function Home() {
             <p style={{ textAlign: 'center', color: '#718096' }}>{t('home.no_students')}</p>
           ) : (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px' }}>
+              <div className="card-grid-3col">
                 {students.map(student => <StudentCard key={student.id} student={student} t={t} />)}
               </div>
 
@@ -240,7 +240,7 @@ function Home() {
                     onClick={handlePrevPage}
                     disabled={currentPage === 1}
                     style={{
-                      padding: '10px 20px', backgroundColor: currentPage === 1 ? '#cbd5e0' : '#3182ce',
+                      padding: '10px 20px', backgroundColor: currentPage === 1 ? '#cbd5e0' : '#1B2A4A',
                       color: 'white', border: 'none', borderRadius: '6px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
                     }}
                   >
@@ -255,7 +255,7 @@ function Home() {
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
                     style={{
-                      padding: '10px 20px', backgroundColor: currentPage === totalPages ? '#cbd5e0' : '#3182ce',
+                      padding: '10px 20px', backgroundColor: currentPage === totalPages ? '#cbd5e0' : '#1B2A4A',
                       color: 'white', border: 'none', borderRadius: '6px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
                     }}
                   >

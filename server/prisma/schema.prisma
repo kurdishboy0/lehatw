@@ -35,6 +35,12 @@ model User {
   resetOtp        String? // Stores the 6-digit code
   resetOtpExpires DateTime? // Stores when the code expires (e.g., in 15 mins)
 
+  // --- PHONE VERIFICATION ---
+  phone             String?
+  phoneVerified     Boolean   @default(false)
+  phoneOtp          String?
+  phoneOtpExpires   DateTime?
+
   studentProfile StudentProfile?
   hrProfile      HRProfile?
 
@@ -43,6 +49,7 @@ model User {
 
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
+  notifications    Notification[]
 }
 
 // 3. Student Profiles (Public)
@@ -206,4 +213,19 @@ model Message {
 
   @@index([senderId, recipientId])
   @@index([recipientId, senderId])
+}
+
+// 13. In-app Notifications (job applications, status changes, approvals, etc.)
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String // e.g. "APPLICATION_RECEIVED", "APPLICATION_STATUS", "NEW_MESSAGE", "SKILL_APPROVED", "HR_APPROVED", "JOB_MATCH"
+  title     String
+  body      String?
+  link      String? // relative client-side route to navigate to on click
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
 }

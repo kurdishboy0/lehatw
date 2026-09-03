@@ -24,7 +24,7 @@ function ForgotPassword() {
     setMessage('');
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+      const res = await axios.post('/api/auth/forgot-password', { email });
       setMessage(res.data.message);
       setStep(2);
     } catch (err) {
@@ -39,7 +39,7 @@ function ForgotPassword() {
     setMessage('');
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/verify-otp', { email, otp });
+      const res = await axios.post('/api/auth/verify-otp', { email, otp });
       setMessage(res.data.message);
       setStep(3);
     } catch (err) {
@@ -61,7 +61,7 @@ function ForgotPassword() {
     }
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/reset-password', { email, newPassword });
+      const res = await axios.post('/api/auth/reset-password', { email, newPassword });
       alert(res.data.message);
       navigate('/login');
     } catch (err) {
@@ -88,7 +88,7 @@ function ForgotPassword() {
             required
             style={{ padding: '10px', fontSize: '16px' }}
           />
-          <button type="submit" style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#0056b3', color: 'white', border: 'none' }}>
+          <button type="submit" style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#1B2A4A', color: 'white', border: 'none' }}>
             {t('forgotPassword.send_code')}
           </button>
         </form>
@@ -146,7 +146,7 @@ function ForgotPassword() {
             </div>
             <span style={{ fontSize: '12px', color: '#666' }}>{t('common.password_hint')}</span>
           </div>
-          <button type="submit" style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#0056b3', color: 'white', border: 'none' }}>
+          <button type="submit" style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#1B2A4A', color: 'white', border: 'none' }}>
             {t('forgotPassword.reset_password')}
           </button>
         </form>
@@ -154,7 +154,7 @@ function ForgotPassword() {
 
       {/* Back to Login Link */}
       <div style={{ marginTop: '20px', textAlign: 'center' }}>
-        <a href="/login" style={{ color: '#0056b3', textDecoration: 'none', fontSize: '14px' }}>
+        <a href="/login" style={{ color: '#1B2A4A', textDecoration: 'none', fontSize: '14px' }}>
           {t('forgotPassword.back_to_login')}
         </a>
       </div>

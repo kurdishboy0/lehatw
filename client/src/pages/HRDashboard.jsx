@@ -40,7 +40,7 @@ function HRDashboard() {
       }
 
       try {
-        const res = await axios.get('http://localhost:5000/api/hr/profile', {
+        const res = await axios.get('/api/hr/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -57,7 +57,7 @@ function HRDashboard() {
 
     const fetchMyJobs = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/jobs/mine', { headers: authHeader() });
+        const res = await axios.get('/api/jobs/mine', { headers: authHeader() });
         setMyJobs(res.data);
       } catch (err) {
         console.error("Failed to load job posts:", err);
@@ -79,7 +79,7 @@ function HRDashboard() {
 
   const handleDeleteJob = async (jobId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/jobs/${jobId}`, { headers: authHeader() });
+      await axios.delete(`/api/jobs/${jobId}`, { headers: authHeader() });
       setMyJobs(myJobs.filter(j => j.id !== jobId));
     } catch (err) {
       setError(err.response?.data?.message || t('hrDashboard.error_delete'));
@@ -94,7 +94,7 @@ function HRDashboard() {
     setOpenApplicantsFor(jobId);
     if (!applicantsByJob[jobId]) {
       try {
-        const res = await axios.get(`http://localhost:5000/api/applications/job/${jobId}`, { headers: authHeader() });
+        const res = await axios.get(`/api/applications/job/${jobId}`, { headers: authHeader() });
         setApplicantsByJob({ ...applicantsByJob, [jobId]: res.data.applications });
       } catch (err) {
         console.error("Failed to load applicants:", err);
@@ -116,7 +116,7 @@ function HRDashboard() {
     try {
       if (profile) {
         // UPDATE (PUT)
-        const res = await axios.put('http://localhost:5000/api/hr/profile', formData, {
+        const res = await axios.put('/api/hr/profile', formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProfile(res.data.profile);
@@ -124,7 +124,7 @@ function HRDashboard() {
         setIsEditing(false);
       } else {
         // CREATE (POST)
-        const res = await axios.post('http://localhost:5000/api/hr/profile', formData, {
+        const res = await axios.post('/api/hr/profile', formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProfile(res.data.profile);
@@ -178,7 +178,7 @@ function HRDashboard() {
             {/* NEW: Job Posting Button */}
             {profile.status === 'APPROVED' ? (
               <Link to="/hr-dashboard/post-job" style={{ textDecoration: 'none' }}>
-                <button style={{ padding: '10px 20px', backgroundColor: '#3182ce', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                <button style={{ padding: '10px 20px', backgroundColor: '#1B2A4A', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
                   {t('hrDashboard.create_job_post')}
                 </button>
               </Link>

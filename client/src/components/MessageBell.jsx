@@ -16,7 +16,7 @@ function MessageBell() {
     let cancelled = false;
     const poll = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/messages', { headers: authHeader() });
+        const res = await axios.get('/api/messages', { headers: authHeader() });
         if (!cancelled) {
           setUnread(res.data.reduce((sum, c) => sum + c.unreadCount, 0));
         }
@@ -35,7 +35,7 @@ function MessageBell() {
       className={`nav-item${isActive ? ' active' : ''}`}
       style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
-        textDecoration: 'none', color: isActive ? '#3182ce' : '#4a5568',
+        textDecoration: 'none', color: isActive ? '#1B2A4A' : '#4a5568',
         padding: '6px 12px', fontSize: '11px', fontWeight: '600', minWidth: '56px'
       }}
     >
@@ -51,7 +51,7 @@ function MessageBell() {
           </span>
         )}
       </span>
-      <span>{t('nav.messaging')}</span>
+      <span className="nav-item-label">{t('nav.messaging')}</span>
     </Link>
   );
 }

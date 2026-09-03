@@ -1,12 +1,14 @@
 const express = require('express');
-const { 
-  registerUser, 
+const {
+  registerUser,
   loginUser,
-  googleLogin, 
+  googleLogin,
   linkedinLogin, // <-- 1. Import the LinkedIn function
-  forgotPassword, 
-  verifyOTP, 
-  resetPassword 
+  forgotPassword,
+  verifyOTP,
+  resetPassword,
+  sendPhoneOtp,
+  verifyPhoneOtp
 } = require('../controllers/authController');
 const router = express.Router();
 
@@ -20,5 +22,9 @@ router.post('/linkedin', linkedinLogin); // <-- 2. The new LinkedIn Route!
 router.post('/forgot-password', forgotPassword);
 router.post('/verify-otp', verifyOTP);
 router.post('/reset-password', resetPassword);
+
+// Phone verification (registration) Routes (Public)
+router.post('/send-phone-otp', sendPhoneOtp);
+router.post('/verify-phone-otp', verifyPhoneOtp);
 
 module.exports = router;

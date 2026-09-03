@@ -26,7 +26,7 @@ function Login() {
       // IMMEDIATELY clear the '?code=...' from the URL to stop double-firing
       window.history.replaceState({}, document.title, window.location.pathname); 
 
-      axios.post('http://localhost:5000/api/auth/linkedin', { code })
+      axios.post('/api/auth/linkedin', { code })
         .then(res => {
           login(res.data.token, res.data.user);
           alert(t('login.linkedin_success'));
@@ -48,7 +48,7 @@ function Login() {
     setError(''); 
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post('/api/auth/login', {
         email: email,
         password: password
       });
@@ -67,6 +67,10 @@ function Login() {
       }
 
     } catch (err) {
+      if (err.response?.data?.code === 'PHONE_NOT_VERIFIED') {
+        navigate(`/verify-phone?email=${encodeURIComponent(email)}`);
+        return;
+      }
       setError(err.response?.data?.message || t('login.error_default'));
     }
   };
@@ -75,7 +79,7 @@ function Login() {
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await axios.post('http://localhost:5000/api/auth/google', {
+        const res = await axios.post('/api/auth/google', {
           token: tokenResponse.access_token,
         });
 
@@ -110,30 +114,36 @@ function Login() {
       {error && <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}>{error}</p>}
 
       <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <input
-          type="email"
-          placeholder={t('login.email_placeholder')}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{ padding: '12px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0' }}
-        />
+        <div className="field-wrap">
+          <input
+            type="email"
+            placeholder={t('login.email_placeholder')}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={{ padding: '12px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%', boxSizing: 'border-box' }}
+          />
+          <span className="required-asterisk">*</span>
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-          <input
-            type="password"
-            placeholder={t('login.password_placeholder')}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ padding: '12px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-          />
-          <Link to="/forgot-password" style={{ fontSize: '13px', color: '#3182ce', textDecoration: 'none', alignSelf: 'flex-end', fontWeight: '500' }}>
+          <div className="field-wrap">
+            <input
+              type="password"
+              placeholder={t('login.password_placeholder')}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{ padding: '12px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box', width: '100%' }}
+            />
+            <span className="required-asterisk">*</span>
+          </div>
+          <Link to="/forgot-password" style={{ fontSize: '13px', color: '#1B2A4A', textDecoration: 'none', alignSelf: 'flex-end', fontWeight: '500' }}>
             {t('login.forgot_password')}
           </Link>
         </div>
 
-        <button type="submit" style={{ padding: '12px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#3182ce', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', marginTop: '10px', transition: 'background-color 0.2s' }}>
+        <button type="submit" style={{ padding: '12px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#1B2A4A', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', marginTop: '10px', transition: 'background-color 0.2s' }}>
           {t('login.submit')}
         </button>
       </form>

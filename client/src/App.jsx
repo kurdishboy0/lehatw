@@ -14,9 +14,13 @@ import JobDetail from './pages/JobDetail';
 import SkillMatch from './pages/SkillMatch';
 import StudentProfileView from './pages/StudentProfileView';
 import Messages from './pages/Messages';
+import AboutUs from './pages/AboutUs';
+import VerifyPhone from './pages/VerifyPhone';
+import LegalPlaceholder from './pages/LegalPlaceholder';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserMenu from './components/UserMenu';
 import MessageBell from './components/MessageBell';
+import NotificationBell from './components/NotificationBell';
 import { useAuth } from './useAuth';
 import { isRtlLanguage } from './rtl';
 
@@ -34,16 +38,16 @@ function NavItem({ to, icon, label }) {
       className={`nav-item${isActive ? ' active' : ''}`}
       style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
-        textDecoration: 'none', color: isActive ? '#3182ce' : '#4a5568',
+        textDecoration: 'none', color: isActive ? '#1B2A4A' : '#4a5568',
         padding: '6px 12px', fontSize: '11px', fontWeight: '600', minWidth: '56px'
       }}
     >
       <span style={{ fontSize: '20px', lineHeight: 1 }}>{icon}</span>
-      <span>{label}</span>
+      <span className="nav-item-label">{label}</span>
       <span
         className="nav-item-underline"
         style={{
-          display: 'block', width: '100%', height: '2px', backgroundColor: '#3182ce',
+          display: 'block', width: '100%', height: '2px', backgroundColor: '#1B2A4A',
           borderRadius: '2px', transform: isActive ? 'scaleX(1)' : 'scaleX(0)', transition: 'transform 0.15s ease'
         }}
       />
@@ -68,9 +72,9 @@ function Header() {
   return (
     <header style={{
       backgroundColor: '#ffffff',
-      borderBottom: '1px solid #e2e8f0',
+      borderBottom: '3px solid #C99A2E',
       boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-      padding: '0 32px',
+      padding: '0 56px',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -85,17 +89,19 @@ function Header() {
       {/* Logo + Name */}
       <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <img src={logo} alt="Lehatw" style={{ height: '42px', width: 'auto', borderRadius: '8px' }} />
-        <span style={{ fontWeight: '800', fontSize: '18px', color: '#1a202c', letterSpacing: '-0.02em' }}>Lehatw</span>
+        <span style={{ fontWeight: '800', fontSize: '18px', color: '#1a202c', letterSpacing: '-0.02em' }}>{t('common.site_name')}</span>
       </Link>
 
       <nav style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
         <NavItem to="/" icon="🏠" label={t('nav.home')} />
         <NavItem to="/jobs" icon="💼" label={t('nav.jobs')} />
         <NavItem to="/skill-match" icon="🧭" label={t('nav.skill_match')} />
+        <NavItem to="/about" icon="ℹ️" label={t('nav.about')} />
 
         {user && (
           <>
             <MessageBell />
+            <NotificationBell />
             <UserMenu user={user} onLogout={handleLogout} />
           </>
         )}
@@ -107,12 +113,12 @@ function Header() {
             <Link to="/login" className="nav-item" style={{ textDecoration: 'none', color: '#4a5568', fontWeight: '600', fontSize: '14px', padding: '8px 14px' }}>
               {t('nav.login')}
             </Link>
-            <Link to="/register" className="nav-item" style={{ textDecoration: 'none', color: '#3182ce', fontWeight: '700', fontSize: '14px', padding: '8px 14px' }}>
+            <Link to="/register" className="nav-item" style={{ textDecoration: 'none', color: '#1B2A4A', fontWeight: '700', fontSize: '14px', padding: '8px 14px' }}>
               {t('nav.student_signup')}
             </Link>
             <Link to="/register-hr" className="btn-hover" style={{
               textDecoration: 'none',
-              backgroundColor: '#3182ce',
+              backgroundColor: '#1B2A4A',
               color: '#ffffff',
               padding: '9px 18px',
               borderRadius: '20px',
@@ -152,7 +158,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div dir={isRtlLanguage(i18n.language) ? 'rtl' : 'ltr'} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f7fafc' }}>
+      <div dir={isRtlLanguage(i18n.language) ? 'rtl' : 'ltr'} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F7F6F1' }}>
 
         <Header />
 
@@ -164,9 +170,14 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/register-hr" element={<RegisterHR />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/verify-phone" element={<VerifyPhone />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
             <Route path="/skill-match" element={<SkillMatch />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/privacy-policy" element={<LegalPlaceholder titleKey="legal.privacy_title" />} />
+            <Route path="/terms-of-service" element={<LegalPlaceholder titleKey="legal.terms_title" />} />
+            <Route path="/contact-us" element={<LegalPlaceholder titleKey="legal.contact_title" />} />
             <Route path="/students/:id" element={<StudentProfileView />} />
             <Route path="/messages" element={
               <ProtectedRoute><Messages /></ProtectedRoute>
@@ -190,13 +201,13 @@ function App() {
         </main>
 
         {/* --- FOOTER --- */}
-        <footer style={{ backgroundColor: '#1a202c', color: '#e2e8f0', padding: '48px 32px 24px 32px', marginTop: '20px' }}>
+        <footer style={{ backgroundColor: '#14213B', color: '#e2e8f0', padding: '48px 32px 24px 32px', marginTop: '20px', borderTop: '3px solid #C99A2E' }}>
           <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px' }}>
 
             <div style={{ maxWidth: '320px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
                 <img src={logo} alt="Lehatw" style={{ height: '46px', width: 'auto', borderRadius: '8px' }} />
-                <span style={{ fontWeight: '800', fontSize: '18px', color: '#ffffff' }}>Lehatw</span>
+                <span style={{ fontWeight: '800', fontSize: '18px', color: '#ffffff' }}>{t('common.site_name')}</span>
               </Link>
               <p style={{ fontSize: '14px', color: '#a0aec0', lineHeight: '1.7', margin: 0 }}>
                 {t('footer.desc')}
@@ -214,9 +225,9 @@ function App() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <h4 style={{ color: '#ffffff', margin: '0 0 6px 0', fontSize: '15px', fontWeight: '700' }}>{t('footer.legal_support')}</h4>
-                <span style={{ color: '#a0aec0', fontSize: '14px', cursor: 'pointer' }}>{t('footer.privacy_policy')}</span>
-                <span style={{ color: '#a0aec0', fontSize: '14px', cursor: 'pointer' }}>{t('footer.terms_of_service')}</span>
-                <span style={{ color: '#a0aec0', fontSize: '14px', cursor: 'pointer' }}>{t('footer.contact_us')}</span>
+                <Link to="/privacy-policy" className="footer-link" style={{ color: '#a0aec0', textDecoration: 'none', fontSize: '14px' }}>{t('footer.privacy_policy')}</Link>
+                <Link to="/terms-of-service" className="footer-link" style={{ color: '#a0aec0', textDecoration: 'none', fontSize: '14px' }}>{t('footer.terms_of_service')}</Link>
+                <Link to="/contact-us" className="footer-link" style={{ color: '#a0aec0', textDecoration: 'none', fontSize: '14px' }}>{t('footer.contact_us')}</Link>
               </div>
             </div>
 

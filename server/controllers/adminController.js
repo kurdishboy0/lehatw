@@ -1,4 +1,5 @@
 const prisma = require('../db');
+const { notifyUser } = require('../utils/notify');
 
 // 1. View all PENDING HR profiles
 const getPendingHRProfiles = async (req, res) => {
@@ -26,9 +27,18 @@ const updateHRStatus = async (req, res) => {
       data: { status: status }
     });
 
-    res.status(200).json({ 
-      message: `HR Profile has been ${status}!`, 
-      profile: updatedProfile 
+    notifyUser(updatedProfile.userId, {
+      type: 'HR_APPROVED',
+      title: status === 'APPROVED' ? 'Your company account was approved' : 'Your company account was reviewed',
+      body: status === 'APPROVED'
+        ? 'You can now post jobs and browse student talent.'
+        : `Your HR account status is now: ${status}.`,
+      link: '/hr-dashboard'
+    });
+
+    res.status(200).json({
+      message: `HR Profile has been ${status}!`,
+      profile: updatedProfile
     });
   } catch (error) {
     console.error("Update HR Status Error:", error);
@@ -57,15 +67,36 @@ const reviewCustomSkill = async (req, res) => {
     const { id } = req.params;
     const { approve } = req.body; // expects boolean
 
+    const skillRow = await prisma.customSkill.findUnique({
+      where: { id: parseInt(id) },
+      include: { studentProfile: { select: { userId: true } } }
+    });
+
     if (approve) {
       const updated = await prisma.customSkill.update({
         where: { id: parseInt(id) },
         data: { isApproved: true }
       });
+      if (skillRow) {
+        notifyUser(skillRow.studentProfile.userId, {
+          type: 'SKILL_APPROVED',
+          title: 'Skill approved',
+          body: `"${skillRow.name}" was approved and now shows on your profile.`,
+          link: '/student-dashboard'
+        });
+      }
       return res.status(200).json({ message: "Custom skill approved!", skill: updated });
     }
 
     await prisma.customSkill.delete({ where: { id: parseInt(id) } });
+    if (skillRow) {
+      notifyUser(skillRow.studentProfile.userId, {
+        type: 'SKILL_REJECTED',
+        title: 'Skill not approved',
+        body: `"${skillRow.name}" wasn't approved by an admin and was removed from your pending skills.`,
+        link: '/student-dashboard'
+      });
+    }
     res.status(200).json({ message: "Custom skill rejected and removed." });
   } catch (error) {
     console.error("Review Custom Skill Error:", error);
