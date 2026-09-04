@@ -4,11 +4,9 @@ services:
     runtime: node
     plan: free
     buildCommand: "cd server && npm install && npx prisma generate && cd ../client && npm install && npm run build"
-    startCommand: "node server/index.js"
+    startCommand: "NODE_ENV=production node server/index.js"
     healthCheckPath: /api/test
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: JWT_SECRET
         sync: false
       - key: DATABASE_URL
