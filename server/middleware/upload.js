@@ -1,11 +1,5 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
-
-const PHOTOS_DIR = path.join(__dirname, '..', 'uploads', 'student-photos');
-const RESUMES_DIR = path.join(__dirname, '..', 'uploads', 'resumes');
-fs.mkdirSync(PHOTOS_DIR, { recursive: true });
-fs.mkdirSync(RESUMES_DIR, { recursive: true });
 
 const PHOTO_MIME_TYPES = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
 const RESUME_MIME_TYPES = {
@@ -14,15 +8,10 @@ const RESUME_MIME_TYPES = {
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx'
 };
 
-function makeUploader({ dir, mimeTypes, maxSizeBytes, filenamePrefix, rejectMessage }) {
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, dir),
-    filename: (req, file, cb) => {
-      const ext = mimeTypes[file.mimetype] || path.extname(file.originalname);
-      cb(null, `${filenamePrefix}${req.user.id}-${Date.now()}${ext}`);
-    }
-  });
-
+// Files are held in memory (req.file.buffer) rather than written to local
+// disk, since they get forwarded straight to Supabase Storage — this also
+// means the app has no dependency on a persistent local filesystem.
+function makeUploader({ mimeTypes, maxSizeBytes, rejectMessage }) {
   const fileFilter = (req, file, cb) => {
     if (mimeTypes[file.mimetype]) {
       cb(null, true);
@@ -31,24 +20,28 @@ function makeUploader({ dir, mimeTypes, maxSizeBytes, filenamePrefix, rejectMess
     }
   };
 
-  return multer({ storage, fileFilter, limits: { fileSize: maxSizeBytes } });
+  return multer({ storage: multer.memoryStorage(), fileFilter, limits: { fileSize: maxSizeBytes } });
 }
 
 const uploadPhoto = makeUploader({
-  dir: PHOTOS_DIR,
   mimeTypes: PHOTO_MIME_TYPES,
   maxSizeBytes: 5 * 1024 * 1024, // 5MB
-  filenamePrefix: 'user',
   rejectMessage: 'Only JPEG, PNG, or WEBP images are allowed.'
 });
 
 const uploadResume = makeUploader({
-  dir: RESUMES_DIR,
   mimeTypes: RESUME_MIME_TYPES,
   maxSizeBytes: 10 * 1024 * 1024, // 10MB
-  filenamePrefix: 'resume',
   rejectMessage: 'Only PDF, DOC, or DOCX files are allowed.'
 });
+
+// Builds the Supabase Storage path/key for an uploaded file, e.g.
+// "student-photos/user7-1735489200000.jpg".
+function storageKey(folder, prefix, userId, mimeType, originalname) {
+  const mimeTypes = folder === 'student-photos' ? PHOTO_MIME_TYPES : RESUME_MIME_TYPES;
+  const ext = mimeTypes[mimeType] || path.extname(originalname);
+  return `${folder}/${prefix}${userId}-${Date.now()}${ext}`;
+}
 
 // Wraps a multer single-file handler so validation/size errors come back as a
 // clean JSON 400 instead of an unhandled error. `required` controls whether a
@@ -71,4 +64,4 @@ const handlePhotoUpload = wrapSingleUpload(uploadPhoto, 'photo', { required: tru
 const handleResumeUpload = wrapSingleUpload(uploadResume, 'resume', { required: true });
 const handleOptionalCvUpload = wrapSingleUpload(uploadResume, 'cv', { required: false });
 
-module.exports = { handlePhotoUpload, handleResumeUpload, handleOptionalCvUpload, PHOTOS_DIR, RESUMES_DIR };
+module.exports = { handlePhotoUpload, handleResumeUpload, handleOptionalCvUpload, storageKey };

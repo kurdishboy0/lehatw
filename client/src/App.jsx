@@ -17,6 +17,7 @@ import Messages from './pages/Messages';
 import AboutUs from './pages/AboutUs';
 import VerifyPhone from './pages/VerifyPhone';
 import LegalPlaceholder from './pages/LegalPlaceholder';
+import ContactUs from './pages/ContactUs';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserMenu from './components/UserMenu';
 import MessageBell from './components/MessageBell';
@@ -175,9 +176,9 @@ function App() {
             <Route path="/jobs/:jobId" element={<JobDetail />} />
             <Route path="/skill-match" element={<SkillMatch />} />
             <Route path="/about" element={<AboutUs />} />
-            <Route path="/privacy-policy" element={<LegalPlaceholder titleKey="legal.privacy_title" />} />
-            <Route path="/terms-of-service" element={<LegalPlaceholder titleKey="legal.terms_title" />} />
-            <Route path="/contact-us" element={<LegalPlaceholder titleKey="legal.contact_title" />} />
+            <Route path="/privacy-policy" element={<LegalPlaceholder titleKey="legal.privacy_title" introKey="legal.privacy_intro" sectionsKey="legal.privacy_sections" />} />
+            <Route path="/terms-of-service" element={<LegalPlaceholder titleKey="legal.terms_title" introKey="legal.terms_intro" sectionsKey="legal.terms_sections" />} />
+            <Route path="/contact-us" element={<ContactUs />} />
             <Route path="/students/:id" element={<StudentProfileView />} />
             <Route path="/messages" element={
               <ProtectedRoute><Messages /></ProtectedRoute>

@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
+    "start": "node index.js",
     "seed": "node prisma/seed.js",
     "seed:taxonomy": "node prisma/seed-taxonomy.js",
-    "expand:skills": "node prisma/expand-skills.js"
+    "expand:skills": "node prisma/expand-skills.js",
+    "seed:demo": "node prisma/seed-demo.js",
+    "seed:demo:cleanup": "node prisma/cleanup-demo.js"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +21,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "@supabase/supabase-js": "^2.115.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

@@ -1,5 +1,7 @@
 const prisma = require('../db');
 const { notifyUser } = require('../utils/notify');
+const { storageKey } = require('../middleware/upload');
+const { uploadToStorage } = require('../utils/supabaseStorage');
 
 // 1. Student applies to a job post
 const applyToJob = async (req, res) => {
@@ -22,7 +24,15 @@ const applyToJob = async (req, res) => {
     // already on file in the student's profile, if any.
     let cvUrl = null;
     if (req.file) {
-      cvUrl = `/uploads/resumes/${req.file.filename}`;
+      const key = storageKey('resumes', 'application', req.user.id, req.file.mimetype, req.file.originalname);
+      try {
+        cvUrl = await uploadToStorage(req.file.buffer, key, req.file.mimetype);
+      } catch (uploadError) {
+        if (uploadError.message === 'STORAGE_NOT_CONFIGURED') {
+          return res.status(503).json({ message: "File storage isn't set up on this server yet." });
+        }
+        throw uploadError;
+      }
     } else {
       const profile = await prisma.studentProfile.findUnique({ where: { userId: req.user.id }, select: { resumeUrl: true } });
       cvUrl = profile?.resumeUrl || null;

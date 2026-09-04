@@ -45,6 +45,16 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/notifications', notificationRoutes);
 
+// In production this same service also serves the built React app, so the
+// whole site lives behind one origin (no CORS/API-base-URL setup needed).
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = path.join(__dirname, '..', 'client', 'dist');
+  app.use(express.static(clientDist));
+  app.get(/^(?!\/api|\/uploads).*/, (req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
+  });
+}
+
 // Turn the server on
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

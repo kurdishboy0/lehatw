@@ -89,7 +89,7 @@ function AdminDashboard() {
             {pendingHR.map(hr => (
               <div key={hr.id} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
-                  <strong>{hr.companyName}</strong> — {hr.industry}
+                  <strong>{hr.companyName}</strong> · {hr.industry}
                   <div style={{ fontSize: '13px', color: '#718096' }}>{hr.user?.email} · CR: {hr.crNumber}</div>
                 </div>
                 <div style={{ display: 'flex', gap: '10px' }}>

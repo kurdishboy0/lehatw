@@ -70,7 +70,7 @@ function Register() {
   const loginWithLinkedIn = () => {
     const clientId = import.meta.env.VITE_LINKEDIN_CLIENT_ID;
     // We intentionally route them back to /login so the Login.jsx useEffect handles the account creation!
-    const redirectUri = 'http://localhost:5173/login';
+    const redirectUri = `${window.location.origin}/login`;
     const scope = 'openid profile email';
     window.location.href = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
   };

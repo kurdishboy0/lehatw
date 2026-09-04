@@ -1,7 +1,6 @@
-const fs = require('fs');
-const path = require('path');
 const prisma = require('../db');
-const { PHOTOS_DIR, RESUMES_DIR } = require('../middleware/upload');
+const { storageKey } = require('../middleware/upload');
+const { uploadToStorage, deleteFromStorageUrl } = require('../utils/supabaseStorage');
 
 const createStudentProfile = async (req, res) => {
   try {
@@ -152,8 +151,8 @@ const getStudentById = async (req, res) => {
   }
 };
 
-// Upload/replace the student's profile photo. Expects multer to have already
-// placed the file on disk (req.file) before this runs.
+// Upload/replace the student's profile photo. The file arrives in memory
+// (req.file.buffer) and is forwarded to Supabase Storage for persistence.
 const uploadProfilePhoto = async (req, res) => {
   try {
     if (!req.file) {
@@ -162,24 +161,26 @@ const uploadProfilePhoto = async (req, res) => {
 
     const existingProfile = await prisma.studentProfile.findUnique({ where: { userId: req.user.id } });
     if (!existingProfile) {
-      fs.unlink(req.file.path, () => {});
       return res.status(404).json({ message: "Please create your profile before uploading a photo." });
     }
 
-    const photoUrl = `/uploads/student-photos/${req.file.filename}`;
+    const key = storageKey('student-photos', 'user', req.user.id, req.file.mimetype, req.file.originalname);
+    let photoUrl;
+    try {
+      photoUrl = await uploadToStorage(req.file.buffer, key, req.file.mimetype);
+    } catch (uploadError) {
+      if (uploadError.message === 'STORAGE_NOT_CONFIGURED') {
+        return res.status(503).json({ message: "File storage isn't set up on this server yet." });
+      }
+      throw uploadError;
+    }
 
     const updatedProfile = await prisma.studentProfile.update({
       where: { userId: req.user.id },
       data: { photoUrl }
     });
 
-    // Best-effort cleanup of the previous photo file, if any.
-    if (existingProfile.photoUrl && existingProfile.photoUrl.includes('/uploads/student-photos/')) {
-      const oldFilename = existingProfile.photoUrl.split('/uploads/student-photos/')[1];
-      if (oldFilename) {
-        fs.unlink(path.join(PHOTOS_DIR, oldFilename), () => {});
-      }
-    }
+    deleteFromStorageUrl(existingProfile.photoUrl).catch(() => {});
 
     res.status(200).json({ message: "Photo uploaded!", photoUrl: updatedProfile.photoUrl });
   } catch (error) {
@@ -197,23 +198,26 @@ const uploadResume = async (req, res) => {
 
     const existingProfile = await prisma.studentProfile.findUnique({ where: { userId: req.user.id } });
     if (!existingProfile) {
-      fs.unlink(req.file.path, () => {});
       return res.status(404).json({ message: "Please create your profile before uploading a resume." });
     }
 
-    const resumeUrl = `/uploads/resumes/${req.file.filename}`;
+    const key = storageKey('resumes', 'resume', req.user.id, req.file.mimetype, req.file.originalname);
+    let resumeUrl;
+    try {
+      resumeUrl = await uploadToStorage(req.file.buffer, key, req.file.mimetype);
+    } catch (uploadError) {
+      if (uploadError.message === 'STORAGE_NOT_CONFIGURED') {
+        return res.status(503).json({ message: "File storage isn't set up on this server yet." });
+      }
+      throw uploadError;
+    }
 
     const updatedProfile = await prisma.studentProfile.update({
       where: { userId: req.user.id },
       data: { resumeUrl }
     });
 
-    if (existingProfile.resumeUrl && existingProfile.resumeUrl.includes('/uploads/resumes/')) {
-      const oldFilename = existingProfile.resumeUrl.split('/uploads/resumes/')[1];
-      if (oldFilename) {
-        fs.unlink(path.join(RESUMES_DIR, oldFilename), () => {});
-      }
-    }
+    deleteFromStorageUrl(existingProfile.resumeUrl).catch(() => {});
 
     res.status(200).json({ message: "Resume uploaded!", resumeUrl: updatedProfile.resumeUrl });
   } catch (error) {
@@ -230,12 +234,7 @@ const removeResume = async (req, res) => {
       return res.status(404).json({ message: "Profile not found." });
     }
 
-    if (existingProfile.resumeUrl && existingProfile.resumeUrl.includes('/uploads/resumes/')) {
-      const oldFilename = existingProfile.resumeUrl.split('/uploads/resumes/')[1];
-      if (oldFilename) {
-        fs.unlink(path.join(RESUMES_DIR, oldFilename), () => {});
-      }
-    }
+    deleteFromStorageUrl(existingProfile.resumeUrl).catch(() => {});
 
     await prisma.studentProfile.update({ where: { userId: req.user.id }, data: { resumeUrl: null } });
     res.status(200).json({ message: "Resume removed." });
