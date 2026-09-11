@@ -120,7 +120,7 @@ function JobDetail() {
         <div style={{ fontSize: '15px', color: '#718096' }}>{job.hrProfile?.companyName} · {job.hrProfile?.industry}</div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '30px', alignItems: 'start' }}>
+      <div className="sidebar-layout">
         {/* SIDEBAR META CARD */}
         <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '20px', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <MetaRow icon="📍" label={t('jobDetail.meta_location')} value={job.location} />

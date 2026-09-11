@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
 
 function StudentProfileView() {
   const { t } = useTranslation();
   const { id } = useParams();
+  const navigate = useNavigate();
   const user = getUser();
 
   const [profile, setProfile] = useState(null);
@@ -53,9 +54,12 @@ function StudentProfileView() {
 
   return (
     <div style={{ maxWidth: '900px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <Link to="/skill-match" style={{ color: '#1B2A4A', textDecoration: 'none', fontSize: '15px', fontWeight: '600' }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#1B2A4A', textDecoration: 'none', fontSize: '15px', fontWeight: '600' }}
+      >
         {t('studentProfile.back')}
-      </Link>
+      </button>
 
       <div style={{ marginTop: '20px', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '36px', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>

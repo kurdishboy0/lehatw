@@ -24,7 +24,7 @@ function Avatar({ name, size = 44 }) {
 
 function ConversationList({ conversations, loading, activeUserId, onSelect, t }) {
   return (
-    <div style={{ width: '320px', flexShrink: 0, borderInlineEnd: '1px solid #e2e8f0', overflowY: 'auto', backgroundColor: '#fafbfc' }}>
+    <div className="conversation-list-pane" style={{ width: '320px', flexShrink: 0, borderInlineEnd: '1px solid #e2e8f0', overflowY: 'auto', backgroundColor: '#fafbfc' }}>
       <div style={{ padding: '18px 20px', borderBottom: '1px solid #e2e8f0', fontWeight: '700', fontSize: '17px', color: '#1a202c' }}>
         {t('messages.heading')}
       </div>
@@ -71,6 +71,7 @@ function ConversationList({ conversations, loading, activeUserId, onSelect, t })
 }
 
 function ThreadPane({ userId, onActivity, t }) {
+  const navigate = useNavigate();
   const me = getUser();
   const [otherUser, setOtherUser] = useState(null);
   const [threadMessages, setThreadMessages] = useState([]);
@@ -104,7 +105,11 @@ function ThreadPane({ userId, onActivity, t }) {
   }, [fetchThread]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // `block: 'nearest'` keeps this scoped to the message list's own scroll
+    // container — without it, scrollIntoView can cascade up and scroll the
+    // whole page too, pushing the thread header (and the mobile back button)
+    // off-screen above the fold.
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [threadMessages.length]);
 
   const handleSend = async (e) => {
@@ -126,6 +131,15 @@ function ThreadPane({ userId, onActivity, t }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>
+        <button
+          type="button"
+          onClick={() => navigate('/messages')}
+          className="thread-back-button"
+          aria-label={t('messages.back_to_list')}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#1a202c', padding: '0 4px 0 0', display: 'none' }}
+        >
+          ←
+        </button>
         <Avatar name={otherUser?.name} size={36} />
         <strong style={{ color: '#1a202c', fontSize: '15px' }}>{otherUser?.name}</strong>
       </div>
@@ -196,7 +210,7 @@ function Messages() {
 
   return (
     <div style={{ maxWidth: '1000px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', height: '72vh', border: '1px solid #e2e8f0', borderRadius: '14px', overflow: 'hidden', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div className={`messages-layout${activeUserId ? ' has-active-thread' : ''}`} style={{ display: 'flex', height: '72vh', border: '1px solid #e2e8f0', borderRadius: '14px', overflow: 'hidden', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <ConversationList
           conversations={conversations}
           loading={loadingConversations}
@@ -204,7 +218,7 @@ function Messages() {
           onSelect={(id) => navigate(`/messages/${id}`)}
           t={t}
         />
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="thread-pane" style={{ flex: 1, minWidth: 0 }}>
           {activeUserId ? (
             <ThreadPane key={activeUserId} userId={activeUserId} onActivity={fetchConversations} t={t} />
           ) : (

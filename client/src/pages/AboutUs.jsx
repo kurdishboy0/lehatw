@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 
 function Section({ title, body }) {
@@ -9,14 +11,40 @@ function Section({ title, body }) {
   );
 }
 
+function StatCard({ icon, value, label }) {
+  return (
+    <div className="hover-lift" style={{
+      backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px',
+      padding: '28px 20px', textAlign: 'center', borderTop: '4px solid #1B2A4A'
+    }}>
+      <div style={{ fontSize: '32px', marginBottom: '8px' }}>{icon}</div>
+      <div style={{ fontSize: '2.2rem', fontWeight: '800', color: '#1B2A4A', lineHeight: 1 }}>
+        {value === null ? '—' : value.toLocaleString()}
+      </div>
+      <div style={{ fontSize: '14px', color: '#718096', marginTop: '8px', fontWeight: '600' }}>{label}</div>
+    </div>
+  );
+}
+
 function AboutUs() {
   const { t } = useTranslation();
+  const [stats, setStats] = useState(null);
+
+  useEffect(() => {
+    axios.get('/api/stats').then((res) => setStats(res.data)).catch(() => {});
+  }, []);
 
   return (
     <div style={{ maxWidth: '820px', margin: '20px auto 60px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+      <div className="animate-fade-up" style={{ textAlign: 'center', marginBottom: '40px' }}>
         <h1 style={{ fontSize: '2.4rem', color: '#1a202c', margin: '0 0 12px 0' }}>{t('aboutUs.title')}</h1>
         <p style={{ fontSize: '1.15rem', color: '#718096', margin: 0 }}>{t('aboutUs.subtitle')}</p>
+      </div>
+
+      <div className="animate-fade-up card-grid-3col" style={{ marginBottom: '48px', animationDelay: '0.1s' }}>
+        <StatCard icon="🎓" value={stats?.studentCount ?? null} label={t('aboutUs.stat_students')} />
+        <StatCard icon="🏢" value={stats?.companyCount ?? null} label={t('aboutUs.stat_companies')} />
+        <StatCard icon="💼" value={stats?.jobCount ?? null} label={t('aboutUs.stat_jobs')} />
       </div>
 
       <Section title={t('aboutUs.mission_title')} body={t('aboutUs.mission_body')} />

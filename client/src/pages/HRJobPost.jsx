@@ -129,7 +129,7 @@ function HRJobPost() {
         {/* BASIC DETAILS */}
         <div style={cardStyle}>
           <h3 style={sectionHeadingStyle}>📋 {t('jobPost.section_basics')}</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="grid-2col">
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={labelStyle}>{t('jobPost.title_label')} <span style={{ color: '#e53e3e' }}>*</span></label>
               <input type="text" placeholder={t('jobPost.title_placeholder')} value={title} onChange={(e) => setTitle(e.target.value)} required style={inputStyle} />

@@ -167,3 +167,42 @@ a {
     transition: none;
   }
 }
+
+/* --- Generic two-column form grid, stacks to one column on narrow screens --- */
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 560px) {
+  .grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Messages: LinkedIn-style two-pane inbox becomes a single master/detail
+   view on phones — show the conversation list OR the open thread, not both --- */
+@media (max-width: 760px) {
+  .messages-layout.has-active-thread .conversation-list-pane {
+    display: none;
+  }
+  .messages-layout:not(.has-active-thread) .thread-pane {
+    display: none;
+  }
+  .thread-back-button {
+    display: inline-flex !important;
+  }
+}
+
+[dir="rtl"] .thread-back-button {
+  transform: scaleX(-1);
+}
+
+/* --- Phone-width layout polish shared across pages --- */
+@media (max-width: 480px) {
+  .card-grid-3col,
+  .grid-2col {
+    gap: 14px;
+  }
+}

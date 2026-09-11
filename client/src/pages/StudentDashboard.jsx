@@ -120,10 +120,16 @@ function StudentDashboard() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoError, setPhotoError] = useState('');
   const photoInputRef = useRef(null);
+  // A brand-new student has no profile row yet, so the upload endpoints (which
+  // require one) would reject the file. We hold onto it here and upload it
+  // automatically right after the profile is created in handleSubmit.
+  const [pendingPhotoFile, setPendingPhotoFile] = useState(null);
+  const [pendingPhotoPreview, setPendingPhotoPreview] = useState(null);
 
   const [uploadingResume, setUploadingResume] = useState(false);
   const [resumeError, setResumeError] = useState('');
   const resumeInputRef = useRef(null);
+  const [pendingResumeFile, setPendingResumeFile] = useState(null);
 
   const navigate = useNavigate();
   const skillsSectionRef = useRef(null);
@@ -226,11 +232,7 @@ function StudentDashboard() {
   };
 
   // --- PHOTO UPLOAD ---
-  const handlePhotoSelect = async (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = ''; // allow re-selecting the same file later
-    if (!file) return;
-
+  const uploadPhotoFile = async (file) => {
     setPhotoError('');
     setUploadingPhoto(true);
     try {
@@ -240,6 +242,9 @@ function StudentDashboard() {
         headers: { ...authHeader(), 'Content-Type': 'multipart/form-data' }
       });
       setProfile((prev) => (prev ? { ...prev, photoUrl: res.data.photoUrl } : prev));
+      if (pendingPhotoPreview) URL.revokeObjectURL(pendingPhotoPreview);
+      setPendingPhotoFile(null);
+      setPendingPhotoPreview(null);
     } catch (err) {
       setPhotoError(err.response?.data?.message || t('studentDashboard.error_upload_photo'));
     } finally {
@@ -247,12 +252,26 @@ function StudentDashboard() {
     }
   };
 
-  // --- RESUME/CV UPLOAD (optional; auto-attaches to job applications) ---
-  const handleResumeSelect = async (e) => {
+  const handlePhotoSelect = async (e) => {
     const file = e.target.files?.[0];
-    e.target.value = '';
+    e.target.value = ''; // allow re-selecting the same file later
     if (!file) return;
 
+    // No profile row exists yet — hold the file and upload it once the
+    // profile is created in handleSubmit, instead of letting the server 404.
+    if (!profile) {
+      setPhotoError('');
+      if (pendingPhotoPreview) URL.revokeObjectURL(pendingPhotoPreview);
+      setPendingPhotoFile(file);
+      setPendingPhotoPreview(URL.createObjectURL(file));
+      return;
+    }
+
+    await uploadPhotoFile(file);
+  };
+
+  // --- RESUME/CV UPLOAD (optional; auto-attaches to job applications) ---
+  const uploadResumeFile = async (file) => {
     setResumeError('');
     setUploadingResume(true);
     try {
@@ -262,11 +281,26 @@ function StudentDashboard() {
         headers: { ...authHeader(), 'Content-Type': 'multipart/form-data' }
       });
       setProfile((prev) => (prev ? { ...prev, resumeUrl: res.data.resumeUrl } : prev));
+      setPendingResumeFile(null);
     } catch (err) {
       setResumeError(err.response?.data?.message || t('studentDashboard.error_upload_resume'));
     } finally {
       setUploadingResume(false);
     }
+  };
+
+  const handleResumeSelect = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    if (!profile) {
+      setResumeError('');
+      setPendingResumeFile(file);
+      return;
+    }
+
+    await uploadResumeFile(file);
   };
 
   const handleRemoveResume = async () => {
@@ -411,7 +445,12 @@ function StudentDashboard() {
         config
       );
 
-      // Step 3: Refresh local data to show the updates
+      // Step 3: A photo/resume picked before the profile existed can only be
+      // uploaded now that it does.
+      if (pendingPhotoFile) await uploadPhotoFile(pendingPhotoFile);
+      if (pendingResumeFile) await uploadResumeFile(pendingResumeFile);
+
+      // Step 4: Refresh local data to show the updates
       const refreshedProfile = await axios.get('/api/student/profile', config);
       setProfile(refreshedProfile.data);
 
@@ -426,10 +465,10 @@ function StudentDashboard() {
 
   const avatar = (size) => (
     <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
-      {profile?.photoUrl ? (
+      {pendingPhotoPreview || profile?.photoUrl ? (
         <img
-          src={profile.photoUrl}
-          alt={profile.fullName}
+          src={pendingPhotoPreview || profile.photoUrl}
+          alt={profile?.fullName || formData.fullName}
           style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', border: '3px solid white', boxShadow: '0 0 0 1px #e2e8f0' }}
         />
       ) : (
@@ -587,6 +626,7 @@ function StudentDashboard() {
               <div>
                 <div style={{ fontSize: '14px', fontWeight: '600', color: '#4a5568' }}>{t('studentDashboard.change_photo')}</div>
                 <div style={{ fontSize: '13px', color: '#a0aec0', marginTop: '2px' }}>{t('studentDashboard.photo_hint')}</div>
+                {pendingPhotoFile && <div style={{ fontSize: '13px', color: '#C99A2E', marginTop: '2px' }}>{t('studentDashboard.photo_pending')}</div>}
                 {uploadingPhoto && <div style={{ fontSize: '13px', color: '#3182ce', marginTop: '2px' }}>{t('studentDashboard.uploading_photo')}</div>}
               </div>
             </div>
@@ -603,7 +643,7 @@ function StudentDashboard() {
                 disabled={uploadingResume}
                 style={{ padding: '10px 18px', backgroundColor: '#edf2f7', color: '#2d3748', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingResume ? 'wait' : 'pointer', fontWeight: '600', fontSize: '14px' }}
               >
-                {profile?.resumeUrl ? t('studentDashboard.change_resume') : t('studentDashboard.upload_resume')}
+                {profile?.resumeUrl || pendingResumeFile ? t('studentDashboard.change_resume') : t('studentDashboard.upload_resume')}
               </button>
               {profile?.resumeUrl && (
                 <>
@@ -615,15 +655,19 @@ function StudentDashboard() {
               )}
               <input ref={resumeInputRef} type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleResumeSelect} style={{ display: 'none' }} />
             </div>
-            <div style={{ fontSize: '13px', color: '#a0aec0', marginTop: '10px' }}>
-              {uploadingResume ? t('studentDashboard.uploading_resume') : !profile?.resumeUrl ? t('studentDashboard.no_resume') : t('studentDashboard.resume_hint')}
+            <div style={{ fontSize: '13px', color: pendingResumeFile ? '#C99A2E' : '#a0aec0', marginTop: '10px' }}>
+              {uploadingResume
+                ? t('studentDashboard.uploading_resume')
+                : pendingResumeFile
+                  ? t('studentDashboard.resume_pending', { filename: pendingResumeFile.name })
+                  : !profile?.resumeUrl ? t('studentDashboard.no_resume') : t('studentDashboard.resume_hint')}
             </div>
           </div>
 
           {/* BASIC INFO */}
           <div style={cardStyle}>
             <h3 style={sectionHeadingStyle}>📋 {t('studentDashboard.section_basic_info')}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div className="grid-2col">
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelStyle}>{t('studentDashboard.full_name_placeholder')} <span style={{ color: '#e53e3e' }}>*</span></label>
                 <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required style={inputStyle} />
