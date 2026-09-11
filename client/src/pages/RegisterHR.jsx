@@ -47,8 +47,7 @@ function RegisterHR() {
         taxId: taxId
       });
 
-      alert(t('registerHr.success'));
-      navigate('/login');
+      navigate(`/verify-phone?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError(err.response?.data?.message || t('registerHr.error_default'));
     }

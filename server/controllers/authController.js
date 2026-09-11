@@ -25,12 +25,15 @@ const registerUser = async (req, res) => {
     // Only STUDENT or HR may self-register; ADMIN accounts can't be created via this endpoint
     const finalRole = role === 'HR' ? 'HR' : 'STUDENT';
 
+    // The contact number used for OTP verification: a student's own phone,
+    // or the HR contact's phone number given on the company registration form.
+    const verificationPhone = finalRole === 'STUDENT' ? (personalPhone || null) : (phone || null);
+
     let userData = {
       email: email,
       password: hashedPassword,
       role: finalRole,
-      // A student's own contact number, used for OTP verification below.
-      phone: finalRole === 'STUDENT' ? (personalPhone || null) : null,
+      phone: verificationPhone,
     };
 
     // 1. Create the User FIRST so we have an ID to use
