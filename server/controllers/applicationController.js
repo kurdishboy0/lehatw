@@ -126,6 +126,9 @@ const getJobApplicants = async (req, res) => {
         student: {
           select: {
             email: true,
+            // Not verified — just what the student entered at signup. Only
+            // shown to the HR account whose job they actually applied to.
+            phone: true,
             studentProfile: {
               select: { fullName: true, university: true, fieldOfStudy: true, linkedinUrl: true, githubUrl: true }
             }

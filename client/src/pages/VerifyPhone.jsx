@@ -4,6 +4,11 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../useAuth';
 
+// Account verification is email-only for now (SMS needs a paid provider and
+// a business registration to set up properly — see the phone_unverified_hint
+// copy shown to HR). The phone number itself is still collected and shown to
+// recruiters as unverified contact info; re-add an SMS channel toggle here
+// later if it turns out people actually want it.
 function VerifyPhone() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -11,7 +16,6 @@ function VerifyPhone() {
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email') || '';
 
-  const [channel, setChannel] = useState('email');
   const [otp, setOtp] = useState('');
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -19,12 +23,12 @@ function VerifyPhone() {
   const [info, setInfo] = useState('');
   const autoSent = useRef(false);
 
-  const sendCode = async (selectedChannel) => {
+  const sendCode = async () => {
     setSending(true);
     setError('');
     setInfo('');
     try {
-      const res = await axios.post('/api/auth/send-phone-otp', { email, channel: selectedChannel });
+      const res = await axios.post('/api/auth/send-phone-otp', { email, channel: 'email' });
       setInfo(res.data.message);
     } catch (err) {
       setError(err.response?.data?.message || t('verifyPhone.error_send'));
@@ -36,7 +40,7 @@ function VerifyPhone() {
   useEffect(() => {
     if (email && !autoSent.current) {
       autoSent.current = true;
-      sendCode('email');
+      sendCode();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- send once on mount for the email in the URL
   }, [email]);
@@ -74,34 +78,7 @@ function VerifyPhone() {
       {error && <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'center', fontSize: '14px' }}>{error}</p>}
       {info && !error && <p style={{ color: '#2f855a', textAlign: 'center', fontSize: '14px' }}>{info}</p>}
 
-      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', margin: '18px 0' }}>
-        <button
-          type="button"
-          onClick={() => { setChannel('email'); sendCode('email'); }}
-          disabled={sending}
-          style={{
-            padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', fontSize: '13px', fontWeight: '600',
-            border: channel === 'email' ? '2px solid #1B2A4A' : '1px solid #cbd5e0',
-            backgroundColor: channel === 'email' ? '#FCF6E3' : '#ffffff', color: '#1B2A4A'
-          }}
-        >
-          📧 {t('verifyPhone.via_email')}
-        </button>
-        <button
-          type="button"
-          onClick={() => { setChannel('sms'); sendCode('sms'); }}
-          disabled={sending}
-          style={{
-            padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', fontSize: '13px', fontWeight: '600',
-            border: channel === 'sms' ? '2px solid #1B2A4A' : '1px solid #cbd5e0',
-            backgroundColor: channel === 'sms' ? '#FCF6E3' : '#ffffff', color: '#1B2A4A'
-          }}
-        >
-          📱 {t('verifyPhone.via_sms')}
-        </button>
-      </div>
-
-      <form onSubmit={handleVerify} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <form onSubmit={handleVerify} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '18px' }}>
         <input
           type="text"
           inputMode="numeric"
@@ -127,7 +104,7 @@ function VerifyPhone() {
 
       <p style={{ textAlign: 'center', fontSize: '13px', color: '#a0aec0', marginTop: '16px' }}>
         {t('verifyPhone.no_code')}{' '}
-        <button type="button" onClick={() => sendCode(channel)} disabled={sending} style={{ background: 'none', border: 'none', color: '#1B2A4A', fontWeight: '600', cursor: 'pointer', padding: 0 }}>
+        <button type="button" onClick={sendCode} disabled={sending} style={{ background: 'none', border: 'none', color: '#1B2A4A', fontWeight: '600', cursor: 'pointer', padding: 0 }}>
           {t('verifyPhone.resend')}
         </button>
       </p>

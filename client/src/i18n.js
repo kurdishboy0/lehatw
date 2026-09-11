@@ -191,10 +191,8 @@ const resources = {
       },
 
       verifyPhone: {
-        title: "Verify your phone",
-        subtitle: "We sent a 6-digit code to confirm you're a real, authorized user.",
-        via_email: "Email",
-        via_sms: "SMS",
+        title: "Verify your email",
+        subtitle: "We sent a 6-digit code to your email address to confirm it's really you.",
         code_placeholder: "6-digit code",
         submit: "Verify",
         verifying: "Verifying...",
@@ -335,6 +333,7 @@ const resources = {
         delete: "Delete",
         no_applicants: "No applicants yet.",
         view_cv: "View CV",
+        phone_unverified_hint: "Provided by the student at signup; not independently verified.",
         error_load: "Failed to load profile.",
         error_save: "Failed to save profile.",
         error_delete: "Failed to delete job post.",
@@ -703,10 +702,8 @@ const resources = {
       },
 
       verifyPhone: {
-        title: "تحقق من رقم هاتفك",
-        subtitle: "أرسلنا رمزاً مكوناً من 6 أرقام للتأكد من أنك مستخدم حقيقي ومخوّل.",
-        via_email: "البريد الإلكتروني",
-        via_sms: "رسالة نصية",
+        title: "تحقق من بريدك الإلكتروني",
+        subtitle: "أرسلنا رمزاً مكوناً من 6 أرقام إلى بريدك الإلكتروني للتأكد من أنه أنت فعلاً.",
         code_placeholder: "الرمز المكون من 6 أرقام",
         submit: "تحقق",
         verifying: "جارٍ التحقق...",
@@ -847,6 +844,7 @@ const resources = {
         delete: "حذف",
         no_applicants: "لا يوجد متقدمون بعد.",
         view_cv: "عرض السيرة الذاتية",
+        phone_unverified_hint: "قدّمه الطالب عند التسجيل، ولم يتم التحقق منه بشكل مستقل.",
         error_load: "فشل تحميل الملف الشخصي.",
         error_save: "فشل حفظ الملف الشخصي.",
         error_delete: "فشل حذف إعلان الوظيفة.",
@@ -1215,10 +1213,8 @@ const resources = {
       },
 
       verifyPhone: {
-        title: "مۆبایلەکەت پشتڕاست بکەرەوە",
-        subtitle: "کۆدێکی ٦ ژمارەیمان ناردووە بۆ دڵنیابوونەوە کە تۆ بەکارهێنەرێکی ڕاستەقینە و مۆڵەتپێدراویت.",
-        via_email: "ئیمەیل",
-        via_sms: "نامەی نووسراو",
+        title: "ئیمەیلەکەت پشتڕاست بکەرەوە",
+        subtitle: "کۆدێکی ٦ ژمارەیمان بۆ ئیمەیلەکەت ناردووە بۆ دڵنیابوونەوە لەوەی بەڕاستی تۆیت.",
         code_placeholder: "کۆدی ٦ ژمارەیی",
         submit: "پشتڕاستکردنەوە",
         verifying: "پشتڕاستکردنەوە...",
@@ -1359,6 +1355,7 @@ const resources = {
         delete: "سڕینەوە",
         no_applicants: "هێشتا هیچ داواکارێک نییە.",
         view_cv: "بینینی CV",
+        phone_unverified_hint: "لەلایەن قوتابییەکەوە لە کاتی تۆمارکردندا دراوە؛ بە جیاواز پشتڕاست نەکراوەتەوە.",
         error_load: "باردکردنی پرۆفایل سەرنەکەوت.",
         error_save: "پاشەکەوتکردنی پرۆفایل سەرنەکەوت.",
         error_delete: "سڕینەوەی ڕیکلامی کار سەرنەکەوت.",

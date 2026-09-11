@@ -251,6 +251,12 @@ function HRDashboard() {
                             <div style={{ fontSize: '13px', color: '#718096' }}>
                               {app.student.studentProfile?.university} · {app.student.studentProfile?.fieldOfStudy}
                             </div>
+                            <div style={{ fontSize: '13px', color: '#4a5568', marginTop: '4px', display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                              <span>✉️ {app.student.email}</span>
+                              {app.student.phone && (
+                                <span title={t('hrDashboard.phone_unverified_hint')}>📞 {app.student.phone}</span>
+                              )}
+                            </div>
                             {app.coverLetter && <p style={{ fontSize: '13px', marginTop: '5px' }}>{app.coverLetter}</p>}
                             {app.cvUrl && <a href={app.cvUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px' }}>{t('hrDashboard.view_cv')}</a>}
                           </div>
