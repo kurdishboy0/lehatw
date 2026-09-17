@@ -20,6 +20,30 @@ enum HRStatus {
   REJECTED
 }
 
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED // temporary; lifts automatically once suspendedUntil passes (or indefinite if null)
+  BANNED
+}
+
+enum ReportTarget {
+  USER
+  MESSAGE
+  JOB
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+enum AnnouncementType {
+  INFO
+  WARNING
+  SUCCESS
+}
+
 // 2. Core User Table
 model User {
   id         Int      @id @default(autoincrement())
@@ -28,8 +52,14 @@ model User {
   googleId   String?  @unique // For Google Login
   linkedinId String?  @unique // For LinkedIn Login
   role       Role     @default(STUDENT)
-  isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
+
+  // --- ACCOUNT STATUS (moderation) ---
+  accountStatus  AccountStatus @default(ACTIVE)
+  statusReason   String?
+  suspendedUntil DateTime?
+  // Only super-admins can create/remove admins or change anyone to/from ADMIN.
+  isSuperAdmin   Boolean       @default(false)
 
   // --- FIELDS FOR OTP ---
   resetOtp        String? // Stores the 6-digit code
@@ -50,6 +80,12 @@ model User {
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
   notifications    Notification[]
+
+  reportsFiled     Report[]              @relation("ReportsFiled")
+  reportsResolved  Report[]              @relation("ReportsResolved")
+  adminActions     AdminAuditLog[]
+  announcements    Announcement[]
+  translationEdits TranslationOverride[]
 }
 
 // 3. Student Profiles (Public)
@@ -91,7 +127,8 @@ model HRProfile {
   address     String?
   taxId       String?
   
-  status      HRStatus @default(PENDING)
+  status          HRStatus @default(PENDING)
+  rejectionReason String? // shown to the company so they know what to fix
 
   jobPosts JobPost[] // Links HR to the jobs they post
 }
@@ -172,6 +209,11 @@ model JobPost {
   isActive         Boolean        @default(true)
   createdAt        DateTime       @default(now())
 
+  // Set when an admin takes a post down; the owning HR can't re-activate it.
+  removedByAdmin   Boolean        @default(false)
+  removedReason    String?
+  removedAt        DateTime?
+
   skills       JobPostSkill[]
   applications Application[]
 }
@@ -228,4 +270,72 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@index([userId, isRead])
+}
+
+// 14. User-submitted reports of users, messages, or job posts, for admin review
+model Report {
+  id             Int          @id @default(autoincrement())
+  reporterId     Int
+  reporter       User         @relation("ReportsFiled", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType     ReportTarget
+  targetId       Int
+  // What was reported, captured at report time, so the evidence survives
+  // even if the message/job is later deleted or edited.
+  targetSnapshot String?
+  reason         String
+  details        String?
+  status         ReportStatus @default(OPEN)
+  resolvedById   Int?
+  resolvedBy     User?        @relation("ReportsResolved", fields: [resolvedById], references: [id], onDelete: SetNull)
+  resolutionNote String?
+  resolvedAt     DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([status, createdAt])
+  @@index([targetType, targetId])
+}
+
+// 15. Record of every admin action, for accountability across multiple admins
+model AdminAuditLog {
+  id         Int      @id @default(autoincrement())
+  adminId    Int?
+  admin      User?    @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  adminEmail String // kept even if the admin account is later removed
+  action     String // e.g. "USER_BANNED", "HR_REJECTED", "SKILL_MERGED"
+  targetType String?
+  targetId   Int?
+  summary    String // human-readable one-liner
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([adminId])
+}
+
+// 16. Site-wide banner messages
+model Announcement {
+  id          Int              @id @default(autoincrement())
+  message_en  String
+  message_ar  String?
+  message_ckb String?
+  type        AnnouncementType @default(INFO)
+  isActive    Boolean          @default(true)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  createdById Int?
+  createdBy   User?            @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime         @default(now())
+}
+
+// 17. Admin edits to UI text; layered over the bundled translations at runtime
+model TranslationOverride {
+  id          Int      @id @default(autoincrement())
+  lang        String // "en" | "ar" | "ckb"
+  key         String // dotted i18n key, e.g. "home.title"
+  value       String
+  updatedById Int?
+  updatedBy   User?    @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+  updatedAt   DateTime @updatedAt
+
+  @@unique([lang, key])
 }

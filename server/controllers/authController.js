@@ -4,6 +4,7 @@ const prisma = require('../db');
 const sendEmail = require('../utils/sendEmail');
 const sendSms = require('../utils/sendSms');
 const { notifyAdmins } = require('../utils/notify');
+const { getAccountBlock, blockedResponse } = require('../utils/accountStatus');
 
 // --- NEW GOOGLE IMPORT ---
 const { OAuth2Client } = require('google-auth-library');
@@ -94,6 +95,11 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials!" });
     }
 
+    // Checked only after the password matches, so account status isn't
+    // revealed to someone who doesn't own the account.
+    const block = getAccountBlock(user);
+    if (block) return blockedResponse(res, block);
+
     if (user.phone && !user.phoneVerified) {
       return res.status(403).json({
         message: "Please verify your phone number to activate your account.",
@@ -155,10 +161,13 @@ const googleLogin = async (req, res) => {
         data: {
           email,
           googleId,
-          role: 'STUDENT', 
+          role: 'STUDENT',
         }
       });
     }
+
+    const block = getAccountBlock(user);
+    if (block) return blockedResponse(res, block);
 
     const jwtToken = jwt.sign(
       { id: user.id, role: user.role },
@@ -228,6 +237,9 @@ const linkedinLogin = async (req, res) => {
         data: { email, linkedinId, role: 'STUDENT' },
       });
     }
+
+    const block = getAccountBlock(user);
+    if (block) return blockedResponse(res, block);
 
     // 4. Generate your Lehatw JWT
     const jwtToken = jwt.sign(
@@ -331,9 +343,25 @@ const resetPassword = async (req, res) => {
 // PHONE VERIFICATION (registration OTP)
 // ==========================================
 
-// Sends (or resends) a 6-digit code to verify the phone number on file, via
-// email or SMS. Channel defaults to email since it needs no extra setup;
-// SMS requires Twilio credentials to be configured on the server.
+// Generates and stores a fresh 6-digit verification code for a user, valid 15 minutes.
+async function issueVerificationCode(user) {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { phoneOtp: otp, phoneOtpExpires: new Date(Date.now() + 15 * 60 * 1000) }
+  });
+  return otp;
+}
+
+// Emails a fresh verification code. Also used by admins to resend one for a locked-out user.
+async function sendVerificationEmail(user) {
+  const otp = await issueVerificationCode(user);
+  await sendEmail(user.email, "Verify your email - Lehatw", `Your verification code is: ${otp}\n\nIt will expire in 15 minutes.`);
+}
+
+// Sends (or resends) a 6-digit code to verify the account, via email or SMS.
+// Channel defaults to email since it needs no extra setup; SMS requires Twilio
+// credentials to be configured on the server.
 const sendPhoneOtp = async (req, res) => {
   try {
     const { email, channel } = req.body;
@@ -346,28 +374,22 @@ const sendPhoneOtp = async (req, res) => {
       return res.status(400).json({ message: "This phone number is already verified." });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
-
-    await prisma.user.update({
-      where: { email },
-      data: { phoneOtp: otp, phoneOtpExpires: otpExpires }
-    });
-
-    if (channel === 'sms') {
-      try {
-        await sendSms(user.phone, `Your Lehatw verification code is: ${otp}. It expires in 15 minutes.`);
-      } catch (smsError) {
-        if (smsError.message === 'SMS_NOT_CONFIGURED') {
-          return res.status(503).json({ message: "SMS delivery isn't set up on this server yet. Please use email instead." });
-        }
-        throw smsError;
-      }
-    } else {
-      await sendEmail(user.email, "Verify your phone - Lehatw", `Your verification code is: ${otp}\n\nIt will expire in 15 minutes.`);
+    if (channel !== 'sms') {
+      await sendVerificationEmail(user);
+      return res.status(200).json({ message: "Verification code sent via email." });
     }
 
-    res.status(200).json({ message: `Verification code sent via ${channel === 'sms' ? 'SMS' : 'email'}.` });
+    const otp = await issueVerificationCode(user);
+    try {
+      await sendSms(user.phone, `Your Lehatw verification code is: ${otp}. It expires in 15 minutes.`);
+    } catch (smsError) {
+      if (smsError.message === 'SMS_NOT_CONFIGURED') {
+        return res.status(503).json({ message: "SMS delivery isn't set up on this server yet. Please use email instead." });
+      }
+      throw smsError;
+    }
+
+    res.status(200).json({ message: "Verification code sent via SMS." });
   } catch (error) {
     console.error("Send Phone OTP Error:", error);
     res.status(500).json({ message: "Server error. Could not send verification code." });
@@ -385,6 +407,9 @@ const verifyPhoneOtp = async (req, res) => {
     if (!user.phoneOtpExpires || user.phoneOtpExpires < new Date()) {
       return res.status(400).json({ message: "Code has expired. Please request a new one." });
     }
+
+    const block = getAccountBlock(user);
+    if (block) return blockedResponse(res, block);
 
     const verifiedUser = await prisma.user.update({
       where: { email },
@@ -418,5 +443,6 @@ module.exports = {
   verifyOTP,
   resetPassword,
   sendPhoneOtp,
-  verifyPhoneOtp
+  verifyPhoneOtp,
+  sendVerificationEmail
 };

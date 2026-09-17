@@ -82,13 +82,16 @@ async function main() {
   console.log("🌱 Seeding test accounts for all three roles...");
   const hashedPassword = await bcrypt.hash(TEST_PASSWORD, 10);
 
+  // The seeded admin is the super-admin, so a fresh database always has
+  // someone able to create and manage other admin accounts.
   await prisma.user.upsert({
     where: { email: 'admin@lehatw.test' },
-    update: {},
+    update: { isSuperAdmin: true },
     create: {
       email: 'admin@lehatw.test',
       password: hashedPassword,
-      role: 'ADMIN'
+      role: 'ADMIN',
+      isSuperAdmin: true
     }
   });
 

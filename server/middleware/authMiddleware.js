@@ -1,40 +1,68 @@
 const jwt = require('jsonwebtoken');
+const prisma = require('../db');
+const { getAccountBlock, blockedResponse } = require('../utils/accountStatus');
 
-const protect = (req, res, next) => {
-  // 1. Look for the badge in the request headers
+// The JWT only proves who someone is; their role and account status come from
+// the database so a ban or role change applies to existing sessions instead of
+// waiting for the token to expire. Cached briefly to avoid a DB round-trip on
+// every request; admin actions that change a user call invalidateUserCache().
+const USER_CACHE_TTL_MS = 30 * 1000;
+const userCache = new Map();
+
+async function loadAuthUser(id) {
+  const cached = userCache.get(id);
+  if (cached && Date.now() - cached.at < USER_CACHE_TTL_MS) return cached.user;
+
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, email: true, role: true, accountStatus: true, statusReason: true, suspendedUntil: true, isSuperAdmin: true }
+  });
+  userCache.set(id, { user, at: Date.now() });
+  return user;
+}
+
+function invalidateUserCache(id) {
+  userCache.delete(Number(id));
+}
+
+const protect = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-
-  // 2. If there is no badge, or it's not formatted correctly, kick them out
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: "Not authorized, no token provided!" });
   }
 
+  let decoded;
   try {
-    // 3. Extract just the token string (remove the word "Bearer ")
-    const token = authHeader.split(' ')[1];
-
-    // 4. Verify the badge is real using our secret key
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // 5. Attach the user's ID and Role to the request so the next function knows who they are
-    req.user = decoded;
-    
-    // 6. Open the door and let them through!
-    next();
-  } catch (error) {
+    decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
+  } catch {
     return res.status(401).json({ message: "Not authorized, invalid token!" });
   }
-};
 
-// NEW: The Admin Bouncer
-const adminOnly = (req, res, next) => {
-  // We check the role that was decoded from the token in the protect function
-  if (req.user && req.user.role === 'ADMIN') {
-    next(); // Let them through!
-  } else {
-    res.status(403).json({ message: "Access denied. Admins only!" });
+  const user = await loadAuthUser(decoded.id);
+  if (!user) {
+    return res.status(401).json({ message: "Not authorized, account no longer exists." });
   }
+
+  const block = getAccountBlock(user);
+  if (block) {
+    invalidateUserCache(user.id);
+    return blockedResponse(res, block);
+  }
+  // An expired suspension was just lifted in the DB; drop the stale cached copy.
+  if (user.accountStatus !== 'ACTIVE') invalidateUserCache(user.id);
+
+  req.user = { id: user.id, email: user.email, role: user.role, isSuperAdmin: user.isSuperAdmin };
+  next();
 };
 
-// Make sure to export both!
-module.exports = { protect, adminOnly };
+const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'ADMIN') return next();
+  res.status(403).json({ message: "Access denied. Admins only!" });
+};
+
+const superAdminOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'ADMIN' && req.user.isSuperAdmin) return next();
+  res.status(403).json({ message: "Access denied. Super-admins only." });
+};
+
+module.exports = { protect, adminOnly, superAdminOnly, invalidateUserCache };

@@ -32,6 +32,13 @@ const resources = {
         company_signup: "Company Signup"
       },
 
+      accountBlock: {
+        banned: "This account has been banned.",
+        suspended: "This account is suspended.",
+        suspended_until: "This account is suspended until {{until}}.",
+        reason: "Reason: {{reason}}"
+      },
+
       notifications: {
         title: "Notifications",
         mark_all_read: "Mark all as read",
@@ -543,6 +550,13 @@ const resources = {
         company_signup: "تسجيل الشركات"
       },
 
+      accountBlock: {
+        banned: "تم حظر هذا الحساب.",
+        suspended: "هذا الحساب موقوف.",
+        suspended_until: "هذا الحساب موقوف حتى {{until}}.",
+        reason: "السبب: {{reason}}"
+      },
+
       notifications: {
         title: "الإشعارات",
         mark_all_read: "تعليم الكل كمقروء",
@@ -1052,6 +1066,13 @@ const resources = {
         login: "چوونە ژوورەوە",
         student_signup: "خۆتۆمارکردنی قوتابی",
         company_signup: "خۆتۆمارکردنی کۆمپانیا"
+      },
+
+      accountBlock: {
+        banned: "ئەم هەژمارە قەدەغە کراوە.",
+        suspended: "ئەم هەژمارە ڕاگیراوە.",
+        suspended_until: "ئەم هەژمارە تا {{until}} ڕاگیراوە.",
+        reason: "هۆکار: {{reason}}"
       },
 
       notifications: {

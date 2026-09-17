@@ -4,6 +4,9 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.jsx';
 import { AuthProvider } from './AuthContext.jsx';
+import { installAccountBlockInterceptor } from './accountBlock';
+
+installAccountBlockInterceptor();
 
 // 1. Import the Google Provider
 import { GoogleOAuthProvider } from '@react-oauth/google';

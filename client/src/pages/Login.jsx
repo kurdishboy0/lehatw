@@ -4,16 +4,40 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../useAuth';
+import { isAccountBlock, describeAccountBlock, readStoredAccountBlock, clearStoredAccountBlock } from '../accountBlock';
+
+function dashboardFor(role) {
+  if (role === 'STUDENT') return '/student-dashboard';
+  if (role === 'HR') return '/hr-dashboard';
+  if (role === 'ADMIN') return '/admin-dashboard';
+  return '/';
+}
 
 function Login() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  // Set when a login attempt, or a mid-session request, was refused because the
+  // account is banned/suspended. Kept apart from `error` so it re-translates.
+  const [accountBlock, setAccountBlock] = useState(() => readStoredAccountBlock());
 
   const navigate = useNavigate();
   const { login } = useAuth();
   const hasFetched = useRef(false); // Tracks if the code was already sent
+
+  useEffect(() => {
+    clearStoredAccountBlock();
+  }, []);
+
+  const showLoginFailure = (err, fallback) => {
+    const data = err.response?.data;
+    if (isAccountBlock(data)) {
+      setAccountBlock(data);
+    } else {
+      setError(fallback);
+    }
+  };
 
   // --- 1. LINKEDIN OAUTH EFFECT ---
   useEffect(() => {
@@ -30,22 +54,20 @@ function Login() {
         .then(res => {
           login(res.data.token, res.data.user);
           alert(t('login.linkedin_success'));
-
-          if (res.data.user.role === 'STUDENT') navigate('/student-dashboard');
-          else if (res.data.user.role === 'HR') navigate('/hr-dashboard');
-          else navigate('/');
+          navigate(dashboardFor(res.data.user.role));
         })
         .catch(err => {
           console.error("LinkedIn Auth Error:", err);
-          setError(t('login.error_linkedin'));
+          showLoginFailure(err, t('login.error_linkedin'));
         });
     }
   }, [navigate, login, t]);
 
   // --- STANDARD EMAIL/PASSWORD LOGIN ---
   const handleLogin = async (e) => {
-    e.preventDefault(); 
-    setError(''); 
+    e.preventDefault();
+    setError('');
+    setAccountBlock(null);
 
     try {
       const response = await axios.post('/api/auth/login', {
@@ -54,24 +76,14 @@ function Login() {
       });
 
       login(response.data.token, response.data.user);
-      const userRole = response.data.user.role;
-
       alert(t('login.success'));
-
-      if (userRole === 'STUDENT') {
-        navigate('/student-dashboard');
-      } else if (userRole === 'HR') {
-        navigate('/hr-dashboard'); 
-      } else {
-        navigate('/'); 
-      }
-
+      navigate(dashboardFor(response.data.user.role));
     } catch (err) {
       if (err.response?.data?.code === 'PHONE_NOT_VERIFIED') {
         navigate(`/verify-phone?email=${encodeURIComponent(email)}`);
         return;
       }
-      setError(err.response?.data?.message || t('login.error_default'));
+      showLoginFailure(err, err.response?.data?.message || t('login.error_default'));
     }
   };
 
@@ -85,13 +97,10 @@ function Login() {
 
         login(res.data.token, res.data.user);
         alert(t('login.google_success'));
-
-        if (res.data.user.role === 'STUDENT') navigate('/student-dashboard');
-        else if (res.data.user.role === 'HR') navigate('/hr-dashboard');
-        else navigate('/');
+        navigate(dashboardFor(res.data.user.role));
       } catch (err) {
         console.error("Google Login Error:", err);
-        setError(t('login.error_google'));
+        showLoginFailure(err, t('login.error_google'));
       }
     },
     onError: () => {
@@ -111,6 +120,11 @@ function Login() {
     <div style={{ maxWidth: '400px', margin: '50px auto', fontFamily: 'sans-serif' }}>
       <h2 style={{ textAlign: 'center', color: '#2d3748' }}>{t('login.title')}</h2>
 
+      {accountBlock && (
+        <div role="alert" style={{ backgroundColor: '#fff5f5', border: '1px solid #feb2b2', color: '#9b2c2c', borderRadius: '8px', padding: '12px 14px', fontSize: '14px', lineHeight: '1.6', textAlign: 'center', marginTop: '12px' }}>
+          {describeAccountBlock(accountBlock, t, i18n.language)}
+        </div>
+      )}
       {error && <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}>{error}</p>}
 
       <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
