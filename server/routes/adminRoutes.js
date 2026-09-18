@@ -56,6 +56,7 @@ router.post('/users/:id/reset-password', users.resetPassword);
 router.post('/users/:id/resend-verification', users.resendVerification);
 router.put('/users/:id/verify', users.markVerified);
 router.put('/users/:id/role', users.setRole);
+router.delete('/users/:id', users.deleteUser);
 
 // Skills catalog
 router.get('/catalog', catalog.getCatalog);

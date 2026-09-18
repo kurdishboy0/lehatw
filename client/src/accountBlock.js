@@ -2,7 +2,7 @@ import axios from 'axios';
 import { logout } from './auth';
 import { formatDateTime } from './localizeDigits';
 
-const BLOCK_CODES = ['ACCOUNT_BANNED', 'ACCOUNT_SUSPENDED'];
+const BLOCK_CODES = ['ACCOUNT_BANNED', 'ACCOUNT_SUSPENDED', 'ACCOUNT_DELETED'];
 const STORAGE_KEY = 'lehatw_account_block';
 
 export function isAccountBlock(data) {
@@ -14,7 +14,9 @@ export function isAccountBlock(data) {
 export function describeAccountBlock(block, t, lang) {
   if (!block) return '';
   const parts = [];
-  if (block.code === 'ACCOUNT_BANNED') {
+  if (block.code === 'ACCOUNT_DELETED') {
+    parts.push(t('accountBlock.deleted'));
+  } else if (block.code === 'ACCOUNT_BANNED') {
     parts.push(t('accountBlock.banned'));
   } else if (block.until) {
     parts.push(t('accountBlock.suspended_until', { until: formatDateTime(block.until, lang) }));
@@ -44,8 +46,8 @@ export function clearStoredAccountBlock() {
   }
 }
 
-// If a signed-in user is banned or suspended mid-session, the next API call
-// comes back 403 with a block code. Sign them out and explain why on the login
+// If a signed-in user is banned, suspended, or deleted mid-session, the next
+// API call comes back 403 (or 401 for a deleted account) with a block code. Sign them out and explain why on the login
 // page, instead of leaving them in a half-broken session. Auth endpoints are
 // skipped because the login page shows the block inline itself.
 export function installAccountBlockInterceptor() {
@@ -54,7 +56,7 @@ export function installAccountBlockInterceptor() {
     (error) => {
       const data = error.response?.data;
       const url = error.config?.url || '';
-      if (error.response?.status === 403 && isAccountBlock(data) && !url.includes('/api/auth/')) {
+      if ([401, 403].includes(error.response?.status) && isAccountBlock(data) && !url.includes('/api/auth/')) {
         try {
           sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         } catch {

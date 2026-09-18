@@ -6,6 +6,7 @@ const { logAdminAction } = require('../../utils/audit');
 const { invalidateUserCache } = require('../../middleware/authMiddleware');
 const { sendVerificationEmail } = require('../authController');
 const { generateTempPassword } = require('../../utils/tempPassword');
+const { deleteFromStorageUrl } = require('../../utils/supabaseStorage');
 
 const PAGE_SIZE = 25;
 const MIN_REASON = 5;
@@ -254,6 +255,56 @@ const setRole = handle('Set Role', async (req, res) => {
   res.status(200).json({ message: 'Role updated.', user: shape(updated) });
 });
 
+// ============ Delete ============
+
+// Permanently removes an account and everything tied to it. Profiles have no
+// cascade from User, so they go first; the rest cascades from the user row
+// (applications, messages, notifications, reports they filed) or from the
+// company profile (job posts and the applications to them).
+const deleteUser = handle('Delete User', async (req, res) => {
+  const target = await loadManageableUser(req);
+  const reason = (req.body.reason || '').trim();
+  if (reason.length < MIN_REASON) {
+    return res.status(400).json({ message: 'Please give a reason. The user is emailed it.' });
+  }
+  if ((req.body.confirmEmail || '').trim().toLowerCase() !== target.email.toLowerCase()) {
+    return res.status(400).json({ message: "The email you typed doesn't match this account." });
+  }
+  if (target.isSuperAdmin && (await countActiveSuperAdmins()) <= 1) {
+    return res.status(400).json({ message: "You can't delete the last active super-admin." });
+  }
+
+  const [profile, ownApplications, jobPosts, messages] = await Promise.all([
+    prisma.studentProfile.findUnique({ where: { userId: target.id }, select: { photoUrl: true, resumeUrl: true } }),
+    prisma.application.findMany({ where: { studentId: target.id }, select: { cvUrl: true } }),
+    target.hrProfile ? prisma.jobPost.count({ where: { hrProfileId: target.hrProfile.id } }) : 0,
+    prisma.message.count({ where: { OR: [{ senderId: target.id }, { recipientId: target.id }] } })
+  ]);
+  // Only files this user uploaded; other students' CVs on a company's job
+  // posts belong to those students and stay in storage.
+  const files = [...new Set([profile?.photoUrl, profile?.resumeUrl, ...ownApplications.map((a) => a.cvUrl)].filter(Boolean))];
+
+  await prisma.$transaction([
+    prisma.studentProfile.deleteMany({ where: { userId: target.id } }),
+    prisma.hRProfile.deleteMany({ where: { userId: target.id } }),
+    prisma.user.delete({ where: { id: target.id } })
+  ]);
+  invalidateUserCache(target.id);
+  for (const url of files) deleteFromStorageUrl(url);
+
+  emailQuietly(target.email, 'Your Lehatw account was deleted',
+    `Your Lehatw account (${target.email}) was deleted by an admin.\n\nReason: ${reason}\n\nIf you think this is a mistake, reply to this email.`);
+  await logAdminAction(req, {
+    action: 'USER_DELETED', targetType: 'USER', targetId: target.id,
+    summary: `Deleted the account ${target.email} (${target.role})`,
+    details: {
+      reason, email: target.email, role: target.role, name: shape(target).name,
+      removed: { applications: ownApplications.length, jobPosts, messages, files: files.length }
+    }
+  });
+  res.status(200).json({ message: 'Account deleted.' });
+});
+
 // ============ Admin accounts (super-admin only) ============
 
 const listAdmins = handle('List Admins', async (req, res) => {
@@ -338,6 +389,6 @@ const removeAdmin = handle('Remove Admin', async (req, res) => {
 });
 
 module.exports = {
-  listUsers, getUser, setStatus, resetPassword, resendVerification, markVerified, setRole,
+  listUsers, getUser, setStatus, resetPassword, resendVerification, markVerified, setRole, deleteUser,
   listAdmins, addAdmin, setSuperAdmin, removeAdmin
 };

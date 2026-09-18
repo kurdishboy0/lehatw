@@ -178,7 +178,8 @@ const en = {
         USER_PASSWORD_RESET: "Reset a password",
         USER_VERIFICATION_RESENT: "Resent a verification code",
         USER_VERIFIED: "Verified an account manually",
-        USER_ROLE_CHANGED: "Changed an account type"
+        USER_ROLE_CHANGED: "Changed an account type",
+        USER_DELETED: "Deleted an account"
       }
     },
 
@@ -366,7 +367,17 @@ const en = {
       status_updated: "Account status updated.",
       verification_sent: "Verification code sent.",
       verified_done: "Account verified.",
-      role_updated: "Role updated."
+      role_updated: "Role updated.",
+      section_danger: "Delete account",
+      delete: "Delete account",
+      delete_title: "Delete {{email}}",
+      delete_consider: "If they might come back, ban the account instead. A ban can be undone, a deletion can't.",
+      delete_warning: "This permanently deletes the account with its profile, skills, applications, messages, and notifications.",
+      delete_warning_company: "Their job posts ({{count}}) and every application sent to them are deleted too.",
+      delete_reason_hint: "The user is emailed this reason.",
+      delete_confirm_label: "Type {{email}} to confirm",
+      delete_button: "Delete permanently",
+      deleted: "Account deleted."
     },
 
     admins: {
@@ -593,7 +604,8 @@ const ar = {
         USER_PASSWORD_RESET: "إعادة تعيين كلمة مرور",
         USER_VERIFICATION_RESENT: "إعادة إرسال رمز التحقق",
         USER_VERIFIED: "توثيق حساب يدوياً",
-        USER_ROLE_CHANGED: "تغيير نوع حساب"
+        USER_ROLE_CHANGED: "تغيير نوع حساب",
+        USER_DELETED: "حذف حساب"
       }
     },
 
@@ -781,7 +793,17 @@ const ar = {
       status_updated: "تم تحديث حالة الحساب.",
       verification_sent: "تم إرسال رمز التحقق.",
       verified_done: "تم توثيق الحساب.",
-      role_updated: "تم تغيير نوع الحساب."
+      role_updated: "تم تغيير نوع الحساب.",
+      section_danger: "حذف الحساب",
+      delete: "حذف الحساب",
+      delete_title: "حذف {{email}}",
+      delete_consider: "إذا كان قد يعود، فاحظر الحساب بدلاً من حذفه. يمكن التراجع عن الحظر، لكن لا يمكن التراجع عن الحذف.",
+      delete_warning: "سيُحذف الحساب نهائياً مع ملفه الشخصي ومهاراته وطلبات التوظيف والرسائل والإشعارات.",
+      delete_warning_company: "ستُحذف أيضاً إعلانات الوظائف الخاصة به ({{count}}) وكل الطلبات المقدمة إليها.",
+      delete_reason_hint: "سيُرسل هذا السبب إلى المستخدم بالبريد الإلكتروني.",
+      delete_confirm_label: "اكتب {{email}} للتأكيد",
+      delete_button: "حذف نهائي",
+      deleted: "تم حذف الحساب."
     },
 
     admins: {
@@ -1008,7 +1030,8 @@ const ckb = {
         USER_PASSWORD_RESET: "دانانەوەی وشەی نهێنی",
         USER_VERIFICATION_RESENT: "ناردنەوەی کۆدی پشتڕاستکردنەوە",
         USER_VERIFIED: "پشتڕاستکردنەوەی دەستی هەژمار",
-        USER_ROLE_CHANGED: "گۆڕینی جۆری هەژمار"
+        USER_ROLE_CHANGED: "گۆڕینی جۆری هەژمار",
+        USER_DELETED: "سڕینەوەی هەژمار"
       }
     },
 
@@ -1196,7 +1219,17 @@ const ckb = {
       status_updated: "دۆخی هەژمار نوێ کرایەوە.",
       verification_sent: "کۆدی پشتڕاستکردنەوە نێردرا.",
       verified_done: "هەژمارەکە پشتڕاست کرایەوە.",
-      role_updated: "جۆری هەژمار گۆڕدرا."
+      role_updated: "جۆری هەژمار گۆڕدرا.",
+      section_danger: "سڕینەوەی هەژمار",
+      delete: "سڕینەوەی هەژمار",
+      delete_title: "سڕینەوەی {{email}}",
+      delete_consider: "ئەگەر لەوانەیە بگەڕێتەوە، لە جیاتی سڕینەوە هەژمارەکە قەدەغە بکە. قەدەغەکردن دەگەڕێندرێتەوە، بەڵام سڕینەوە ناگەڕێندرێتەوە.",
+      delete_warning: "هەژمارەکە بە هەمیشەیی دەسڕدرێتەوە لەگەڵ پرۆفایل، توانایی، داواکاری، نامە و ئاگادارکردنەوەکانی.",
+      delete_warning_company: "ڕیکلامی کارەکانی ({{count}}) و هەموو ئەو داواکارییانەی بۆیان نێردراون دەسڕدرێنەوە.",
+      delete_reason_hint: "ئەم هۆکارە بە ئیمەیڵ بۆ بەکارهێنەرەکە دەنێردرێت.",
+      delete_confirm_label: "{{email}} بنووسە بۆ دڵنیاکردنەوە",
+      delete_button: "سڕینەوەی هەمیشەیی",
+      deleted: "هەژمارەکە سڕایەوە."
     },
 
     admins: {

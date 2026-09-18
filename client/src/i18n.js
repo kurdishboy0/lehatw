@@ -35,6 +35,7 @@ const resources = {
 
       accountBlock: {
         banned: "This account has been banned.",
+        deleted: "This account has been deleted.",
         suspended: "This account is suspended.",
         suspended_until: "This account is suspended until {{until}}.",
         reason: "Reason: {{reason}}"
@@ -533,6 +534,7 @@ const resources = {
 
       accountBlock: {
         banned: "تم حظر هذا الحساب.",
+        deleted: "تم حذف هذا الحساب.",
         suspended: "هذا الحساب موقوف.",
         suspended_until: "هذا الحساب موقوف حتى {{until}}.",
         reason: "السبب: {{reason}}"
@@ -1031,6 +1033,7 @@ const resources = {
 
       accountBlock: {
         banned: "ئەم هەژمارە قەدەغە کراوە.",
+        deleted: "ئەم هەژمارە سڕاوەتەوە.",
         suspended: "ئەم هەژمارە ڕاگیراوە.",
         suspended_until: "ئەم هەژمارە تا {{until}} ڕاگیراوە.",
         reason: "هۆکار: {{reason}}"

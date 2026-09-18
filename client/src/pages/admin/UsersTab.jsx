@@ -52,6 +52,7 @@ function UserDetailDialog({ userId, me, notify, onChanged, onClose }) {
   const [newRole, setNewRole] = useState('');
   const [tempPassword, setTempPassword] = useState('');
   const [copied, setCopied] = useState(false);
+  const [confirmEmail, setConfirmEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -74,7 +75,27 @@ function UserDetailDialog({ userId, me, notify, onChanged, onClose }) {
     setMode(next);
     setReason('');
     setUntil('');
+    setConfirmEmail('');
     setError('');
+  };
+
+  // Deletion closes the dialog instead of reloading details that no longer exist.
+  const deleteAccount = async () => {
+    if (reason.trim().length < MIN_REASON) {
+      setError(t('adminConsole.reason_too_short', { count: MIN_REASON }));
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      await axios.delete(`/api/admin/users/${userId}`, { data: { reason: reason.trim(), confirmEmail }, headers: authHeader() });
+      notify(t('adminConsole.users.deleted'));
+      onChanged();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.message || t('adminConsole.error_action'));
+      setBusy(false);
+    }
   };
 
   // Runs one account action, then refreshes the details and the list behind.
@@ -181,6 +202,46 @@ function UserDetailDialog({ userId, me, notify, onChanged, onClose }) {
           {t('adminConsole.users.role_confirm', { email: user.email, from: t(`adminConsole.role.${user.role}`), to: t(`adminConsole.role.${newRole}`) })}
         </p>
       </ActionPanel>
+    );
+  } else if (mode === 'delete') {
+    const emailMatches = confirmEmail.trim().toLowerCase() === user.email.toLowerCase();
+    body = (
+      <form onSubmit={(e) => { e.preventDefault(); if (emailMatches) deleteAccount(); }}>
+        <h4 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#9b2c2c' }}>{t('adminConsole.users.delete_title', { email: user.email })}</h4>
+        <div role="alert" style={{ padding: '10px 12px', borderRadius: '8px', backgroundColor: '#fde8e8', color: '#9b2c2c', fontSize: '14px', lineHeight: 1.6 }}>
+          {t('adminConsole.users.delete_warning')}
+          {user.stats.jobPosts > 0 && <div>{t('adminConsole.users.delete_warning_company', { count: num(user.stats.jobPosts) })}</div>}
+        </div>
+        <p style={{ margin: '10px 0', color: '#4a5568', fontSize: '14px', lineHeight: 1.6 }}>{t('adminConsole.users.delete_consider')}</p>
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          rows={3}
+          maxLength={500}
+          placeholder={t('adminConsole.reason_placeholder')}
+          aria-label={t('adminConsole.reason_placeholder')}
+          style={{ ...inputStyle, width: '100%' }}
+        />
+        <p style={{ ...mutedStyle, margin: '4px 0 10px 0' }}>{t('adminConsole.users.delete_reason_hint')}</p>
+        <label style={{ display: 'block', fontSize: '14px', color: '#2d3748' }}>
+          {t('adminConsole.users.delete_confirm_label', { email: user.email })}
+          <input
+            type="email"
+            dir="ltr"
+            autoComplete="off"
+            value={confirmEmail}
+            onChange={(e) => setConfirmEmail(e.target.value)}
+            style={{ ...inputStyle, display: 'block', width: '100%', marginTop: '6px' }}
+          />
+        </label>
+        {error && <p role="alert" style={{ color: '#c53030', fontSize: '13px', margin: '8px 0 0 0' }}>{error}</p>}
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '14px' }}>
+          <button type="button" onClick={() => setMode(null)} style={buttonStyle('secondary')}>{t('adminConsole.cancel')}</button>
+          <button type="submit" disabled={!emailMatches || busy} style={{ ...buttonStyle('danger'), opacity: !emailMatches || busy ? 0.5 : 1 }}>
+            {t('adminConsole.users.delete_button')}
+          </button>
+        </div>
+      </form>
     );
   } else if (mode === 'temp') {
     body = (
@@ -308,6 +369,13 @@ function UserDetailDialog({ userId, me, notify, onChanged, onClose }) {
               </li>
             ))}
           </ul>
+        )}
+
+        {manageable && (
+          <>
+            <SectionTitle>{t('adminConsole.users.section_danger')}</SectionTitle>
+            <button type="button" onClick={() => openMode('delete')} style={buttonStyle('danger')}>{t('adminConsole.users.delete')}</button>
+          </>
         )}
       </div>
     );

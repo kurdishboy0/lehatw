@@ -40,7 +40,7 @@ const protect = async (req, res, next) => {
 
   const user = await loadAuthUser(decoded.id);
   if (!user) {
-    return res.status(401).json({ message: "Not authorized, account no longer exists." });
+    return res.status(401).json({ message: "Not authorized, account no longer exists.", code: "ACCOUNT_DELETED" });
   }
 
   const block = getAccountBlock(user);
