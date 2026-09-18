@@ -1,7 +1,8 @@
 const express = require('express');
-const { protect, adminOnly } = require('../middleware/authMiddleware');
+const { protect, adminOnly, superAdminOnly } = require('../middleware/authMiddleware');
 const approvals = require('../controllers/admin/approvalsController');
 const moderation = require('../controllers/admin/moderationController');
+const users = require('../controllers/admin/usersController');
 const overview = require('../controllers/admin/overviewController');
 
 const router = express.Router();
@@ -10,6 +11,7 @@ const router = express.Router();
 // route can't be added without it.
 router.use(protect, adminOnly);
 
+router.get('/me', overview.getMe);
 router.get('/pending-counts', overview.getPendingCounts);
 
 // Company (HR) approvals
@@ -32,5 +34,20 @@ router.put('/jobs/:id/restore', moderation.restoreJob);
 router.get('/reports', moderation.listReports);
 router.put('/reports/:id', moderation.closeReport);
 router.delete('/messages/:id', moderation.deleteMessage);
+
+// Users
+router.get('/users', users.listUsers);
+router.get('/users/:id', users.getUser);
+router.put('/users/:id/status', users.setStatus);
+router.post('/users/:id/reset-password', users.resetPassword);
+router.post('/users/:id/resend-verification', users.resendVerification);
+router.put('/users/:id/verify', users.markVerified);
+router.put('/users/:id/role', users.setRole);
+
+// Admin accounts (super-admin only)
+router.get('/admins', superAdminOnly, users.listAdmins);
+router.post('/admins', superAdminOnly, users.addAdmin);
+router.put('/admins/:id/super', superAdminOnly, users.setSuperAdmin);
+router.delete('/admins/:id', superAdminOnly, users.removeAdmin);
 
 module.exports = router;

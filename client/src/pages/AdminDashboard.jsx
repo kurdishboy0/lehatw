@@ -7,18 +7,24 @@ import { toLocalizedDigits } from '../localizeDigits';
 import ApprovalsTab from './admin/ApprovalsTab';
 import ReportsTab from './admin/ReportsTab';
 import JobsTab from './admin/JobsTab';
+import UsersTab from './admin/UsersTab';
+import AdminsTab from './admin/AdminsTab';
 
 const TABS = [
   { key: 'approvals', icon: '✅', countKey: 'approvals', Component: ApprovalsTab },
   { key: 'reports', icon: '⚑', countKey: 'reports', Component: ReportsTab },
-  { key: 'jobs', icon: '💼', countKey: null, Component: JobsTab }
+  { key: 'jobs', icon: '💼', countKey: null, Component: JobsTab },
+  { key: 'users', icon: '👥', countKey: null, Component: UsersTab },
+  { key: 'admins', icon: '🛡️', countKey: null, Component: AdminsTab, superOnly: true }
 ];
 
 function AdminDashboard() {
   const { t, i18n } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeKey = TABS.some((tab) => tab.key === searchParams.get('tab')) ? searchParams.get('tab') : 'approvals';
-  const active = TABS.find((tab) => tab.key === activeKey);
+  const [me, setMe] = useState(null);
+  const tabs = TABS.filter((tab) => !tab.superOnly || me?.isSuperAdmin);
+  const activeKey = tabs.some((tab) => tab.key === searchParams.get('tab')) ? searchParams.get('tab') : 'approvals';
+  const active = tabs.find((tab) => tab.key === activeKey);
 
   const [counts, setCounts] = useState({});
   const [flash, setFlash] = useState(null); // { kind: 'success' | 'error', text }
@@ -36,6 +42,7 @@ function AdminDashboard() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount
     refreshCounts();
+    axios.get('/api/admin/me', { headers: authHeader() }).then((res) => setMe(res.data)).catch(() => {});
   }, [refreshCounts]);
 
   const notify = useCallback((text, kind = 'success') => {
@@ -52,13 +59,15 @@ function AdminDashboard() {
   };
 
   const ActiveTab = active.Component;
+  // A deep link to a super-admin tab waits until we know who is viewing.
+  const waitingForMe = !me && TABS.some((tab) => tab.superOnly && tab.key === searchParams.get('tab'));
 
   return (
     <div style={{ maxWidth: '1040px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
       <h2 style={{ margin: '0 0 18px 0', color: '#1a202c' }}>🛡️ {t('adminConsole.heading')}</h2>
 
       <div role="tablist" aria-label={t('adminConsole.heading')} style={{ display: 'flex', gap: '4px', borderBottom: '2px solid #e2e8f0', marginBottom: '22px', overflowX: 'auto' }}>
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const selected = tab.key === activeKey;
           const count = tab.countKey ? counts[tab.countKey] : 0;
           return (
@@ -100,7 +109,9 @@ function AdminDashboard() {
       )}
 
       <div role="tabpanel">
-        <ActiveTab key={activeKey} notify={notify} refreshCounts={refreshCounts} />
+        {waitingForMe
+          ? <p style={{ color: '#718096' }}>{t('adminConsole.loading')}</p>
+          : <ActiveTab key={activeKey} notify={notify} refreshCounts={refreshCounts} me={me} />}
       </div>
     </div>
   );

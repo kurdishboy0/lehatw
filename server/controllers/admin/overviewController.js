@@ -15,4 +15,9 @@ const getPendingCounts = async (req, res) => {
   }
 };
 
-module.exports = { getPendingCounts };
+// Who the console is being viewed by, so it can show super-admin tools.
+const getMe = (req, res) => {
+  res.status(200).json({ id: req.user.id, email: req.user.email, isSuperAdmin: req.user.isSuperAdmin });
+};
+
+module.exports = { getPendingCounts, getMe };

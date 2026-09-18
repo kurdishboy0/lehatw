@@ -163,6 +163,9 @@ function ReportsTab({ notify, refreshCounts }) {
                     {r.targetType === 'MESSAGE' && target && (
                       <button type="button" onClick={() => setDeletingMessage(r)} style={buttonStyle('danger')}>{t('adminConsole.reports.delete_message')}</button>
                     )}
+                    {(r.targetType === 'USER' && target) || (r.targetType === 'MESSAGE' && target?.sender) ? (
+                      <Link to={`/admin-dashboard?tab=users&user=${r.targetType === 'USER' ? target.id : target.sender.id}`} style={{ ...buttonStyle('secondary'), textDecoration: 'none' }}>{t('adminConsole.users.manage_account')}</Link>
+                    ) : null}
                     {r.targetType === 'USER' && target?.studentProfile && (
                       <Link to={`/students/${target.studentProfile.id}`} target="_blank" rel="noreferrer" style={{ ...buttonStyle('secondary'), textDecoration: 'none' }}>{t('adminConsole.reports.view_profile')}</Link>
                     )}

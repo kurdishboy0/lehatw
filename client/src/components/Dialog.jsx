@@ -45,7 +45,7 @@ export function Dialog({ title, onClose, children, width = 480 }) {
 
 // Asks for a reason before a moderation action. `minLength` > 0 makes the
 // reason required. `onConfirm` may throw; its server message is shown inline.
-export function ReasonDialog({ title, hint, minLength = 0, confirmLabel, variant = 'danger', onConfirm, onClose }) {
+export function ReasonDialog({ title, hint, minLength = 0, confirmLabel, variant = 'danger', onConfirm, onClose, children }) {
   const { t } = useTranslation();
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
@@ -79,12 +79,42 @@ export function ReasonDialog({ title, hint, minLength = 0, confirmLabel, variant
           placeholder={minLength > 0 ? t('adminConsole.reason_placeholder') : t('adminConsole.reason_optional_placeholder')}
           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '14px', fontFamily: 'inherit' }}
         />
+        {children}
         {error && <p role="alert" style={{ color: '#c53030', fontSize: '13px', margin: '8px 0 0 0' }}>{error}</p>}
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '14px' }}>
           <button type="button" onClick={onClose} style={buttonStyle('secondary')}>{t('adminConsole.cancel')}</button>
           <button type="submit" disabled={busy} style={{ ...buttonStyle(variant), opacity: busy ? 0.6 : 1 }}>{confirmLabel}</button>
         </div>
       </form>
+    </Dialog>
+  );
+}
+
+// Yes/no confirmation for actions that need no extra input.
+export function ConfirmDialog({ title, message, confirmLabel, variant = 'primary', onConfirm, onClose }) {
+  const { t } = useTranslation();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  const confirm = async () => {
+    setBusy(true);
+    setError('');
+    try {
+      await onConfirm();
+    } catch (err) {
+      setError(err.response?.data?.message || t('adminConsole.error_action'));
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Dialog title={title} onClose={onClose}>
+      <p style={{ margin: '0 0 12px 0', color: '#4a5568', fontSize: '14px', lineHeight: 1.6 }}>{message}</p>
+      {error && <p role="alert" style={{ color: '#c53030', fontSize: '13px', margin: '0 0 8px 0' }}>{error}</p>}
+      <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '14px' }}>
+        <button type="button" onClick={onClose} style={buttonStyle('secondary')}>{t('adminConsole.cancel')}</button>
+        <button type="button" onClick={confirm} disabled={busy} style={{ ...buttonStyle(variant), opacity: busy ? 0.6 : 1 }}>{confirmLabel}</button>
+      </div>
     </Dialog>
   );
 }
