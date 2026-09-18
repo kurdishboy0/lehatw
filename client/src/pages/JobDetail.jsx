@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
 import ReportButton from '../components/ReportButton';
@@ -55,7 +55,9 @@ function JobDetail() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  const [applying, setApplying] = useState(false);
+  const [searchParams] = useSearchParams();
+  // "Apply" on the jobs list links here with ?apply=1 to open the form directly.
+  const [applying, setApplying] = useState(() => searchParams.get('apply') === '1' && getUser()?.role === 'STUDENT');
   const [coverLetter, setCoverLetter] = useState('');
   const [cvFile, setCvFile] = useState(null);
   const [useDifferentCv, setUseDifferentCv] = useState(false);

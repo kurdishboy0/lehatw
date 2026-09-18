@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { authHeader } from '../auth';
+import { toLocalizedDigits } from '../localizeDigits';
 
 const PROFICIENCY_LEVELS = ['Beginner', 'Intermediate', 'Expert'];
 // Mirrors server/utils/skillText.js's validation: letters (any language), numbers,
@@ -101,7 +102,8 @@ function StudentDashboard() {
     bio: '',
     portfolioUrl: '',
     linkedinUrl: '',
-    githubUrl: ''
+    githubUrl: '',
+    showEmailToStudents: false
   });
 
   // --- NEW SKILLS STATE ---
@@ -116,6 +118,9 @@ function StudentDashboard() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [applications, setApplications] = useState([]);
+  const [recommendedJobs, setRecommendedJobs] = useState(null);
+  const [peers, setPeers] = useState(null);
+  const [privacySaving, setPrivacySaving] = useState(false);
 
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoError, setPhotoError] = useState('');
@@ -136,6 +141,45 @@ function StudentDashboard() {
   const applicationsSectionRef = useRef(null);
 
   const proficiencyLabel = (level) => t(`studentDashboard.proficiency_${level.toLowerCase()}`);
+
+  // Top job recommendations and peers for the dashboard. Loaded once the
+  // profile exists, since both depend on the student's skills.
+  useEffect(() => {
+    if (!profile?.id) return;
+    const config = { headers: authHeader() };
+    Promise.all([axios.get('/api/jobs/matches/mine', config), axios.get('/api/jobs')])
+      .then(([matchRes, jobsRes]) => {
+        const { matches, appliedJobIds } = matchRes.data;
+        setRecommendedJobs(jobsRes.data
+          .filter((j) => matches[j.id]?.matched > 0)
+          .map((j) => ({ ...j, match: matches[j.id], applied: appliedJobIds.includes(j.id) }))
+          .sort((a, b) => (b.match.percent - a.match.percent) || (b.match.proficiency - a.match.proficiency))
+          .slice(0, 3));
+      })
+      .catch(() => setRecommendedJobs([]));
+    axios.get('/api/match/similar', config)
+      .then((res) => setPeers(res.data.matches.slice(0, 3)))
+      .catch(() => setPeers([]));
+  }, [profile?.id]);
+
+  // Saves the email privacy switch straight away from the profile view.
+  const togglePrivacy = async (checked) => {
+    // Flip the switch right away; put it back if the save fails.
+    const setFlag = (value) => {
+      setProfile((prev) => ({ ...prev, showEmailToStudents: value }));
+      setFormData((prev) => ({ ...prev, showEmailToStudents: value }));
+    };
+    setFlag(checked);
+    setPrivacySaving(true);
+    try {
+      await axios.put('/api/student/profile', { ...formData, showEmailToStudents: checked }, { headers: authHeader() });
+    } catch (err) {
+      setFlag(!checked);
+      setError(err.response?.data?.message || t('studentDashboard.error_save'));
+    } finally {
+      setPrivacySaving(false);
+    }
+  };
 
   // 1. Fetch Profile AND Skills when page loads
   useEffect(() => {
@@ -174,7 +218,8 @@ function StudentDashboard() {
             bio: profileData.bio || '',
             portfolioUrl: profileData.portfolioUrl || '',
             linkedinUrl: profileData.linkedinUrl || '',
-            githubUrl: profileData.githubUrl || ''
+            githubUrl: profileData.githubUrl || '',
+            showEmailToStudents: Boolean(profileData.showEmailToStudents)
           });
 
           // Pre-load their saved standard skills
@@ -613,6 +658,86 @@ function StudentDashboard() {
               </div>
             )}
           </div>
+
+          {/* RECOMMENDED JOBS */}
+          <div style={cardStyle} data-section="recommended-jobs">
+            <h3 style={sectionHeadingStyle}>✨ {t('studentDashboard.recommended_jobs_heading')}</h3>
+            {recommendedJobs === null ? (
+              <p style={{ color: '#a0aec0', margin: 0 }}>{t('common.loading')}</p>
+            ) : recommendedJobs.length === 0 ? (
+              <p style={{ color: '#a0aec0', fontSize: '15px', margin: 0 }}>
+                {(profile.skills || []).length === 0 ? t('jobs.recommended_no_skills') : t('jobs.recommended_empty')}
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {recommendedJobs.map((job) => (
+                  <div key={job.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <Link to={`/jobs/${job.id}`} style={{ color: '#1a202c', fontWeight: 700, textDecoration: 'none' }}>{job.title}</Link>
+                      <div style={{ fontSize: '14px', color: '#718096' }}>{job.hrProfile?.companyName}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, padding: '4px 10px', borderRadius: '12px', backgroundColor: job.match.percent >= 50 ? '#e6f4ea' : '#fdf6e3', color: job.match.percent >= 50 ? '#276749' : '#8a6d1d' }}>
+                        ✓ {t('jobs.match_badge', { matched: toLocalizedDigits(String(job.match.matched), i18n.language), total: toLocalizedDigits(String(job.match.total), i18n.language) })}
+                      </span>
+                      {job.applied ? (
+                        <span style={{ fontSize: '13px', fontWeight: 700, color: '#276749' }}>✓ {t('jobs.applied')}</span>
+                      ) : (
+                        <Link to={`/jobs/${job.id}?apply=1`} style={{ padding: '6px 14px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '16px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>{t('jobs.apply')}</Link>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <Link to="/jobs?tab=recommended" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_jobs')} →</Link>
+              </div>
+            )}
+          </div>
+
+          {/* PEERS LIKE YOU */}
+          <div style={cardStyle} data-section="peers">
+            <h3 style={sectionHeadingStyle}>🤝 {t('studentDashboard.peers_heading')}</h3>
+            {peers === null ? (
+              <p style={{ color: '#a0aec0', margin: 0 }}>{t('common.loading')}</p>
+            ) : peers.length === 0 ? (
+              <p style={{ color: '#a0aec0', fontSize: '15px', margin: 0 }}>{t('studentDashboard.no_peers')}</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {peers.map((peer) => (
+                  <div key={peer.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <Link to={`/students/${peer.id}`} style={{ color: '#1a202c', fontWeight: 700, textDecoration: 'none' }}>{peer.fullName}</Link>
+                      <div style={{ fontSize: '13px', color: '#718096' }}>{peer.university} · {peer.fieldOfStudy}</div>
+                      {peer.email && <a href={`mailto:${peer.email}`} dir="ltr" style={{ fontSize: '13px', color: '#1B2A4A' }}>✉️ {peer.email}</a>}
+                    </div>
+                    <Link to={`/messages/${peer.userId}`} style={{ padding: '6px 14px', border: '1px solid #cbd5e0', color: '#1B2A4A', borderRadius: '16px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>
+                      💬 {t('skillMatch.message')}
+                    </Link>
+                  </div>
+                ))}
+                <Link to="/skill-match" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_peers')} →</Link>
+              </div>
+            )}
+          </div>
+
+          {/* PRIVACY */}
+          <div style={cardStyle} data-section="privacy">
+            <h3 style={sectionHeadingStyle}>🔒 {t('studentDashboard.privacy_heading')}</h3>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '15px', fontWeight: 600, color: '#2d3748', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                role="switch"
+                checked={Boolean(profile.showEmailToStudents)}
+                disabled={privacySaving}
+                onChange={(e) => togglePrivacy(e.target.checked)}
+                style={{ width: '18px', height: '18px', accentColor: '#1B2A4A' }}
+              />
+              {t('studentDashboard.show_email_label')}
+            </label>
+            <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: profile.showEmailToStudents ? '#276749' : '#718096', fontWeight: 600 }}>
+              {profile.showEmailToStudents ? t('studentDashboard.show_email_on') : t('studentDashboard.show_email_off')}
+            </p>
+            <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#718096', lineHeight: 1.6 }}>{t('studentDashboard.show_email_hint')}</p>
+          </div>
         </>
       ) : (
         /* FORM MODE */
@@ -701,6 +826,22 @@ function StudentDashboard() {
               <input type="url" name="githubUrl" placeholder={t('studentDashboard.github_placeholder')} value={formData.githubUrl || ''} onChange={handleChange} style={inputStyle} />
               <input type="url" name="portfolioUrl" placeholder={t('studentDashboard.portfolio_placeholder')} value={formData.portfolioUrl || ''} onChange={handleChange} style={inputStyle} />
             </div>
+          </div>
+
+          {/* PRIVACY */}
+          <div style={cardStyle}>
+            <h3 style={sectionHeadingStyle}>🔒 {t('studentDashboard.privacy_heading')}</h3>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '15px', fontWeight: 600, color: '#2d3748', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                role="switch"
+                checked={formData.showEmailToStudents}
+                onChange={(e) => setFormData({ ...formData, showEmailToStudents: e.target.checked })}
+                style={{ width: '18px', height: '18px', accentColor: '#1B2A4A' }}
+              />
+              {t('studentDashboard.show_email_label')}
+            </label>
+            <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#718096', lineHeight: 1.6 }}>{t('studentDashboard.show_email_hint')}</p>
           </div>
 
           {/* SKILLS SELECTION */}

@@ -13,7 +13,10 @@ const createStudentProfile = async (req, res) => {
     }
 
     const newProfile = await prisma.studentProfile.create({
-      data: { userId, fullName, university, fieldOfStudy, graduationYear, bio, photoUrl, portfolioUrl, linkedinUrl, githubUrl, huggingFaceUrl }
+      data: {
+        userId, fullName, university, fieldOfStudy, graduationYear, bio, photoUrl, portfolioUrl, linkedinUrl, githubUrl, huggingFaceUrl,
+        ...(typeof req.body.showEmailToStudents === 'boolean' && { showEmailToStudents: req.body.showEmailToStudents })
+      }
     });
 
     res.status(201).json({ message: "Profile created successfully!", profile: newProfile });
@@ -64,7 +67,8 @@ const updateStudentProfile = async (req, res) => {
     // 1. Extract only the fields we want to update (ignores id and userId)
     const { 
       fullName, university, fieldOfStudy, graduationYear, 
-      bio, photoUrl, portfolioUrl, linkedinUrl, githubUrl, huggingFaceUrl 
+      bio, photoUrl, portfolioUrl, linkedinUrl, githubUrl, huggingFaceUrl,
+      showEmailToStudents
     } = req.body;
 
     // 2. Safely update the database, ensuring graduationYear is an Integer!
@@ -80,8 +84,10 @@ const updateStudentProfile = async (req, res) => {
         portfolioUrl,
         linkedinUrl,
         githubUrl,
-        huggingFaceUrl
-      } 
+        huggingFaceUrl,
+        // Only a real boolean changes the privacy setting; anything else leaves it.
+        ...(typeof showEmailToStudents === 'boolean' && { showEmailToStudents })
+      }
     });
 
     res.status(200).json({ message: "Profile updated!", profile: updatedProfile });

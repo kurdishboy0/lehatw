@@ -9,6 +9,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import HRDashboard from './pages/HRDashboard';
 import HRJobPost from './pages/HRJobPost';
 import AdminDashboard from './pages/AdminDashboard';
+import HRCandidates from './pages/HRCandidates';
 import Jobs from './pages/Jobs';
 import JobDetail from './pages/JobDetail';
 import SkillMatch from './pages/SkillMatch';
@@ -193,6 +194,9 @@ function App() {
             } />
             <Route path="/hr-dashboard" element={
               <ProtectedRoute allowedRoles={['HR']}><HRDashboard /></ProtectedRoute>
+            } />
+            <Route path="/hr-dashboard/jobs/:jobId/candidates" element={
+              <ProtectedRoute allowedRoles={['HR', 'ADMIN']}><HRCandidates /></ProtectedRoute>
             } />
             <Route path="/hr-dashboard/post-job" element={
               <ProtectedRoute allowedRoles={['HR']}><HRJobPost /></ProtectedRoute>

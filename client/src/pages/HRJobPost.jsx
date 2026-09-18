@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { authHeader } from '../auth';
 
@@ -47,8 +48,7 @@ function HRJobPost() {
   // System State
   const [message, setMessage] = useState('');
   const [postedJobId, setPostedJobId] = useState(null);
-  const [matches, setMatches] = useState([]);
-  const [isMatching, setIsMatching] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSkills = async () => {
@@ -95,19 +95,6 @@ function HRJobPost() {
     } catch (error) {
       console.error(error);
       setMessage(error.response?.data?.message || t('jobPost.error_default'));
-    }
-  };
-
-  const findMatchingStudents = async () => {
-    setIsMatching(true);
-    try {
-      const response = await axios.get(`/api/jobs/${postedJobId}/matches`, { headers: authHeader() });
-      setMatches(response.data.matches);
-    } catch (error) {
-      console.error(error);
-      alert(t('jobPost.error_matches'));
-    } finally {
-      setIsMatching(false);
     }
   };
 
@@ -244,35 +231,12 @@ function HRJobPost() {
           </p>
 
           <button
-            onClick={findMatchingStudents}
-            disabled={isMatching}
+            onClick={() => navigate(`/hr-dashboard/jobs/${postedJobId}/candidates`)}
             style={{ padding: '10px 20px', backgroundColor: '#38a169', color: 'white', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            {isMatching ? t('jobPost.scanning') : t('jobPost.run_matching')}
+            {t('jobPost.run_matching')}
           </button>
 
-          {matches.length > 0 && (
-            <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <h4 style={{ margin: 0 }}>{t('jobPost.top_recommendations')}:</h4>
-              {matches.map(student => (
-                <div key={student.id} style={{ padding: '15px', backgroundColor: 'white', borderRadius: '5px', border: '1px solid #cbd5e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                  <div>
-                    <h5 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>{student.fullName}</h5>
-                    <span style={{ fontSize: '13px', color: '#718096' }}>{student.university} • {student.fieldOfStudy}</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <div style={{ textAlign: 'center' }}>
-                      <span style={{ display: 'block', fontSize: '20px', fontWeight: 'bold', color: student.matchScore > 70 ? '#38a169' : '#d69e2e' }}>
-                        {student.matchScore}%
-                      </span>
-                      <span style={{ fontSize: '11px', color: '#718096' }}>{t('jobPost.match_label')}</span>
-                    </div>
-                    <button style={{ padding: '8px 12px', backgroundColor: '#edf2f7', border: '1px solid #cbd5e0', borderRadius: '5px', cursor: 'pointer' }}>{t('jobPost.view_profile')}</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </div>

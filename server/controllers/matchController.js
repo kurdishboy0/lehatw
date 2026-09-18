@@ -6,8 +6,16 @@ const PROFILE_INCLUDE = {
   customSkills: true
 };
 
-// 1. Peer "Skill Match": ranks every other student by weighted skill similarity
-// to the logged-in student, for the Skill Match page's "Recommended For You" list.
+// Fields of study are free text, so compare them loosely ("Computer science " = "computer Science").
+const normalizeField = (value) => (value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+
+// Shared skills carry most of the weight; studying the same field adds a
+// smaller boost, so classmates with few skills listed still show up.
+const SKILL_WEIGHT = 0.85;
+const FIELD_WEIGHT = 0.15;
+
+// 1. "Peers like you": ranks other active students by skill similarity plus
+// field of study. A peer's email is included only if they opted in.
 const getSimilarStudents = async (req, res) => {
   try {
     if (req.user.role !== 'STUDENT') {
@@ -24,19 +32,17 @@ const getSimilarStudents = async (req, res) => {
     }
 
     const myVector = buildSkillVector(me);
-    if (Object.keys(myVector).length === 0) {
-      return res.status(200).json({ matches: [] });
-    }
+    const myField = normalizeField(me.fieldOfStudy);
 
     const others = await prisma.studentProfile.findMany({
-      where: { id: { not: me.id } },
-      include: PROFILE_INCLUDE
+      where: { id: { not: me.id }, user: { accountStatus: 'ACTIVE' } },
+      include: { ...PROFILE_INCLUDE, user: { select: { email: true } } }
     });
 
     const ranked = others
       .map((other) => {
-        const otherVector = buildSkillVector(other);
-        const similarity = weightedJaccard(myVector, otherVector);
+        const similarity = weightedJaccard(myVector, buildSkillVector(other));
+        const sameField = Boolean(myField) && normalizeField(other.fieldOfStudy) === myField;
         const sharedSkillNames = other.skills
           .filter((s) => myVector[`skill:${s.skillId}`])
           .map((s) => s.skill.name_en);
@@ -44,12 +50,15 @@ const getSimilarStudents = async (req, res) => {
 
         return {
           id: other.id,
+          userId: other.userId,
           fullName: other.fullName,
           university: other.university,
           fieldOfStudy: other.fieldOfStudy,
           photoUrl: other.photoUrl,
-          similarityScore: Math.round(similarity * 100),
-          sharedSkills: [...sharedSkillNames, ...sharedCustom]
+          similarityScore: Math.round((SKILL_WEIGHT * similarity + (sameField ? FIELD_WEIGHT : 0)) * 100),
+          sameField,
+          sharedSkills: [...sharedSkillNames, ...sharedCustom],
+          email: other.showEmailToStudents ? other.user.email : null
         };
       })
       .filter((s) => s.similarityScore > 0)

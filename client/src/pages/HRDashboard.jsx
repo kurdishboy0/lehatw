@@ -243,7 +243,12 @@ function HRDashboard() {
                         <div style={{ fontSize: '13px', color: '#9b2c2c', marginTop: '2px' }}>{t('hrModeration.removed_reason', { reason: job.removedReason })}</div>
                       )}
                     </div>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      {job.isActive && !job.removedByAdmin && (
+                        <Link to={`/hr-dashboard/jobs/${job.id}/candidates`} style={{ padding: '8px 14px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '14px' }}>
+                          🎯 {t('hrDashboard.find_candidates')}
+                        </Link>
+                      )}
                       <button onClick={() => toggleApplicants(job.id)} style={{ padding: '8px 14px', backgroundColor: '#edf2f7', border: '1px solid #cbd5e0', borderRadius: '6px', cursor: 'pointer' }}>
                         {openApplicantsFor === job.id ? t('hrDashboard.hide_applicants') : t('hrDashboard.view_applicants')}
                       </button>

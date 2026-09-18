@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import adminStrings from './locales/admin';
+import matchingStrings from './locales/matching';
 
 // The Translation Dictionary
 const resources = {
@@ -1505,10 +1506,12 @@ const resources = {
 
 // Merge feature-specific string files into the main resources (one level deep,
 // so a shared section like userMenu keeps its existing keys).
-for (const [lang, sections] of Object.entries(adminStrings)) {
-  const target = resources[lang].translation;
-  for (const [section, strings] of Object.entries(sections)) {
-    target[section] = { ...(target[section] || {}), ...strings };
+for (const bundle of [adminStrings, matchingStrings]) {
+  for (const [lang, sections] of Object.entries(bundle)) {
+    const target = resources[lang].translation;
+    for (const [section, strings] of Object.entries(sections)) {
+      target[section] = { ...(target[section] || {}), ...strings };
+    }
   }
 }
 

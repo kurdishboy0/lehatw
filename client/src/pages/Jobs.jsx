@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { getUser, authHeader } from '../auth';
+import { toLocalizedDigits } from '../localizeDigits';
 
 const EMPLOYMENT_TYPES = ['Full-Time', 'Part-Time', 'Internship', 'Contract', 'Freelance'];
 const WORK_MODES = ['On-Site', 'Remote', 'Hybrid'];
@@ -30,6 +32,8 @@ function timeAgo(dateStr, t) {
   if (days === 1) return t('jobs.posted_1_day');
   return t('jobs.posted_days', { count: days });
 }
+
+const skillName = (skill, lang) => skill[`name_${(lang || 'en').split('-')[0]}`] || skill.name_en;
 
 function localizedCategoryName(cat, lang) {
   if (lang === 'ar') return cat.name_ar;
@@ -62,6 +66,21 @@ function Jobs() {
   const [workMode, setWorkMode] = useState('');
   const [fieldOfStudy, setFieldOfStudy] = useState('');
   const [sortOrder, setSortOrder] = useState('newest');
+
+  // Students get a second tab with jobs ranked by how many required skills they have.
+  const isStudent = getUser()?.role === 'STUDENT';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = isStudent && searchParams.get('tab') === 'recommended' ? 'recommended' : 'all';
+  const [matchInfo, setMatchInfo] = useState(null);
+
+  useEffect(() => {
+    if (!isStudent) return;
+    axios.get('/api/jobs/matches/mine', { headers: authHeader() })
+      .then((res) => setMatchInfo(res.data))
+      .catch(() => setMatchInfo({ hasSkills: false, matches: {}, appliedJobIds: [], invitedJobIds: [] }));
+  }, [isStudent]);
+
+  const selectTab = (next) => setSearchParams(next === 'recommended' ? { tab: 'recommended' } : {});
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -118,12 +137,19 @@ function Jobs() {
       }
       return true;
     });
-    result = [...result].sort((a, b) => {
+    const byDate = (a, b) => {
       const diff = new Date(b.createdAt) - new Date(a.createdAt);
       return sortOrder === 'newest' ? diff : -diff;
-    });
-    return result;
-  }, [jobs, query, employmentType, location, workMode, fieldOfStudy, sortOrder]);
+    };
+    if (tab === 'recommended') {
+      const m = matchInfo?.matches || {};
+      // Best coverage first, then proficiency in the matched skills, then date.
+      return result
+        .filter((j) => m[j.id]?.matched > 0)
+        .sort((a, b) => (m[b.id].percent - m[a.id].percent) || (m[b.id].proficiency - m[a.id].proficiency) || byDate(a, b));
+    }
+    return [...result].sort(byDate);
+  }, [jobs, query, employmentType, location, workMode, fieldOfStudy, sortOrder, tab, matchInfo]);
 
   const clearFilters = () => { setQuery(''); setEmploymentType(''); setLocation(''); setWorkMode(''); setFieldOfStudy(''); };
   const hasFilters = query || employmentType || location || workMode || fieldOfStudy;
@@ -153,6 +179,30 @@ function Jobs() {
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '30px 20px 60px 20px', fontFamily: 'sans-serif' }}>
         {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+
+        {isStudent && jobs.length > 0 && (
+          <div role="tablist" aria-label={t('jobs.heading')} style={{ display: 'flex', gap: '4px', borderBottom: '2px solid #e2e8f0', marginBottom: '22px', flexWrap: 'wrap' }}>
+            {['all', 'recommended'].map((key) => {
+              const selected = tab === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => selectTab(key)}
+                  style={{
+                    padding: '10px 16px', background: 'none', border: 'none', marginBottom: '-2px', cursor: 'pointer',
+                    borderBottom: `3px solid ${selected ? '#C99A2E' : 'transparent'}`,
+                    fontSize: '15px', fontWeight: selected ? 700 : 600, color: selected ? '#1B2A4A' : '#718096'
+                  }}
+                >
+                  {key === 'recommended' ? '✨ ' : ''}{t(`jobs.tab_${key}`)}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {jobs.length === 0 ? (
           <p style={{ color: '#718096', textAlign: 'center' }}>{t('jobs.no_jobs')}</p>
@@ -184,24 +234,54 @@ function Jobs() {
                 </select>
               </div>
 
-              {filteredJobs.length === 0 ? (
-                <p style={{ color: '#718096', textAlign: 'center', marginTop: '40px' }}>{t('jobs.no_jobs')}</p>
+              {tab === 'recommended' && (
+                <p style={{ margin: '0 0 14px 0', fontSize: '14px', color: '#4a5568' }}>{t('jobs.recommended_intro')}</p>
+              )}
+
+              {tab === 'recommended' && matchInfo === null ? (
+                <p style={{ color: '#718096', textAlign: 'center', marginTop: '40px' }}>{t('jobs.loading')}</p>
+              ) : tab === 'recommended' && !matchInfo.hasSkills ? (
+                <div style={{ ...cardStyle, textAlign: 'center' }}>
+                  <p style={{ color: '#4a5568', margin: '0 0 12px 0' }}>{t('jobs.recommended_no_skills')}</p>
+                  <Link to="/student-dashboard?section=skills" style={{ padding: '9px 18px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '20px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>
+                    {t('jobs.add_skills')}
+                  </Link>
+                </div>
+              ) : filteredJobs.length === 0 ? (
+                <p style={{ color: '#718096', textAlign: 'center', marginTop: '40px' }}>
+                  {tab === 'recommended' && !hasFilters ? t('jobs.recommended_empty') : t('jobs.no_jobs')}
+                </p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {filteredJobs.map((job) => (
-                    <Link key={job.id} to={`/jobs/${job.id}`} className="hover-lift" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                      <div style={cardStyle}>
+                  {filteredJobs.map((job) => {
+                    const match = matchInfo?.matches?.[job.id];
+                    const applied = matchInfo?.appliedJobIds.includes(job.id);
+                    const invited = matchInfo?.invitedJobIds.includes(job.id);
+                    const skillById = Object.fromEntries((job.skills || []).map((js) => [js.skill.id, js.skill]));
+                    const num = (n) => toLocalizedDigits(String(n), i18n.language);
+                    return (
+                      <article key={job.id} data-job-id={job.id} className="hover-lift" style={cardStyle}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: '12px', color: '#a0aec0', marginBottom: '4px' }}>{timeAgo(job.createdAt, t)}</div>
-                            <h3 style={{ margin: '0 0 4px 0', color: '#1a202c' }}>{job.title}</h3>
+                            <h3 style={{ margin: '0 0 4px 0' }}>
+                              <Link to={`/jobs/${job.id}`} style={{ color: '#1a202c', textDecoration: 'none' }}>{job.title}</Link>
+                            </h3>
                             <div style={{ fontSize: '14px', color: '#718096' }}>
                               {job.hrProfile?.companyName} · {job.hrProfile?.industry}
                             </div>
                           </div>
-                          <span style={{ padding: '9px 18px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '20px', fontSize: '13px', fontWeight: '700', whiteSpace: 'nowrap' }}>
-                            {t('jobs.view_details')}
-                          </span>
+                          {match?.matched > 0 && (
+                            <span
+                              data-match
+                              style={{
+                                padding: '5px 12px', borderRadius: '14px', fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap',
+                                backgroundColor: match.percent >= 50 ? '#e6f4ea' : '#fdf6e3', color: match.percent >= 50 ? '#276749' : '#8a6d1d'
+                              }}
+                            >
+                              ✓ {t('jobs.match_badge', { matched: num(match.matched), total: num(match.total) })}
+                            </span>
+                          )}
                         </div>
 
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '14px' }}>
@@ -210,9 +290,42 @@ function Jobs() {
                           {job.workMode && <span style={tagStyle}>🏢 {job.workMode}</span>}
                           {job.experienceLevel && <span style={tagStyle}>💼 {job.experienceLevel}</span>}
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+
+                        {tab === 'recommended' && match && (
+                          <div style={{ marginTop: '12px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+                              <strong style={{ color: '#276749' }}>{t('jobs.you_have')}</strong>
+                              {match.matchedSkillIds.map((id) => skillById[id] && (
+                                <span key={id} style={{ padding: '2px 9px', borderRadius: '10px', backgroundColor: '#e6f4ea', color: '#276749' }}>✓ {skillName(skillById[id], i18n.language)}</span>
+                              ))}
+                            </div>
+                            {match.missingSkillIds.length > 0 && (
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+                                <strong style={{ color: '#718096' }}>{t('jobs.missing')}</strong>
+                                {match.missingSkillIds.map((id) => skillById[id] && (
+                                  <span key={id} style={{ padding: '2px 9px', borderRadius: '10px', backgroundColor: '#edf2f7', color: '#4a5568' }}>{skillName(skillById[id], i18n.language)}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', marginTop: '14px' }}>
+                          {invited && !applied && <span style={{ fontSize: '13px', fontWeight: 600, color: '#8a6d1d' }}>✉️ {t('jobs.invited')}</span>}
+                          <Link to={`/jobs/${job.id}`} style={{ padding: '9px 18px', border: '1px solid #cbd5e0', color: '#1B2A4A', borderRadius: '20px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>
+                            {t('jobs.view_details')}
+                          </Link>
+                          {isStudent && (applied ? (
+                            <span style={{ padding: '9px 18px', backgroundColor: '#e6f4ea', color: '#276749', borderRadius: '20px', fontSize: '13px', fontWeight: 700 }}>✓ {t('jobs.applied')}</span>
+                          ) : (
+                            <Link to={`/jobs/${job.id}?apply=1`} style={{ padding: '9px 18px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '20px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>
+                              {t('jobs.apply')}
+                            </Link>
+                          ))}
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -39,7 +39,7 @@ function Avatar({ photoUrl, fullName, size = 44 }) {
   );
 }
 
-function StudentCard({ student, t, scoreLabel }) {
+function StudentCard({ student, t, scoreLabel, showMessage = false }) {
   // Skill keywords always display in English, regardless of UI language.
   const skillNames = (student.skills || []).slice(0, 4).map(s => s.name_en);
   const customNames = (student.customSkills || student.sharedSkills || []).slice(0, 2);
@@ -53,6 +53,11 @@ function StudentCard({ student, t, scoreLabel }) {
           <div>
             <h3 style={{ margin: '0 0 4px 0', color: '#1a202c', fontSize: '17px' }}>{student.fullName}</h3>
             <div style={{ fontSize: '13px', color: '#718096' }}>{student.university} · {student.fieldOfStudy}</div>
+            {student.sameField && (
+              <span style={{ display: 'inline-block', marginTop: '4px', fontSize: '11px', fontWeight: 700, backgroundColor: '#e8eef9', color: '#1B2A4A', padding: '2px 8px', borderRadius: '10px' }}>
+                {t('skillMatch.same_field')}
+              </span>
+            )}
           </div>
         </div>
         {score != null && score > 0 && (
@@ -74,10 +79,22 @@ function StudentCard({ student, t, scoreLabel }) {
         </div>
       )}
 
+      {/* Only present when this peer chose to show their email to students. */}
+      {student.email && (
+        <a href={`mailto:${student.email}`} dir="ltr" style={{ display: 'block', marginTop: '10px', fontSize: '13px', color: '#1B2A4A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          ✉️ {student.email}
+        </a>
+      )}
+
       <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
         <Link to={`/students/${student.id}`} style={{ flex: 1, textAlign: 'center', padding: '8px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
           {t('skillMatch.view_profile')}
         </Link>
+        {showMessage && student.userId && (
+          <Link to={`/messages/${student.userId}`} style={{ flex: 1, textAlign: 'center', padding: '8px', border: '1px solid #cbd5e0', color: '#1B2A4A', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
+            💬 {t('skillMatch.message')}
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -182,13 +199,14 @@ function SkillMatch() {
       {/* RECOMMENDED FOR YOU */}
       {recommended !== null && (
         <div style={{ marginBottom: '36px' }}>
-          <h2 style={{ fontSize: '19px', color: '#1a202c', marginBottom: '14px' }}>✨ {t('skillMatch.recommended_heading')}</h2>
+          <h2 style={{ fontSize: '19px', color: '#1a202c', margin: '0 0 4px 0' }}>🤝 {t('skillMatch.peers_heading')}</h2>
+          <p style={{ color: '#718096', margin: '0 0 14px 0', fontSize: '14px' }}>{t('skillMatch.peers_intro')}</p>
           {recommended.length === 0 ? (
             <p style={{ color: '#718096' }}>{t('skillMatch.recommended_empty')}</p>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
               {recommended.map(s => (
-                <StudentCard key={s.id} student={s} t={t} scoreLabel={t('skillMatch.similarity_label')} />
+                <StudentCard key={s.id} student={s} t={t} scoreLabel={t('skillMatch.similarity_label')} showMessage />
               ))}
             </div>
           )}

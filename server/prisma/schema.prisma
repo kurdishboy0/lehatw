@@ -66,10 +66,10 @@ model User {
   resetOtpExpires DateTime? // Stores when the code expires (e.g., in 15 mins)
 
   // --- PHONE VERIFICATION ---
-  phone             String?
-  phoneVerified     Boolean   @default(false)
-  phoneOtp          String?
-  phoneOtpExpires   DateTime?
+  phone           String?
+  phoneVerified   Boolean   @default(false)
+  phoneOtp        String?
+  phoneOtpExpires DateTime?
 
   studentProfile StudentProfile?
   hrProfile      HRProfile?
@@ -77,8 +77,8 @@ model User {
   // --- NEW: Link to Applications ---
   applications Application[] @relation("StudentApplications")
 
-  sentMessages     Message[] @relation("SentMessages")
-  receivedMessages Message[] @relation("ReceivedMessages")
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
   notifications    Notification[]
 
   reportsFiled     Report[]              @relation("ReportsFiled")
@@ -105,28 +105,33 @@ model StudentProfile {
   githubUrl      String?
   huggingFaceUrl String?
 
-  skills       StudentSkill[]
-  customSkills CustomSkill[]
+  // Privacy: other students see this student's email on "Peers like you"
+  // only when they opt in. Companies can always see it on candidate lists.
+  showEmailToStudents Boolean @default(false)
+
+  skills         StudentSkill[]
+  customSkills   CustomSkill[]
+  jobInvitations JobInvitation[]
 }
 
 // 4. HR Profiles (Requires Admin Approval)
 model HRProfile {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @unique
-  user        User     @relation(fields: [userId], references: [id])
-  
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
   // Fields matching your React form
   companyName String
-  industry    String   
-  jobTitle    String   
-  crNumber    String   
+  industry    String
+  jobTitle    String
+  crNumber    String
 
   // Made optional so they don't crash if omitted
-  website     String?
-  phone       String?
-  address     String?
-  taxId       String?
-  
+  website String?
+  phone   String?
+  address String?
+  taxId   String?
+
   status          HRStatus @default(PENDING)
   rejectionReason String? // shown to the company so they know what to fix
 
@@ -192,9 +197,9 @@ model CustomSkill {
 // 9. HR Job Posts (The Target for Matching)
 // 9. HR Job Posts
 model JobPost {
-  id               Int            @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   hrProfileId      Int
-  hrProfile        HRProfile      @relation(fields: [hrProfileId], references: [id], onDelete: Cascade)
+  hrProfile        HRProfile @relation(fields: [hrProfileId], references: [id], onDelete: Cascade)
   title            String
   description      String? // Summary / about the role
   responsibilities String? // Key responsibilities, one per line
@@ -205,17 +210,30 @@ model JobPost {
   workMode         String? // e.g. On-Site, Remote, Hybrid
   experienceLevel  String? // e.g. "1-3 years of experience"
   education        String? // e.g. "Bachelor's degree in Computer Science"
-  requiresCv       Boolean        @default(true)
-  isActive         Boolean        @default(true)
-  createdAt        DateTime       @default(now())
+  requiresCv       Boolean   @default(true)
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
 
   // Set when an admin takes a post down; the owning HR can't re-activate it.
-  removedByAdmin   Boolean        @default(false)
-  removedReason    String?
-  removedAt        DateTime?
+  removedByAdmin Boolean   @default(false)
+  removedReason  String?
+  removedAt      DateTime?
 
   skills       JobPostSkill[]
   applications Application[]
+  invitations  JobInvitation[]
+}
+
+// A company inviting a matched student to apply. One per student per job.
+model JobInvitation {
+  id               Int            @id @default(autoincrement())
+  jobPostId        Int
+  jobPost          JobPost        @relation(fields: [jobPostId], references: [id], onDelete: Cascade)
+  studentProfileId Int
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  createdAt        DateTime       @default(now())
+
+  @@unique([jobPostId, studentProfileId])
 }
 
 // 10. Required Skills mapped to a Job Post
@@ -236,7 +254,7 @@ model Application {
   student     User     @relation("StudentApplications", fields: [studentId], references: [id], onDelete: Cascade)
   status      String   @default("PENDING")
   coverLetter String?
-  cvUrl       String?  // NEW: Store attached CV path/link
+  cvUrl       String? // NEW: Store attached CV path/link
   createdAt   DateTime @default(now())
 
   @@unique([jobPostId, studentId])
