@@ -194,16 +194,26 @@ const googleLogin = async (req, res) => {
 // ==========================================
 const linkedinLogin = async (req, res) => {
   try {
-    const { code } = req.body;
+    const { code, redirectUri } = req.body;
+    if (!code) return res.status(400).json({ message: "LinkedIn authentication failed" });
 
-    // 1. Exchange the auth code for a LinkedIn Access Token (URL FIXED)
+    // LinkedIn requires the exact redirect URI used when the user was sent to
+    // it, which depends on the site the user is on (localhost or production).
+    // LINKEDIN_REDIRECT_URI pins it when set; LinkedIn itself also rejects any
+    // URI that isn't registered on the app.
+    const redirect = process.env.LINKEDIN_REDIRECT_URI || redirectUri;
+    if (!/^https?:\/\/[^\s/]+\/login$/.test(redirect || '')) {
+      return res.status(400).json({ message: "LinkedIn authentication failed" });
+    }
+
+    // 1. Exchange the auth code for a LinkedIn access token
     const tokenResponse = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
         code: code,
-        redirect_uri: 'http://localhost:5173/login', // REDIRECT URI FIXED
+        redirect_uri: redirect,
         client_id: process.env.LINKEDIN_CLIENT_ID,
         client_secret: process.env.LINKEDIN_CLIENT_SECRET,
       }),

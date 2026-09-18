@@ -6,6 +6,12 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../useAuth';
 import { isAccountBlock, describeAccountBlock, readStoredAccountBlock, clearStoredAccountBlock } from '../accountBlock';
 
+const LINKEDIN_STATE_KEY = 'lehatw_linkedin_state';
+
+// Where LinkedIn sends the user back: this site's own login page, so it works
+// on localhost and in production alike (each must be registered on the app).
+const linkedinRedirectUri = () => `${window.location.origin}/login`;
+
 function dashboardFor(role) {
   if (role === 'STUDENT') return '/student-dashboard';
   if (role === 'HR') return '/hr-dashboard';
@@ -46,11 +52,21 @@ function Login() {
 
     if (code && !hasFetched.current) {
       hasFetched.current = true; // Lock it so it only runs once
-      
-      // IMMEDIATELY clear the '?code=...' from the URL to stop double-firing
-      window.history.replaceState({}, document.title, window.location.pathname); 
 
-      axios.post('/api/auth/linkedin', { code })
+      // IMMEDIATELY clear the '?code=...' from the URL to stop double-firing
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      // The state must match what we sent, so a forged redirect can't log
+      // someone into an account they didn't choose.
+      const expectedState = sessionStorage.getItem(LINKEDIN_STATE_KEY);
+      sessionStorage.removeItem(LINKEDIN_STATE_KEY);
+      if (!expectedState || urlParams.get('state') !== expectedState) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time result of the OAuth redirect
+        setError(t('login.error_linkedin'));
+        return;
+      }
+
+      axios.post('/api/auth/linkedin', { code, redirectUri: linkedinRedirectUri() })
         .then(res => {
           login(res.data.token, res.data.user);
           alert(t('login.linkedin_success'));
@@ -110,10 +126,16 @@ function Login() {
 
   // --- LINKEDIN REDIRECT LOGIC ---
   const loginWithLinkedIn = () => {
-    const clientId = import.meta.env.VITE_LINKEDIN_CLIENT_ID;
-    const redirectUri = `${window.location.origin}/login`;
-    const scope = 'openid profile email';
-    window.location.href = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+    const state = crypto.randomUUID();
+    sessionStorage.setItem(LINKEDIN_STATE_KEY, state);
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: import.meta.env.VITE_LINKEDIN_CLIENT_ID,
+      redirect_uri: linkedinRedirectUri(),
+      scope: 'openid profile email',
+      state
+    });
+    window.location.href = `https://www.linkedin.com/oauth/v2/authorization?${params}`;
   };
 
   return (
