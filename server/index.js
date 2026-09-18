@@ -22,6 +22,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const statsRoutes = require('./routes/statsRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const translationRoutes = require('./routes/translationRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/translations', translationRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 // In production this same service also serves the built React app, so the
 // whole site lives behind one origin (no CORS/API-base-URL setup needed).

@@ -302,7 +302,9 @@ function UserDetailDialog({ userId, me, notify, onChanged, onClose }) {
           <ul style={{ margin: 0, paddingInlineStart: '18px', fontSize: '13px', color: '#4a5568', lineHeight: 1.8 }}>
             {user.history.map((h) => (
               <li key={h.id}>
-                <span dir="auto">{h.summary}</span> <span style={{ color: '#a0aec0' }}>· {h.adminEmail} · {formatDateTime(h.createdAt, lang)}</span>
+                <strong>{t(`adminConsole.audit.actions.${h.action}`, { defaultValue: h.action })}</strong>
+                <span style={{ color: '#a0aec0' }}> · {h.adminEmail} · {formatDateTime(h.createdAt, lang)}</span>
+                <div dir="auto" style={{ fontSize: '12px', color: '#718096' }}>{h.summary}</div>
               </li>
             ))}
           </ul>

@@ -6,6 +6,9 @@ const users = require('../controllers/admin/usersController');
 const overview = require('../controllers/admin/overviewController');
 const catalog = require('../controllers/admin/catalogController');
 const translations = require('../controllers/translationController');
+const analytics = require('../controllers/admin/analyticsController');
+const audit = require('../controllers/admin/auditController');
+const announcements = require('../controllers/announcementController');
 
 const router = express.Router();
 
@@ -15,6 +18,14 @@ router.use(protect, adminOnly);
 
 router.get('/me', overview.getMe);
 router.get('/pending-counts', overview.getPendingCounts);
+router.get('/analytics', analytics.getAnalytics);
+router.get('/audit', audit.listAudit);
+
+// Announcements
+router.get('/announcements', announcements.listAll);
+router.post('/announcements', announcements.create);
+router.put('/announcements/:id', announcements.update);
+router.delete('/announcements/:id', announcements.remove);
 
 // Company (HR) approvals
 router.get('/companies', approvals.listCompanies);

@@ -11,14 +11,20 @@ import UsersTab from './admin/UsersTab';
 import AdminsTab from './admin/AdminsTab';
 import CatalogTab from './admin/CatalogTab';
 import TranslationsTab from './admin/TranslationsTab';
+import OverviewTab from './admin/OverviewTab';
+import AnnouncementsTab from './admin/AnnouncementsTab';
+import AuditTab from './admin/AuditTab';
 
 const TABS = [
+  { key: 'overview', icon: '📊', countKey: null, Component: OverviewTab },
   { key: 'approvals', icon: '✅', countKey: 'approvals', Component: ApprovalsTab },
   { key: 'reports', icon: '⚑', countKey: 'reports', Component: ReportsTab },
   { key: 'jobs', icon: '💼', countKey: null, Component: JobsTab },
   { key: 'users', icon: '👥', countKey: null, Component: UsersTab },
   { key: 'catalog', icon: '🧩', countKey: null, Component: CatalogTab },
   { key: 'translations', icon: '🌐', countKey: null, Component: TranslationsTab },
+  { key: 'announcements', icon: '📢', countKey: null, Component: AnnouncementsTab },
+  { key: 'audit', icon: '📜', countKey: null, Component: AuditTab },
   { key: 'admins', icon: '🛡️', countKey: null, Component: AdminsTab, superOnly: true }
 ];
 
@@ -27,7 +33,7 @@ function AdminDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [me, setMe] = useState(null);
   const tabs = TABS.filter((tab) => !tab.superOnly || me?.isSuperAdmin);
-  const activeKey = tabs.some((tab) => tab.key === searchParams.get('tab')) ? searchParams.get('tab') : 'approvals';
+  const activeKey = tabs.some((tab) => tab.key === searchParams.get('tab')) ? searchParams.get('tab') : 'overview';
   const active = tabs.find((tab) => tab.key === activeKey);
 
   const [counts, setCounts] = useState({});
@@ -70,7 +76,7 @@ function AdminDashboard() {
     <div style={{ maxWidth: '1040px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
       <h2 style={{ margin: '0 0 18px 0', color: '#1a202c' }}>🛡️ {t('adminConsole.heading')}</h2>
 
-      <div role="tablist" aria-label={t('adminConsole.heading')} style={{ display: 'flex', gap: '4px', borderBottom: '2px solid #e2e8f0', marginBottom: '22px', overflowX: 'auto' }}>
+      <div role="tablist" aria-label={t('adminConsole.heading')} style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', borderBottom: '2px solid #e2e8f0', marginBottom: '22px' }}>
         {tabs.map((tab) => {
           const selected = tab.key === activeKey;
           const count = tab.countKey ? counts[tab.countKey] : 0;

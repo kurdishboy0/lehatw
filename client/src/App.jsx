@@ -19,6 +19,7 @@ import VerifyPhone from './pages/VerifyPhone';
 import LegalPlaceholder from './pages/LegalPlaceholder';
 import ContactUs from './pages/ContactUs';
 import ProtectedRoute from './components/ProtectedRoute';
+import AnnouncementBanner from './components/AnnouncementBanner';
 import UserMenu from './components/UserMenu';
 import MessageBell from './components/MessageBell';
 import NotificationBell from './components/NotificationBell';
@@ -162,6 +163,7 @@ function App() {
       <div dir={isRtlLanguage(i18n.language) ? 'rtl' : 'ltr'} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F7F6F1' }}>
 
         <Header />
+        <AnnouncementBanner />
 
         {/* --- MAIN CONTENT AREA --- */}
         <main style={{ flex: 1, padding: '20px' }}>
