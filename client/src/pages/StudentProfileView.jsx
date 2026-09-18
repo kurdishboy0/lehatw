@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
+import ReportButton from '../components/ReportButton';
 
 function StudentProfileView() {
   const { t } = useTranslation();
@@ -75,6 +76,7 @@ function StudentProfileView() {
             <div style={{ fontSize: '17px', color: '#718096' }}>{profile.university} · {profile.fieldOfStudy}</div>
             {profile.graduationYear && <div style={{ fontSize: '14px', color: '#a0aec0', marginTop: '6px' }}>🎓 {profile.graduationYear}</div>}
           </div>
+          {!isOwnProfile && <ReportButton targetType="USER" targetId={profile.userId} style={{ marginInlineStart: 'auto', alignSelf: 'flex-start' }} />}
         </div>
 
         {profile.bio && <p style={{ marginTop: '22px', color: '#4a5568', fontSize: '16px', lineHeight: '1.8' }}>{profile.bio}</p>}

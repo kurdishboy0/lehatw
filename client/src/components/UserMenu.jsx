@@ -39,8 +39,9 @@ function getMenuItems(user, t) {
   // ADMIN
   return [
     { label: t('userMenu.dashboard'), to: dashboard, icon: '🏠' },
-    { label: t('userMenu.pending_companies'), to: `${dashboard}?section=hr`, icon: '🏢' },
-    { label: t('userMenu.pending_skills'), to: `${dashboard}?section=skills`, icon: '🧩' },
+    { label: t('userMenu.admin_approvals'), to: `${dashboard}?tab=approvals`, icon: '✅' },
+    { label: t('userMenu.admin_reports'), to: `${dashboard}?tab=reports`, icon: '⚑' },
+    { label: t('userMenu.admin_jobs'), to: `${dashboard}?tab=jobs`, icon: '💼' },
     { label: t('userMenu.messages'), to: '/messages', icon: '💬' }
   ];
 }

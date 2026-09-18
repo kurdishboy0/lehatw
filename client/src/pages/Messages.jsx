@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
+import ReportButton from '../components/ReportButton';
 
 const CONVERSATIONS_POLL_MS = 10000;
 const THREAD_POLL_MS = 5000;
@@ -142,6 +143,7 @@ function ThreadPane({ userId, onActivity, t }) {
         </button>
         <Avatar name={otherUser?.name} size={36} />
         <strong style={{ color: '#1a202c', fontSize: '15px' }}>{otherUser?.name}</strong>
+        <ReportButton targetType="USER" targetId={Number(userId)} style={{ marginInlineStart: 'auto' }} />
       </div>
 
       {error && <p style={{ color: 'red', fontSize: '13px', padding: '0 20px' }}>{error}</p>}
@@ -150,7 +152,7 @@ function ThreadPane({ userId, onActivity, t }) {
         {threadMessages.map(msg => {
           const mine = msg.senderId === me?.id;
           return (
-            <div key={msg.id} style={{ display: 'flex', justifyContent: mine ? 'flex-end' : 'flex-start' }}>
+            <div key={msg.id} style={{ display: 'flex', justifyContent: mine ? 'flex-end' : 'flex-start', alignItems: 'center', gap: '4px' }}>
               <div style={{
                 maxWidth: '70%', padding: '10px 14px', borderRadius: '14px', fontSize: '14px',
                 backgroundColor: mine ? '#1B2A4A' : 'white', color: mine ? 'white' : '#2d3748',
@@ -158,6 +160,7 @@ function ThreadPane({ userId, onActivity, t }) {
               }}>
                 {msg.content}
               </div>
+              {!mine && <ReportButton targetType="MESSAGE" targetId={msg.id} compact />}
             </div>
           );
         })}

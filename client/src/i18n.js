@@ -1,6 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import adminStrings from './locales/admin';
 
 // The Translation Dictionary
 const resources = {
@@ -56,8 +57,6 @@ const resources = {
         my_applications: "My Applications",
         post_job: "Post a Job",
         my_job_posts: "My Job Posts",
-        pending_companies: "Pending Companies",
-        pending_skills: "Pending Skills",
         messages: "Messages",
         logout: "Logout"
       },
@@ -446,24 +445,6 @@ const resources = {
         login_link: "Log in as a student"
       },
 
-      adminDashboard: {
-        heading: "🛡️ Admin Dashboard",
-        loading: "Loading Admin Dashboard...",
-        pending_companies_heading: "Pending Company Approvals",
-        no_pending_companies: "No companies awaiting approval.",
-        approve: "Approve",
-        reject: "Reject",
-        pending_skills_heading: "Pending Custom Skills",
-        no_pending_skills: "No custom skills awaiting review.",
-        submitted_by: "Submitted by",
-        company_approved: "Company approved.",
-        company_rejected: "Company rejected.",
-        skill_approved: "Skill approved.",
-        skill_rejected: "Skill rejected.",
-        error_load: "Failed to load admin data.",
-        error_status: "Failed to update status.",
-        error_review: "Failed to review skill."
-      },
 
       skillMatch: {
         heading: "Skill Match",
@@ -574,8 +555,6 @@ const resources = {
         my_applications: "طلباتي",
         post_job: "نشر وظيفة",
         my_job_posts: "وظائفي المنشورة",
-        pending_companies: "الشركات قيد المراجعة",
-        pending_skills: "المهارات قيد المراجعة",
         messages: "الرسائل",
         logout: "تسجيل الخروج"
       },
@@ -964,24 +943,6 @@ const resources = {
         login_link: "سجّل الدخول كطالب"
       },
 
-      adminDashboard: {
-        heading: "🛡️ لوحة تحكم الإدارة",
-        loading: "جاري تحميل لوحة تحكم الإدارة...",
-        pending_companies_heading: "الشركات بانتظار الموافقة",
-        no_pending_companies: "لا توجد شركات بانتظار الموافقة.",
-        approve: "موافقة",
-        reject: "رفض",
-        pending_skills_heading: "المهارات المخصصة بانتظار المراجعة",
-        no_pending_skills: "لا توجد مهارات بانتظار المراجعة.",
-        submitted_by: "مقدَّمة من",
-        company_approved: "تمت الموافقة على الشركة.",
-        company_rejected: "تم رفض الشركة.",
-        skill_approved: "تمت الموافقة على المهارة.",
-        skill_rejected: "تم رفض المهارة.",
-        error_load: "فشل تحميل بيانات الإدارة.",
-        error_status: "فشل تحديث الحالة.",
-        error_review: "فشلت مراجعة المهارة."
-      },
 
       skillMatch: {
         heading: "تطابق المهارات",
@@ -1092,8 +1053,6 @@ const resources = {
         my_applications: "داواکارییەکانم",
         post_job: "بڵاوکردنەوەی کارێک",
         my_job_posts: "کارە بڵاوکراوەکانم",
-        pending_companies: "کۆمپانیا چاوەڕوانەکان",
-        pending_skills: "تواناییە چاوەڕوانەکان",
         messages: "پەیامەکان",
         logout: "چوونە دەرەوە"
       },
@@ -1482,24 +1441,6 @@ const resources = {
         login_link: "وەک قوتابی بچۆرە ژوورەوە"
       },
 
-      adminDashboard: {
-        heading: "🛡️ داشبۆردی بەڕێوەبەر",
-        loading: "داشبۆردی بەڕێوەبەر باردەکرێت...",
-        pending_companies_heading: "کۆمپانیا چاوەڕوانی ڕەزامەندی",
-        no_pending_companies: "هیچ کۆمپانیایەک چاوەڕوانی ڕەزامەندی نییە.",
-        approve: "ڕەزامەندی",
-        reject: "ڕەتکردنەوە",
-        pending_skills_heading: "تواناییە تایبەتەکانی چاوەڕوانی پێداچوونەوە",
-        no_pending_skills: "هیچ تواناییەک چاوەڕوانی پێداچوونەوە نییە.",
-        submitted_by: "پێشکەشکراوە لەلایەن",
-        company_approved: "ڕەزامەندی بۆ کۆمپانیاکە درا.",
-        company_rejected: "کۆمپانیاکە ڕەتکرایەوە.",
-        skill_approved: "ڕەزامەندی بۆ تواناکە درا.",
-        skill_rejected: "تواناکە ڕەتکرایەوە.",
-        error_load: "باردکردنی زانیارییەکانی بەڕێوەبەر سەرنەکەوت.",
-        error_status: "نوێکردنەوەی دۆخ سەرنەکەوت.",
-        error_review: "پێداچوونەوەی تواناکە سەرنەکەوت."
-      },
 
       skillMatch: {
         heading: "گونجاندنی تواناکان",
@@ -1558,6 +1499,15 @@ const resources = {
     }
   }
 };
+
+// Merge feature-specific string files into the main resources (one level deep,
+// so a shared section like userMenu keeps its existing keys).
+for (const [lang, sections] of Object.entries(adminStrings)) {
+  const target = resources[lang].translation;
+  for (const [section, strings] of Object.entries(sections)) {
+    target[section] = { ...(target[section] || {}), ...strings };
+  }
+}
 
 i18n
   .use(LanguageDetector) // Remembers the user's language choice

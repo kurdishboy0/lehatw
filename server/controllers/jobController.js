@@ -240,6 +240,10 @@ const updateJobPost = async (req, res) => {
       requiresCv, isActive, skillIds
     } = req.body;
 
+    if (job.removedByAdmin && isActive === true) {
+      return res.status(403).json({ message: "This post was taken down by an admin and can't be re-activated. Contact us if you think this is a mistake." });
+    }
+
     const updatedJob = await prisma.jobPost.update({
       where: { id: job.id },
       data: {

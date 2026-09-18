@@ -62,7 +62,7 @@ const registerUser = async (req, res) => {
         type: 'HR_PENDING',
         title: 'New company account pending approval',
         body: `${companyName || newUser.email} signed up and is waiting for review.`,
-        link: '/admin-dashboard'
+        link: '/admin-dashboard?tab=approvals'
       });
     }
 

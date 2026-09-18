@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
+import ReportButton from '../components/ReportButton';
 
 function bulletsFrom(text) {
   return (text || '').split('\n').map(line => line.trim()).filter(Boolean);
@@ -117,7 +118,10 @@ function JobDetail() {
 
       <div style={{ marginTop: '16px', marginBottom: '24px' }}>
         <h1 style={{ fontSize: '28px', color: '#1a202c', margin: '0 0 8px 0' }}>{job.title}</h1>
-        <div style={{ fontSize: '15px', color: '#718096' }}>{job.hrProfile?.companyName} · {job.hrProfile?.industry}</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <div style={{ fontSize: '15px', color: '#718096' }}>{job.hrProfile?.companyName} · {job.hrProfile?.industry}</div>
+          <ReportButton targetType="JOB" targetId={job.id} />
+        </div>
       </div>
 
       <div className="sidebar-layout">

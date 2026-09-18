@@ -83,13 +83,16 @@ const saveStudentSkills = async (req, res) => {
       }
     }
 
-    // Only notify admins about genuinely new pending names, not ones re-saved as-is.
-    const previouslyPending = await prisma.customSkill.findMany({
-      where: { studentProfileId: profile.id, isApproved: false },
-      select: { name: true }
+    // The save below replaces all custom skills, so remember which were already
+    // approved (to keep them approved) and which are new (to notify admins only
+    // about those, not ones re-saved as-is).
+    const previousCustom = await prisma.customSkill.findMany({
+      where: { studentProfileId: profile.id },
+      select: { name: true, isApproved: true }
     });
-    const previouslyPendingNames = new Set(previouslyPending.map((s) => s.name.toLowerCase()));
-    const genuinelyNew = remainingCustom.filter((name) => !previouslyPendingNames.has(name.toLowerCase()));
+    const approvedNames = new Set(previousCustom.filter((s) => s.isApproved).map((s) => s.name.toLowerCase()));
+    const knownNames = new Set(previousCustom.map((s) => s.name.toLowerCase()));
+    const genuinelyNew = remainingCustom.filter((name) => !knownNames.has(name.toLowerCase()));
 
     // Use a transaction to safely update everything at exactly the same time
     await prisma.$transaction([
@@ -110,12 +113,12 @@ const saveStudentSkills = async (req, res) => {
           proficiency: skill.proficiency
         }))
       }),
-      // D. Insert the genuinely new custom manual skills (Defaults to isApproved: false)
+      // D. Re-insert custom skills, keeping any an admin already approved
       prisma.customSkill.createMany({
         data: remainingCustom.map(skillName => ({
           studentProfileId: profile.id,
           name: skillName,
-          isApproved: false
+          isApproved: approvedNames.has(skillName.toLowerCase())
         }))
       })
     ]);
@@ -125,7 +128,7 @@ const saveStudentSkills = async (req, res) => {
         type: 'SKILL_PENDING',
         title: 'New custom skill(s) pending review',
         body: genuinelyNew.join(', '),
-        link: '/admin-dashboard'
+        link: '/admin-dashboard?tab=approvals'
       });
     }
 

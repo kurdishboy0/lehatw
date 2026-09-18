@@ -120,7 +120,7 @@ function HRDashboard() {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProfile(res.data.profile);
-        setMessage(t('hrDashboard.success_save'));
+        setMessage(res.data.resubmitted ? t('hrModeration.resubmitted') : t('hrDashboard.success_save'));
         setIsEditing(false);
       } else {
         // CREATE (POST)
@@ -156,11 +156,19 @@ function HRDashboard() {
             borderRadius: '15px',
             fontSize: '12px',
             fontWeight: 'bold',
-            backgroundColor: profile.status === 'APPROVED' ? '#d4edda' : '#fff3cd',
-            color: profile.status === 'APPROVED' ? '#155724' : '#856404'
+            backgroundColor: profile.status === 'APPROVED' ? '#d4edda' : profile.status === 'REJECTED' ? '#fde8e8' : '#fff3cd',
+            color: profile.status === 'APPROVED' ? '#155724' : profile.status === 'REJECTED' ? '#9b2c2c' : '#856404'
           }}>
-            {t('hrDashboard.status_label')}: {profile.status || 'PENDING'}
+            {t('hrDashboard.status_label')}: {t(`hrModeration.status.${profile.status || 'PENDING'}`)}
           </div>
+
+          {profile.status === 'REJECTED' && (
+            <div role="alert" style={{ marginBottom: '15px', padding: '12px 14px', borderRadius: '8px', backgroundColor: '#fde8e8', color: '#9b2c2c', fontSize: '14px', lineHeight: 1.6 }}>
+              <strong>{t('hrModeration.rejected_heading')}</strong>
+              {profile.rejectionReason && <div>{t('hrModeration.rejected_reason', { reason: profile.rejectionReason })}</div>}
+              <div style={{ marginTop: '4px', color: '#4a5568' }}>{t('hrModeration.rejected_hint')}</div>
+            </div>
+          )}
 
           <h3>{profile.companyName}</h3>
           <p><strong>{t('hrDashboard.industry_label')}:</strong> {profile.industry}</p>
@@ -172,7 +180,7 @@ function HRDashboard() {
               onClick={() => setIsEditing(true)}
               style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#e2e8f0', color: '#4a5568', border: '1px solid #cbd5e0', borderRadius: '6px', fontWeight: 'bold' }}
             >
-              {t('hrDashboard.edit_details')}
+              {profile.status === 'REJECTED' ? t('hrModeration.fix_details') : t('hrDashboard.edit_details')}
             </button>
 
             {/* NEW: Job Posting Button */}
@@ -227,8 +235,13 @@ function HRDashboard() {
                     <div>
                       <strong>{job.title}</strong>
                       <div style={{ fontSize: '13px', color: '#718096' }}>
-                        {job.isActive ? t('hrDashboard.active_label') : t('hrDashboard.inactive_label')} · {job._count?.applications || 0} {t('hrDashboard.applicants_count')}
+                        {job.removedByAdmin ? (
+                          <span style={{ color: '#9b2c2c', fontWeight: 600 }}>{t('hrModeration.removed_label')}</span>
+                        ) : job.isActive ? t('hrDashboard.active_label') : t('hrDashboard.inactive_label')} · {job._count?.applications || 0} {t('hrDashboard.applicants_count')}
                       </div>
+                      {job.removedByAdmin && job.removedReason && (
+                        <div style={{ fontSize: '13px', color: '#9b2c2c', marginTop: '2px' }}>{t('hrModeration.removed_reason', { reason: job.removedReason })}</div>
+                      )}
                     </div>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <button onClick={() => toggleApplicants(job.id)} style={{ padding: '8px 14px', backgroundColor: '#edf2f7', border: '1px solid #cbd5e0', borderRadius: '6px', cursor: 'pointer' }}>

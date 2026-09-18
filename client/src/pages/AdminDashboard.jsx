@@ -1,128 +1,107 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { authHeader } from '../auth';
+import { toLocalizedDigits } from '../localizeDigits';
+import ApprovalsTab from './admin/ApprovalsTab';
+import ReportsTab from './admin/ReportsTab';
+import JobsTab from './admin/JobsTab';
+
+const TABS = [
+  { key: 'approvals', icon: '✅', countKey: 'approvals', Component: ApprovalsTab },
+  { key: 'reports', icon: '⚑', countKey: 'reports', Component: ReportsTab },
+  { key: 'jobs', icon: '💼', countKey: null, Component: JobsTab }
+];
 
 function AdminDashboard() {
-  const { t } = useTranslation();
-  const [pendingHR, setPendingHR] = useState([]);
-  const [pendingSkills, setPendingSkills] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  const { t, i18n } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeKey = TABS.some((tab) => tab.key === searchParams.get('tab')) ? searchParams.get('tab') : 'approvals';
+  const active = TABS.find((tab) => tab.key === activeKey);
 
-  const [searchParams] = useSearchParams();
-  const hrSectionRef = useRef(null);
-  const skillsSectionRef = useRef(null);
+  const [counts, setCounts] = useState({});
+  const [flash, setFlash] = useState(null); // { kind: 'success' | 'error', text }
+  const flashTimer = useRef(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const config = { headers: authHeader() };
-        const [hrRes, skillsRes] = await Promise.all([
-          axios.get('/api/admin/hr/pending', config),
-          axios.get('/api/admin/skills/pending', config)
-        ]);
-        setPendingHR(hrRes.data);
-        setPendingSkills(skillsRes.data);
-      } catch (err) {
-        setError(err.response?.data?.message || t('adminDashboard.error_load'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` excluded: don't refetch on language switch
+  const refreshCounts = useCallback(async () => {
+    try {
+      const res = await axios.get('/api/admin/pending-counts', { headers: authHeader() });
+      setCounts(res.data);
+    } catch {
+      // Badges are a convenience; the tabs still work without them.
+    }
   }, []);
 
-  // Deep-link support from the user menu: ?section=hr / ?section=skills scrolls to that section.
   useEffect(() => {
-    if (loading) return;
-    const section = searchParams.get('section');
-    const target = section === 'hr' ? hrSectionRef : section === 'skills' ? skillsSectionRef : null;
-    if (target) {
-      setTimeout(() => target.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-    }
-  }, [loading, searchParams]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount
+    refreshCounts();
+  }, [refreshCounts]);
 
-  const handleHRStatus = async (id, status) => {
-    setMessage('');
-    setError('');
-    try {
-      await axios.put(`/api/admin/hr/${id}`, { status }, { headers: authHeader() });
-      setMessage(status === 'APPROVED' ? t('adminDashboard.company_approved') : t('adminDashboard.company_rejected'));
-      setPendingHR(pendingHR.filter(p => p.id !== id));
-    } catch (err) {
-      setError(err.response?.data?.message || t('adminDashboard.error_status'));
-    }
+  const notify = useCallback((text, kind = 'success') => {
+    setFlash({ text, kind });
+    clearTimeout(flashTimer.current);
+    flashTimer.current = setTimeout(() => setFlash(null), 6000);
+  }, []);
+
+  useEffect(() => () => clearTimeout(flashTimer.current), []);
+
+  const selectTab = (key) => {
+    setFlash(null);
+    setSearchParams({ tab: key });
   };
 
-  const handleSkillReview = async (id, approve) => {
-    setMessage('');
-    setError('');
-    try {
-      await axios.put(`/api/admin/skills/${id}`, { approve }, { headers: authHeader() });
-      setMessage(approve ? t('adminDashboard.skill_approved') : t('adminDashboard.skill_rejected'));
-      setPendingSkills(pendingSkills.filter(s => s.id !== id));
-    } catch (err) {
-      setError(err.response?.data?.message || t('adminDashboard.error_review'));
-    }
-  };
-
-  if (loading) return <h3>{t('adminDashboard.loading')}</h3>;
+  const ActiveTab = active.Component;
 
   return (
-    <div style={{ maxWidth: '800px', margin: '40px auto', fontFamily: 'sans-serif' }}>
-      <h2>{t('adminDashboard.heading')}</h2>
+    <div style={{ maxWidth: '1040px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+      <h2 style={{ margin: '0 0 18px 0', color: '#1a202c' }}>🛡️ {t('adminConsole.heading')}</h2>
 
-      {message && <p style={{ color: 'green', fontWeight: 'bold' }}>{message}</p>}
-      {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
+      <div role="tablist" aria-label={t('adminConsole.heading')} style={{ display: 'flex', gap: '4px', borderBottom: '2px solid #e2e8f0', marginBottom: '22px', overflowX: 'auto' }}>
+        {TABS.map((tab) => {
+          const selected = tab.key === activeKey;
+          const count = tab.countKey ? counts[tab.countKey] : 0;
+          return (
+            <button
+              key={tab.key}
+              role="tab"
+              aria-selected={selected}
+              onClick={() => selectTab(tab.key)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'none', border: 'none',
+                borderBottom: `3px solid ${selected ? '#C99A2E' : 'transparent'}`, marginBottom: '-2px',
+                cursor: 'pointer', fontSize: '15px', fontWeight: selected ? 700 : 600,
+                color: selected ? '#1B2A4A' : '#718096', whiteSpace: 'nowrap'
+              }}
+            >
+              <span aria-hidden="true">{tab.icon}</span>
+              {t(`adminConsole.tabs.${tab.key}`)}
+              {count > 0 && (
+                <span style={{ backgroundColor: '#c53030', color: 'white', fontSize: '11px', fontWeight: 700, borderRadius: '10px', padding: '1px 7px' }}>
+                  {toLocalizedDigits(String(count), i18n.language)}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-      <section style={{ marginTop: '30px' }}>
-        <h3 ref={hrSectionRef}>{t('adminDashboard.pending_companies_heading')}</h3>
-        {pendingHR.length === 0 ? (
-          <p style={{ color: '#718096' }}>{t('adminDashboard.no_pending_companies')}</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {pendingHR.map(hr => (
-              <div key={hr.id} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                <div>
-                  <strong>{hr.companyName}</strong> · {hr.industry}
-                  <div style={{ fontSize: '13px', color: '#718096' }}>{hr.user?.email} · CR: {hr.crNumber}</div>
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button onClick={() => handleHRStatus(hr.id, 'APPROVED')} style={{ padding: '8px 16px', backgroundColor: '#38a169', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>{t('adminDashboard.approve')}</button>
-                  <button onClick={() => handleHRStatus(hr.id, 'REJECTED')} style={{ padding: '8px 16px', backgroundColor: '#e53e3e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>{t('adminDashboard.reject')}</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      {flash && (
+        <div
+          role={flash.kind === 'error' ? 'alert' : 'status'}
+          style={{
+            marginBottom: '16px', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 600,
+            backgroundColor: flash.kind === 'error' ? '#fde8e8' : '#e6f4ea',
+            color: flash.kind === 'error' ? '#9b2c2c' : '#276749'
+          }}
+        >
+          {flash.text}
+        </div>
+      )}
 
-      <section style={{ marginTop: '40px' }}>
-        <h3 ref={skillsSectionRef}>{t('adminDashboard.pending_skills_heading')}</h3>
-        {pendingSkills.length === 0 ? (
-          <p style={{ color: '#718096' }}>{t('adminDashboard.no_pending_skills')}</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {pendingSkills.map(skill => (
-              <div key={skill.id} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                <div>
-                  <strong>{skill.name}</strong>
-                  <div style={{ fontSize: '13px', color: '#718096' }}>{t('adminDashboard.submitted_by')} {skill.studentProfile?.fullName}</div>
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button onClick={() => handleSkillReview(skill.id, true)} style={{ padding: '8px 16px', backgroundColor: '#38a169', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>{t('adminDashboard.approve')}</button>
-                  <button onClick={() => handleSkillReview(skill.id, false)} style={{ padding: '8px 16px', backgroundColor: '#e53e3e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>{t('adminDashboard.reject')}</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      <div role="tabpanel">
+        <ActiveTab key={activeKey} notify={notify} refreshCounts={refreshCounts} />
+      </div>
     </div>
   );
 }
