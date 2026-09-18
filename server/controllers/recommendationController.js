@@ -1,6 +1,7 @@
 const prisma = require('../db');
 const { matchJob, byMatch } = require('../utils/jobMatch');
 const { notifyUser } = require('../utils/notify');
+const sendEmail = require('../utils/sendEmail');
 
 const liveJobWhere = { isActive: true, removedByAdmin: false };
 const MAX_INVITE_MESSAGE = 2000;
@@ -132,7 +133,7 @@ const inviteCandidate = async (req, res) => {
 
     const profile = await prisma.studentProfile.findUnique({
       where: { id: Number(req.body.studentProfileId) },
-      select: { id: true, user: { select: { id: true, accountStatus: true } } }
+      select: { id: true, fullName: true, user: { select: { id: true, email: true, accountStatus: true } } }
     });
     if (!profile || profile.user.accountStatus !== 'ACTIVE') return res.status(404).json({ message: 'Student not found.' });
 
@@ -156,6 +157,18 @@ const inviteCandidate = async (req, res) => {
       link: `/jobs/${job.id}`
     });
     res.status(201).json({ message: 'Invitation sent.', invitedAt: new Date().toISOString() });
+
+    // Also email the student, after responding so a slow mail server never
+    // delays the company's confirmation. The link uses CLIENT_URL when set,
+    // otherwise the site the company is using.
+    const siteUrl = process.env.CLIENT_URL || req.get('origin');
+    const jobLink = /^https?:\/\/[^\s/]+$/.test(siteUrl || '') ? `${siteUrl}/jobs/${job.id}` : null;
+    sendEmail(
+      profile.user.email,
+      `${job.hrProfile.companyName} invited you to apply on Lehatw`,
+      `${job.hrProfile.companyName} invited you to apply for "${job.title}".\n\n"${text}"\n\n`
+        + (jobLink ? `See the job and apply: ${jobLink}` : 'Log in to Lehatw to see the job and apply.')
+    ).catch((error) => console.error('Invite email failed (non-fatal):', error));
   } catch (error) {
     console.error('Invite Candidate Error:', error);
     res.status(500).json({ message: 'Server error sending the invitation.' });
