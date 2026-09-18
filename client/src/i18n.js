@@ -1509,6 +1509,10 @@ for (const [lang, sections] of Object.entries(adminStrings)) {
   }
 }
 
+// Untouched copy of the built-in text. i18next writes admin edits into its
+// store, so the site-text editor compares against (and resets to) this copy.
+export const defaultResources = structuredClone(resources);
+
 i18n
   .use(LanguageDetector) // Remembers the user's language choice
   .use(initReactI18next) // Passes i18n down to React
@@ -1517,7 +1521,9 @@ i18n
     fallbackLng: 'en', // Default to English if something goes wrong
     interpolation: {
       escapeValue: false // React already protects from XSS
-    }
+    },
+    // Re-render when admin text edits are loaded after startup.
+    react: { bindI18nStore: 'added' }
   });
 
 export default i18n;

@@ -5,8 +5,10 @@ import './index.css';
 import App from './App.jsx';
 import { AuthProvider } from './AuthContext.jsx';
 import { installAccountBlockInterceptor } from './accountBlock';
+import { loadTextOverrides } from './translationOverrides';
 
 installAccountBlockInterceptor();
+loadTextOverrides();
 
 // 1. Import the Google Provider
 import { GoogleOAuthProvider } from '@react-oauth/google';

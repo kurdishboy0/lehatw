@@ -4,6 +4,8 @@ const approvals = require('../controllers/admin/approvalsController');
 const moderation = require('../controllers/admin/moderationController');
 const users = require('../controllers/admin/usersController');
 const overview = require('../controllers/admin/overviewController');
+const catalog = require('../controllers/admin/catalogController');
+const translations = require('../controllers/translationController');
 
 const router = express.Router();
 
@@ -43,6 +45,24 @@ router.post('/users/:id/reset-password', users.resetPassword);
 router.post('/users/:id/resend-verification', users.resendVerification);
 router.put('/users/:id/verify', users.markVerified);
 router.put('/users/:id/role', users.setRole);
+
+// Skills catalog
+router.get('/catalog', catalog.getCatalog);
+router.post('/catalog/areas', catalog.createArea);
+router.put('/catalog/areas/:id', catalog.updateArea);
+router.delete('/catalog/areas/:id', catalog.deleteArea);
+router.post('/catalog/categories', catalog.createCategory);
+router.put('/catalog/categories/:id', catalog.updateCategory);
+router.delete('/catalog/categories/:id', catalog.deleteCategory);
+router.post('/catalog/skills', catalog.createSkill);
+router.put('/catalog/skills/:id', catalog.updateSkill);
+router.delete('/catalog/skills/:id', catalog.deleteSkill);
+router.post('/catalog/skills/:id/merge', catalog.mergeSkill);
+
+// Site text
+router.get('/translations', translations.listOverrides);
+router.put('/translations', translations.saveOverride);
+router.post('/translations/reset', translations.resetOverride);
 
 // Admin accounts (super-admin only)
 router.get('/admins', superAdminOnly, users.listAdmins);

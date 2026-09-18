@@ -9,12 +9,16 @@ import ReportsTab from './admin/ReportsTab';
 import JobsTab from './admin/JobsTab';
 import UsersTab from './admin/UsersTab';
 import AdminsTab from './admin/AdminsTab';
+import CatalogTab from './admin/CatalogTab';
+import TranslationsTab from './admin/TranslationsTab';
 
 const TABS = [
   { key: 'approvals', icon: '✅', countKey: 'approvals', Component: ApprovalsTab },
   { key: 'reports', icon: '⚑', countKey: 'reports', Component: ReportsTab },
   { key: 'jobs', icon: '💼', countKey: null, Component: JobsTab },
   { key: 'users', icon: '👥', countKey: null, Component: UsersTab },
+  { key: 'catalog', icon: '🧩', countKey: null, Component: CatalogTab },
+  { key: 'translations', icon: '🌐', countKey: null, Component: TranslationsTab },
   { key: 'admins', icon: '🛡️', countKey: null, Component: AdminsTab, superOnly: true }
 ];
 
