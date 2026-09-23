@@ -217,6 +217,77 @@ const myCourses = async (req, res) => {
   }
 };
 
+// Courses that teach what a student is missing. We look at the skills the
+// live job posts ask for, drop the ones the student already has, and then
+// rank courses by how much of that gap they cover. A skill that many jobs
+// ask for counts for more than one only a single job wants.
+const recommendedCourses = async (req, res) => {
+  try {
+    if (req.user.role !== 'STUDENT') return res.status(403).json({ message: 'Only students get course recommendations.' });
+    const profile = await prisma.studentProfile.findUnique({
+      where: { userId: req.user.id },
+      select: { skills: { select: { skillId: true } } }
+    });
+    if (!profile) return res.status(404).json({ message: 'Please complete your profile first.' });
+
+    const known = new Set(profile.skills.map((s) => s.skillId));
+    const jobs = await prisma.jobPost.findMany({
+      where: { isActive: true, removedByAdmin: false },
+      select: { id: true, skills: { select: { skillId: true } } }
+    });
+
+    // For every skill the student lacks: which live jobs ask for it.
+    const jobsBySkill = new Map();
+    for (const job of jobs) {
+      for (const { skillId } of job.skills) {
+        if (known.has(skillId)) continue;
+        if (!jobsBySkill.has(skillId)) jobsBySkill.set(skillId, new Set());
+        jobsBySkill.get(skillId).add(job.id);
+      }
+    }
+
+    const missingSkillIds = [...jobsBySkill.keys()];
+    if (missingSkillIds.length === 0) {
+      return res.status(200).json({ hasSkills: known.size > 0, recommendations: [] });
+    }
+
+    const [courses, enrollments] = await Promise.all([
+      prisma.course.findMany({
+        where: { status: 'APPROVED', skills: { some: { skillId: { in: missingSkillIds } } } },
+        orderBy: { publishedAt: 'desc' },
+        take: 100,
+        select: COURSE_CARD
+      }),
+      prisma.courseEnrollment.findMany({ where: { userId: req.user.id }, select: { courseId: true } })
+    ]);
+    const enrolled = new Set(enrollments.map((e) => e.courseId));
+
+    const ranked = courses
+      .filter((course) => !enrolled.has(course.id))
+      .map((course) => {
+        const card = shapeCard(course);
+        const reasonSkills = card.skills.filter((s) => jobsBySkill.has(s.id));
+        const hiringJobs = new Set();
+        let demand = 0;
+        for (const skill of reasonSkills) {
+          const jobIds = jobsBySkill.get(skill.id);
+          demand += jobIds.size;
+          for (const id of jobIds) hiringJobs.add(id);
+        }
+        return { ...card, reasonSkills, jobCount: hiringJobs.size, demand };
+      })
+      // Most wanted skills first, then the course that fills the widest gap.
+      .sort((a, b) => (b.demand - a.demand) || (b.reasonSkills.length - a.reasonSkills.length) || (b.studentCount - a.studentCount))
+      .slice(0, 12)
+      .map(({ demand, ...course }) => course);
+
+    res.status(200).json({ hasSkills: known.size > 0, recommendations: ranked });
+  } catch (error) {
+    console.error('Recommended Courses Error:', error);
+    res.status(500).json({ message: 'Server error loading recommended courses.' });
+  }
+};
+
 // ============ Instructor ============
 
 const listMyCourses = async (req, res) => {
@@ -487,7 +558,7 @@ const adminDeleteCourse = async (req, res) => {
 };
 
 module.exports = {
-  listCourses, getCourse, enroll, unenroll, myCourses,
+  listCourses, getCourse, enroll, unenroll, myCourses, recommendedCourses,
   listMyCourses, createCourse, updateCourse, submitCourse, deleteCourse, courseStudents,
   adminListCourses, adminCreateCourse, approveCourse, rejectCourse, adminDeleteCourse
 };

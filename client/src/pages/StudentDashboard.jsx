@@ -120,6 +120,8 @@ function StudentDashboard() {
   const [applications, setApplications] = useState([]);
   const [recommendedJobs, setRecommendedJobs] = useState(null);
   const [peers, setPeers] = useState(null);
+  const [myCourses, setMyCourses] = useState(null);
+  const [courseSuggestions, setCourseSuggestions] = useState(null);
   const [privacySaving, setPrivacySaving] = useState(false);
 
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -160,6 +162,12 @@ function StudentDashboard() {
     axios.get('/api/match/similar', config)
       .then((res) => setPeers(res.data.matches.slice(0, 3)))
       .catch(() => setPeers([]));
+    axios.get('/api/courses/mine', config)
+      .then((res) => setMyCourses(res.data))
+      .catch(() => setMyCourses([]));
+    axios.get('/api/courses/recommended', config)
+      .then((res) => setCourseSuggestions(res.data.recommendations.slice(0, 3)))
+      .catch(() => setCourseSuggestions([]));
   }, [profile?.id]);
 
   // Saves the email privacy switch straight away from the profile view.
@@ -689,6 +697,86 @@ function StudentDashboard() {
                   </div>
                 ))}
                 <Link to="/jobs?tab=recommended" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_jobs')} →</Link>
+              </div>
+            )}
+          </div>
+
+          {/* MY COURSES */}
+          <div style={cardStyle} data-section="my-courses">
+            <h3 style={sectionHeadingStyle}>📚 {t('studentDashboard.my_courses_heading')}</h3>
+            {myCourses === null ? (
+              <p style={{ color: '#a0aec0', margin: 0 }}>{t('common.loading')}</p>
+            ) : myCourses.length === 0 ? (
+              <div>
+                <p style={{ color: '#a0aec0', fontSize: '15px', margin: '0 0 8px 0' }}>{t('studentDashboard.no_courses')}</p>
+                <Link to="/courses" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.browse_courses')} →</Link>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {myCourses.map((course) => {
+                  const total = course.lessonCount || 0;
+                  const done = Math.min(course.completedLessons, total);
+                  const percent = total ? Math.round((done / total) * 100) : 0;
+                  return (
+                    <div key={course.id} data-my-course={course.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                        <div style={{ minWidth: 0 }}>
+                          <Link to={`/courses/${course.id}`} style={{ color: '#1a202c', fontWeight: 700, textDecoration: 'none' }} dir="auto">{course.title}</Link>
+                          <div style={{ fontSize: '14px', color: '#718096' }} dir="auto">{t('courses.by', { name: course.instructor.fullName })}</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                          {course.completedAt ? (
+                            <span style={{ fontSize: '13px', fontWeight: 700, color: '#276749' }}>✓ {t('studentDashboard.course_finished')}</span>
+                          ) : (
+                            <span style={{ fontSize: '13px', color: '#4a5568' }}>
+                              {t('studentDashboard.course_progress', { done: toLocalizedDigits(String(done), i18n.language), total: toLocalizedDigits(String(total), i18n.language) })}
+                            </span>
+                          )}
+                          <Link to={`/courses/${course.id}`} style={{ padding: '6px 14px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '16px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>{t('studentDashboard.continue_course')}</Link>
+                        </div>
+                      </div>
+                      {total > 0 && (
+                        <div style={{ marginTop: '10px', height: '6px', borderRadius: '3px', backgroundColor: '#edf2f7', overflow: 'hidden' }}>
+                          <div style={{ width: `${percent}%`, height: '100%', backgroundColor: course.completedAt ? '#38a169' : '#C99A2E' }} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                <Link to="/courses" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.browse_courses')} →</Link>
+              </div>
+            )}
+          </div>
+
+          {/* COURSES FOR THE SKILLS THEY ARE MISSING */}
+          <div style={cardStyle} data-section="recommended-courses">
+            <h3 style={sectionHeadingStyle}>🎓 {t('studentDashboard.recommended_courses_heading')}</h3>
+            {courseSuggestions === null ? (
+              <p style={{ color: '#a0aec0', margin: 0 }}>{t('common.loading')}</p>
+            ) : courseSuggestions.length === 0 ? (
+              <p style={{ color: '#a0aec0', fontSize: '15px', margin: 0 }}>{t('studentDashboard.no_recommended_courses')}</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {courseSuggestions.map((course) => (
+                  <div key={course.id} data-suggested-course={course.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                      <div style={{ minWidth: 0 }}>
+                        <Link to={`/courses/${course.id}`} style={{ color: '#1a202c', fontWeight: 700, textDecoration: 'none' }} dir="auto">{course.title}</Link>
+                        <div style={{ fontSize: '14px', color: '#718096' }} dir="auto">{t('courses.by', { name: course.instructor.fullName })}</div>
+                      </div>
+                      <Link to={`/courses/${course.id}`} style={{ padding: '6px 14px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '16px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>{t('courses.view')}</Link>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', marginTop: '8px', fontSize: '13px' }}>
+                      <strong style={{ color: '#1B2A4A' }}>✨ {t('courses.recommended_gap')}</strong>
+                      {course.reasonSkills.map((sk) => (
+                        <span key={sk.id} style={{ padding: '2px 9px', borderRadius: '10px', backgroundColor: '#f0f6ff', border: '1px solid #cfe0f7', color: '#1B2A4A' }}>
+                          {sk[`name_${(i18n.language || 'en').split('-')[0]}`] || sk.name_en}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                <Link to="/courses?tab=recommended" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_recommended_courses')} →</Link>
               </div>
             )}
           </div>

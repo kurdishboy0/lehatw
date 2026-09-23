@@ -1,6 +1,6 @@
 const express = require('express');
 const {
-  listCourses, getCourse, enroll, unenroll, myCourses
+  listCourses, getCourse, enroll, unenroll, myCourses, recommendedCourses
 } = require('../controllers/courseController');
 const { setLessonProgress } = require('../controllers/lessonController');
 const { protect, optionalAuth } = require('../middleware/authMiddleware');
@@ -10,6 +10,8 @@ const router = express.Router();
 // Public browsing; signing in also marks the courses you enrolled in.
 router.get('/', optionalAuth, listCourses);
 router.get('/mine', protect, myCourses);
+// Before '/:id', so 'recommended' isn't read as a course id.
+router.get('/recommended', protect, recommendedCourses);
 router.get('/:id', optionalAuth, getCourse);
 
 router.post('/:id/enroll', protect, enroll);

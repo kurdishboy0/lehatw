@@ -40,6 +40,13 @@ const en = {
     showing: "Showing {{count}} courses",
     none: "No courses match yet.",
     loading: "Loading courses...",
+    tab_all: "All courses",
+    tab_recommended: "Recommended for me",
+    recommended_intro: "Courses that teach the skills employers are asking for and you don't have yet.",
+    recommended_no_skills: "Add skills to your profile to make this list yours. For now these are the skills employers ask for most.",
+    recommended_empty: "No course covers the skills you are missing yet. Try browsing all courses.",
+    recommended_gap: "Fills a gap for you:",
+    recommended_jobs: "Live jobs asking for this: {{count}}",
     error_load: "Couldn't load courses."
   },
 
@@ -173,7 +180,12 @@ const en = {
     my_courses_heading: "My courses",
     no_courses: "You haven't enrolled in a course yet.",
     browse_courses: "Browse courses",
-    course_progress: "{{done}} of {{total}} lessons"
+    course_progress: "{{done}} of {{total}} lessons",
+    course_finished: "Finished",
+    continue_course: "Continue",
+    recommended_courses_heading: "Courses for your next job",
+    no_recommended_courses: "No course fits your missing skills yet.",
+    see_all_recommended_courses: "See all recommended courses"
   }
 };
 
@@ -216,6 +228,13 @@ const ar = {
     showing: "عرض {{count}} دورة",
     none: "لا توجد دورات مطابقة بعد.",
     loading: "جارٍ تحميل الدورات...",
+    tab_all: "كل الدورات",
+    tab_recommended: "مقترحة لي",
+    recommended_intro: "دورات تعلّم المهارات التي يطلبها أصحاب العمل ولا تملكها بعد.",
+    recommended_no_skills: "أضف مهارات إلى ملفك لتكون هذه القائمة على مقاسك. هذه الآن المهارات الأكثر طلباً لدى أصحاب العمل.",
+    recommended_empty: "لا توجد دورة تغطي المهارات الناقصة لديك بعد. تصفّح كل الدورات.",
+    recommended_gap: "تسدّ نقصاً لديك:",
+    recommended_jobs: "وظائف معروضة تطلب هذا: {{count}}",
     error_load: "تعذّر تحميل الدورات."
   },
 
@@ -349,7 +368,12 @@ const ar = {
     my_courses_heading: "دوراتي",
     no_courses: "لم تسجّل في أي دورة بعد.",
     browse_courses: "تصفح الدورات",
-    course_progress: "{{done}} من {{total}} دروس"
+    course_progress: "{{done}} من {{total}} دروس",
+    course_finished: "أكملتها",
+    continue_course: "تابع",
+    recommended_courses_heading: "دورات لوظيفتك القادمة",
+    no_recommended_courses: "لا توجد دورة تناسب مهاراتك الناقصة بعد.",
+    see_all_recommended_courses: "عرض كل الدورات المقترحة"
   }
 };
 
@@ -392,6 +416,13 @@ const ckb = {
     showing: "پیشاندانی {{count}} خول",
     none: "هێشتا هیچ خولێکی گونجاو نییە.",
     loading: "بارکردنی خولەکان...",
+    tab_all: "هەموو خولەکان",
+    tab_recommended: "پێشنیارکراو بۆ من",
+    recommended_intro: "ئەو خولانەی ئەو تواناییانە فێر دەکەن کە کارفەرمایان داوایان دەکەن و تۆ هێشتا نەتهەیە.",
+    recommended_no_skills: "توانایی بۆ پرۆفایلەکەت زیاد بکە تا ئەم لیستە بۆ خۆت بێت. ئێستا ئەمانە ئەو تواناییانەن کە زۆرترین داوایان لەسەرە.",
+    recommended_empty: "هێشتا هیچ خولێک ئەو تواناییانە ناگرێتەوە کە کەمتە. سەیری هەموو خولەکان بکە.",
+    recommended_gap: "ئەم کەمووکوڕییەت بۆ پڕ دەکاتەوە:",
+    recommended_jobs: "کارە بەردەستەکان کە داوای ئەمە دەکەن: {{count}}",
     error_load: "خولەکان بار نەبوون."
   },
 
@@ -525,7 +556,12 @@ const ckb = {
     my_courses_heading: "خولەکانم",
     no_courses: "هێشتا لە هیچ خولێکدا تۆمار نەکراویت.",
     browse_courses: "گەڕان بەناو خولەکاندا",
-    course_progress: "{{done}} لە {{total}} وانە"
+    course_progress: "{{done}} لە {{total}} وانە",
+    course_finished: "تەواوت کردووە",
+    continue_course: "بەردەوام بە",
+    recommended_courses_heading: "خول بۆ کاری داهاتووت",
+    no_recommended_courses: "هێشتا هیچ خولێک لەگەڵ تواناییە کەمەکانت ناگونجێت.",
+    see_all_recommended_courses: "بینینی هەموو خولە پێشنیارکراوەکان"
   }
 };
 

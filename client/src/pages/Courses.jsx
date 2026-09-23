@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { authHeader } from '../auth';
+import { authHeader, getUser } from '../auth';
 import { formatDateTime, toLocalizedDigits } from '../localizeDigits';
 import { COURSE_LEVELS, COURSE_LANGUAGES, COURSE_DELIVERIES, coursePrice } from '../courseDisplay';
 
@@ -28,6 +28,7 @@ function FilterSelect({ label, value, onChange, options, allLabel }) {
 
 function CourseCard({ course, lang, t }) {
   const num = (n) => toLocalizedDigits(String(n), lang);
+  const reason = course.reasonSkills || [];
   return (
     <article data-course-id={course.id} className="hover-lift" style={cardStyle}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
@@ -62,6 +63,22 @@ function CourseCard({ course, lang, t }) {
         </div>
       )}
 
+      {reason.length > 0 && (
+        <div style={{ marginTop: '12px', padding: '10px 12px', borderRadius: '10px', backgroundColor: '#f0f6ff', border: '1px solid #cfe0f7', fontSize: '13px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+            <strong style={{ color: '#1B2A4A' }}>✨ {t('courses.recommended_gap')}</strong>
+            {reason.map((sk) => (
+              <span key={sk.id} style={{ padding: '2px 9px', borderRadius: '10px', backgroundColor: 'white', border: '1px solid #cfe0f7', color: '#1B2A4A' }}>{skillName(sk, lang)}</span>
+            ))}
+          </div>
+          {course.jobCount > 0 && (
+            <div style={{ color: '#4a5568', marginTop: '6px' }}>
+              💼 {t('courses.recommended_jobs', { count: num(course.jobCount) })}
+            </div>
+          )}
+        </div>
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginTop: '14px' }}>
         <span style={{ fontSize: '13px', color: '#718096' }}>
           {course.startsAt ? t('courses.starts', { date: formatDateTime(course.startsAt, lang, { withTime: false }) }) : t('courses.self_paced')}
@@ -85,6 +102,19 @@ function Courses() {
   const [freeOnly, setFreeOnly] = useState(false);
   const [courses, setCourses] = useState(null);
   const [error, setError] = useState('');
+
+  const isStudent = getUser()?.role === 'STUDENT';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = isStudent && searchParams.get('tab') === 'recommended' ? 'recommended' : 'all';
+  const selectTab = (next) => setSearchParams(next === 'recommended' ? { tab: 'recommended' } : {});
+  const [recommended, setRecommended] = useState(null);
+
+  useEffect(() => {
+    if (!isStudent || tab !== 'recommended' || recommended) return;
+    axios.get('/api/courses/recommended', { headers: authHeader() })
+      .then((res) => setRecommended(res.data))
+      .catch(() => setRecommended({ hasSkills: false, recommendations: [] }));
+  }, [isStudent, tab, recommended]);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebounced(query.trim()), SEARCH_DEBOUNCE_MS);
@@ -129,6 +159,50 @@ function Courses() {
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '30px 20px 60px 20px', fontFamily: 'sans-serif' }}>
         {error && <p role="alert" style={{ color: '#c53030', textAlign: 'center' }}>{error}</p>}
+
+        {isStudent && (
+          <div role="tablist" aria-label={t('courses.heading')} style={{ display: 'flex', gap: '4px', borderBottom: '2px solid #e2e8f0', marginBottom: '22px', flexWrap: 'wrap' }}>
+            {['all', 'recommended'].map((key) => {
+              const selected = tab === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => selectTab(key)}
+                  style={{
+                    padding: '10px 16px', background: 'none', border: 'none', marginBottom: '-2px', cursor: 'pointer',
+                    borderBottom: `3px solid ${selected ? '#C99A2E' : 'transparent'}`,
+                    fontSize: '15px', fontWeight: selected ? 700 : 600, color: selected ? '#1B2A4A' : '#718096'
+                  }}
+                >
+                  {key === 'recommended' ? '✨ ' : ''}{t(`courses.tab_${key}`)}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {tab === 'recommended' ? (
+          <div>
+            <p style={{ margin: '0 0 6px 0', fontSize: '14px', color: '#4a5568' }}>{t('courses.recommended_intro')}</p>
+            {recommended && !recommended.hasSkills && (
+              <p style={{ margin: '0 0 14px 0', fontSize: '14px', color: '#8a6d1d', backgroundColor: '#fdf6e3', border: '1px solid #f0e2b6', borderRadius: '10px', padding: '10px 12px' }}>
+                {t('courses.recommended_no_skills')}
+              </p>
+            )}
+            {recommended === null ? (
+              <p style={{ color: '#718096', textAlign: 'center' }}>{t('courses.loading')}</p>
+            ) : recommended.recommendations.length === 0 ? (
+              <p style={{ color: '#718096', textAlign: 'center', marginTop: '30px' }}>{t('courses.recommended_empty')}</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '14px' }}>
+                {recommended.recommendations.map((course) => <CourseCard key={course.id} course={course} lang={lang} t={t} />)}
+              </div>
+            )}
+          </div>
+        ) : (
         <div className="sidebar-layout">
           <div style={{ ...cardStyle, position: 'sticky', top: '90px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
@@ -165,6 +239,7 @@ function Courses() {
             )}
           </div>
         </div>
+        )}
       </div>
     </div>
   );
