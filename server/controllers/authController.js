@@ -13,7 +13,7 @@ const { getDisplayName } = require('../utils/displayName');
 
 const registerUser = async (req, res) => {
   try {
-    const { email, password, role, companyName, website, phone, address, taxId, personalPhone } = req.body;
+    const { email, password, role, companyName, website, phone, address, taxId, personalPhone, fullName, headline, expertise, bio, linkedinUrl } = req.body;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -23,12 +23,16 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Only STUDENT or HR may self-register; ADMIN accounts can't be created via this endpoint
-    const finalRole = role === 'HR' ? 'HR' : 'STUDENT';
+    // Students, companies and instructors may self-register; ADMIN accounts
+    // can't be created through this endpoint.
+    const finalRole = role === 'HR' ? 'HR' : role === 'INSTRUCTOR' ? 'INSTRUCTOR' : 'STUDENT';
+    if (finalRole === 'INSTRUCTOR' && !String(fullName || '').trim()) {
+      return res.status(400).json({ message: "Please enter your full name." });
+    }
 
-    // The contact number used for OTP verification: a student's own phone,
-    // or the HR contact's phone number given on the company registration form.
-    const verificationPhone = finalRole === 'STUDENT' ? (personalPhone || null) : (phone || null);
+    // The contact number used for verification: a student's or instructor's
+    // own phone, or the HR contact's number from the company form.
+    const verificationPhone = finalRole === 'HR' ? (phone || null) : (personalPhone || phone || null);
 
     let userData = {
       email: email,
@@ -42,7 +46,29 @@ const registerUser = async (req, res) => {
       data: userData,
     });
 
-    // 2. Create the HR Profile SECOND using the newly generated User ID
+    // 2. Instructors get a profile that an admin reviews before they can teach
+    if (finalRole === 'INSTRUCTOR') {
+      await prisma.instructorProfile.create({
+        data: {
+          userId: newUser.id,
+          fullName: String(fullName).trim(),
+          headline: headline?.trim() || null,
+          expertise: expertise?.trim() || null,
+          bio: bio?.trim() || null,
+          website: website?.trim() || null,
+          linkedinUrl: linkedinUrl?.trim() || null,
+          phone: verificationPhone
+        }
+      });
+      notifyAdmins({
+        type: 'INSTRUCTOR_PENDING',
+        title: 'New instructor waiting for review',
+        body: `${String(fullName).trim()} applied to teach on Lehatw.`,
+        link: '/admin-dashboard?tab=approvals'
+      });
+    }
+
+    // 3. Create the HR Profile using the newly generated User ID
     if (finalRole === 'HR') {
       await prisma.hRProfile.create({
         data: {

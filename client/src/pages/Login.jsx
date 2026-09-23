@@ -15,6 +15,7 @@ const linkedinRedirectUri = () => `${window.location.origin}/login`;
 function dashboardFor(role) {
   if (role === 'STUDENT') return '/student-dashboard';
   if (role === 'HR') return '/hr-dashboard';
+  if (role === 'INSTRUCTOR') return '/instructor-dashboard';
   if (role === 'ADMIN') return '/admin-dashboard';
   return '/';
 }

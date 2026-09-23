@@ -234,7 +234,88 @@ const mergeCustomSkill = async (req, res) => {
   }
 };
 
+// ============ Instructors ============
+
+const listInstructors = async (req, res) => {
+  try {
+    const status = ['PENDING', 'APPROVED', 'REJECTED'].includes(req.query.status) ? req.query.status : 'PENDING';
+    const instructors = await prisma.instructorProfile.findMany({
+      where: { status },
+      include: { user: { select: { id: true, email: true, createdAt: true, phone: true, accountStatus: true } } },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.status(200).json(instructors);
+  } catch (error) {
+    console.error('List Instructors Error:', error);
+    res.status(500).json({ message: 'Server error fetching instructors.' });
+  }
+};
+
+const approveInstructor = async (req, res) => {
+  try {
+    const profile = await prisma.instructorProfile.update({
+      where: { id: Number(req.params.id) },
+      data: { status: 'APPROVED', rejectionReason: null },
+      include: { user: { select: { email: true } } }
+    });
+    notifyUser(profile.userId, {
+      type: 'INSTRUCTOR_APPROVED', title: 'You can now teach on Lehatw',
+      body: 'Your instructor account was approved. You can create your first course.',
+      link: '/instructor-dashboard'
+    });
+    emailQuietly(profile.user.email, 'Your Lehatw instructor account was approved',
+      `Hi ${profile.fullName},
+
+Your instructor account on Lehatw was approved. Log in to create your first course.`);
+    await logAdminAction(req, {
+      action: 'INSTRUCTOR_APPROVED', targetType: 'INSTRUCTOR', targetId: profile.id,
+      summary: `Approved instructor ${profile.fullName} (${profile.user.email})`
+    });
+    res.status(200).json({ message: 'Instructor approved.' });
+  } catch (error) {
+    if (error.code === 'P2025') return res.status(404).json({ message: 'Instructor not found.' });
+    console.error('Approve Instructor Error:', error);
+    res.status(500).json({ message: 'Server error approving the instructor.' });
+  }
+};
+
+const rejectInstructor = async (req, res) => {
+  try {
+    const reason = (req.body.reason || '').trim();
+    if (reason.length < 5) {
+      return res.status(400).json({ message: 'Please give a reason so they know what to fix.' });
+    }
+    const profile = await prisma.instructorProfile.update({
+      where: { id: Number(req.params.id) },
+      data: { status: 'REJECTED', rejectionReason: reason },
+      include: { user: { select: { email: true } } }
+    });
+    notifyUser(profile.userId, {
+      type: 'INSTRUCTOR_REJECTED', title: 'Your instructor account was not approved',
+      body: reason, link: '/instructor-dashboard'
+    });
+    emailQuietly(profile.user.email, 'Your Lehatw instructor account was not approved',
+      `Hi ${profile.fullName},
+
+Your instructor account was not approved.
+
+Reason: ${reason}
+
+Update your details on Lehatw and save them to send your application for review again.`);
+    await logAdminAction(req, {
+      action: 'INSTRUCTOR_REJECTED', targetType: 'INSTRUCTOR', targetId: profile.id,
+      summary: `Rejected instructor ${profile.fullName} (${profile.user.email})`, details: { reason }
+    });
+    res.status(200).json({ message: 'Instructor rejected.' });
+  } catch (error) {
+    if (error.code === 'P2025') return res.status(404).json({ message: 'Instructor not found.' });
+    console.error('Reject Instructor Error:', error);
+    res.status(500).json({ message: 'Server error rejecting the instructor.' });
+  }
+};
+
 module.exports = {
+  listInstructors, approveInstructor, rejectInstructor,
   listCompanies, approveCompany, rejectCompany,
   listPendingSkills, approveCustomSkill, rejectCustomSkill, mergeCustomSkill
 };

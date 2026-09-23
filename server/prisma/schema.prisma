@@ -11,7 +11,15 @@ datasource db {
 enum Role {
   STUDENT
   HR
+  INSTRUCTOR
   ADMIN
+}
+
+// Instructors go through the same review as companies before they can teach.
+enum InstructorStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum HRStatus {
@@ -79,8 +87,9 @@ model User {
   phoneOtp        String?
   phoneOtpExpires DateTime?
 
-  studentProfile StudentProfile?
-  hrProfile      HRProfile?
+  studentProfile    StudentProfile?
+  hrProfile         HRProfile?
+  instructorProfile InstructorProfile?
 
   // --- NEW: Link to Applications ---
   applications Application[] @relation("StudentApplications")
@@ -100,6 +109,26 @@ model User {
 }
 
 // 3. Student Profiles (Public)
+// Someone who teaches courses on Lehatw.
+model InstructorProfile {
+  id        Int    @id @default(autoincrement())
+  userId    Int    @unique
+  user      User   @relation(fields: [userId], references: [id])
+  fullName  String
+  headline  String? // "Senior data engineer", "English teacher at ..."
+  bio       String?
+  expertise String? // free text: what they teach
+  website   String?
+  linkedinUrl String?
+  photoUrl  String?
+  phone     String?
+
+  status          InstructorStatus @default(PENDING)
+  rejectionReason String? // shown to them so they know what to fix
+
+  createdAt DateTime @default(now())
+}
+
 model StudentProfile {
   id             Int     @id @default(autoincrement())
   userId         Int     @unique

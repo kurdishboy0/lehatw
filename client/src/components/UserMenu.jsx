@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 const DASHBOARD_PATH = {
   STUDENT: '/student-dashboard',
   HR: '/hr-dashboard',
+  INSTRUCTOR: '/instructor-dashboard',
   ADMIN: '/admin-dashboard'
 };
 

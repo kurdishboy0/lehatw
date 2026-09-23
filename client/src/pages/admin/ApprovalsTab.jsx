@@ -333,10 +333,126 @@ function SkillsSection({ notify, refreshCounts }) {
   );
 }
 
+function InstructorsSection({ notify, refreshCounts }) {
+  const { t, i18n } = useTranslation();
+  const [status, setStatus] = useState('PENDING');
+  const [instructors, setInstructors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [rejecting, setRejecting] = useState(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get('/api/admin/instructors', { params: { status }, headers: authHeader() });
+      setInstructors(res.data);
+    } catch {
+      notify(t('adminConsole.error_load'), 'error');
+    } finally {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` excluded: don't refetch on language switch
+  }, [status, notify]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch when the filter changes
+    load();
+  }, [load]);
+
+  const approve = async (instructor) => {
+    try {
+      await axios.put(`/api/admin/instructors/${instructor.id}/approve`, {}, { headers: authHeader() });
+      notify(t('adminConsole.approvals.instructor_approved', { name: instructor.fullName }));
+      setInstructors((list) => list.filter((i) => i.id !== instructor.id));
+      refreshCounts();
+    } catch (err) {
+      notify(err.response?.data?.message || t('adminConsole.error_action'), 'error');
+    }
+  };
+
+  const reject = async (reason) => {
+    await axios.put(`/api/admin/instructors/${rejecting.id}/reject`, { reason }, { headers: authHeader() });
+    notify(t('adminConsole.approvals.instructor_rejected', { name: rejecting.fullName }));
+    setInstructors((list) => list.filter((i) => i.id !== rejecting.id));
+    setRejecting(null);
+    refreshCounts();
+  };
+
+  return (
+    <section style={{ marginBottom: '36px' }}>
+      <SectionHeading
+        actions={
+          <FilterPills
+            label={t('adminConsole.approvals.instructors_heading')}
+            value={status}
+            onChange={setStatus}
+            options={['PENDING', 'APPROVED', 'REJECTED'].map((s) => ({ value: s, label: t(`adminConsole.approvals.filter.${s}`) }))}
+          />
+        }
+      >
+        🎓 {t('adminConsole.approvals.instructors_heading')}
+      </SectionHeading>
+
+      {loading ? (
+        <p style={mutedStyle}>{t('adminConsole.loading')}</p>
+      ) : instructors.length === 0 ? (
+        <EmptyState>{t('adminConsole.approvals.no_instructors')}</EmptyState>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {instructors.map((i) => (
+            <div key={i.id} data-instructor-id={i.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+              <div style={{ minWidth: 0, flex: '1 1 320px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <strong style={{ fontSize: '16px', color: '#1a202c' }} dir="auto">{i.fullName}</strong>
+                  {i.user.accountStatus !== 'ACTIVE' && (
+                    <Badge tone={accountStatusTone[i.user.accountStatus]}>{t(`adminConsole.account_status.${i.user.accountStatus}`)}</Badge>
+                  )}
+                </div>
+                <div style={{ ...mutedStyle, marginTop: '4px', lineHeight: 1.7 }}>
+                  {i.headline && <div dir="auto">{i.headline}</div>}
+                  <div>✉️ <span dir="ltr">{i.user.email}</span></div>
+                  {i.phone && <div>📞 <span dir="ltr">{i.phone}</span></div>}
+                  {i.expertise && <div dir="auto">{t('adminConsole.approvals.teaches', { expertise: i.expertise })}</div>}
+                  <div>{t('adminConsole.approvals.registered', { date: formatDateTime(i.user.createdAt, i18n.language, { withTime: false }) })}</div>
+                </div>
+                {i.bio && <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#4a5568', lineHeight: 1.6 }} dir="auto">{i.bio}</p>}
+                {i.status === 'REJECTED' && i.rejectionReason && (
+                  <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#9b2c2c' }}>
+                    {t('adminConsole.approvals.previous_reason', { reason: i.rejectionReason })}
+                  </p>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                {i.status !== 'APPROVED' && (
+                  <button type="button" onClick={() => approve(i)} style={buttonStyle('success')}>{t('adminConsole.approvals.approve')}</button>
+                )}
+                {i.status !== 'REJECTED' && (
+                  <button type="button" onClick={() => setRejecting(i)} style={buttonStyle('danger')}>{t('adminConsole.approvals.reject')}</button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {rejecting && (
+        <ReasonDialog
+          title={t('adminConsole.approvals.reject_instructor_title', { name: rejecting.fullName })}
+          hint={t('adminConsole.approvals.reject_instructor_hint')}
+          minLength={MIN_REASON}
+          confirmLabel={t('adminConsole.approvals.reject')}
+          onConfirm={reject}
+          onClose={() => setRejecting(null)}
+        />
+      )}
+    </section>
+  );
+}
+
 function ApprovalsTab({ notify, refreshCounts }) {
   return (
     <>
       <CompaniesSection notify={notify} refreshCounts={refreshCounts} />
+      <InstructorsSection notify={notify} refreshCounts={refreshCounts} />
       <SkillsSection notify={notify} refreshCounts={refreshCounts} />
     </>
   );

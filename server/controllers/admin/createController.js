@@ -6,6 +6,7 @@ const { createSetupLink, sendSetupEmail } = require('../../utils/accountSetup');
 const MAX_NAME = 120;
 
 const clean = (value, max = MAX_NAME) => String(value ?? '').trim().slice(0, max);
+const ROLE_LABEL = { STUDENT: 'student', HR: 'company', INSTRUCTOR: 'instructor' };
 
 // ============ Accounts created by an admin ============
 
@@ -13,8 +14,8 @@ const clean = (value, max = MAX_NAME) => String(value ?? '').trim().slice(0, max
 // one-time link so the person chooses their own.
 const createAccount = async (req, res) => {
   try {
-    const role = req.body.role === 'HR' ? 'HR' : req.body.role === 'STUDENT' ? 'STUDENT' : null;
-    if (!role) return res.status(400).json({ message: 'Choose whether this is a student or a company account.' });
+    const role = ['STUDENT', 'HR', 'INSTRUCTOR'].includes(req.body.role) ? req.body.role : null;
+    if (!role) return res.status(400).json({ message: 'Choose whether this is a student, company, or instructor account.' });
 
     const email = clean(req.body.email, 200).toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ message: 'Please enter a valid email address.' });
@@ -41,6 +42,14 @@ const createAccount = async (req, res) => {
     if (role === 'HR' && !company.companyName) {
       return res.status(400).json({ message: 'Please enter the company name.' });
     }
+    const instructor = {
+      fullName: clean(req.body.fullName),
+      headline: clean(req.body.headline, 160),
+      expertise: clean(req.body.expertise, 500)
+    };
+    if (role === 'INSTRUCTOR' && !instructor.fullName) {
+      return res.status(400).json({ message: "Please enter the instructor's full name." });
+    }
     // An admin creating the account vouches for it, so it starts approved
     // unless they say otherwise.
     const approveNow = req.body.approve !== false;
@@ -54,6 +63,18 @@ const createAccount = async (req, res) => {
         phoneVerified: true,
         ...(role === 'STUDENT'
           ? { studentProfile: { create: student } }
+          : role === 'INSTRUCTOR'
+          ? {
+            instructorProfile: {
+              create: {
+                ...instructor,
+                phone,
+                // An admin creating the account vouches for them, so they can
+                // teach right away unless the admin says otherwise.
+                status: approveNow ? 'APPROVED' : 'PENDING'
+              }
+            }
+          }
           : {
             hrProfile: {
               create: {
@@ -71,19 +92,19 @@ const createAccount = async (req, res) => {
     });
 
     const { url } = await createSetupLink(req, user.id);
-    const displayName = role === 'STUDENT' ? student.fullName : company.companyName;
+    const displayName = role === 'STUDENT' ? student.fullName : role === 'INSTRUCTOR' ? instructor.fullName : company.companyName;
     sendSetupEmail({
       to: email,
       name: displayName,
-      roleLabel: role === 'STUDENT' ? 'student' : 'company',
+      roleLabel: ROLE_LABEL[role],
       link: url,
       invitedBy: `A Lehatw admin (${req.user.email})`
     });
 
     await logAdminAction(req, {
       action: 'ACCOUNT_CREATED', targetType: 'USER', targetId: user.id,
-      summary: `Created ${role === 'STUDENT' ? 'student' : 'company'} account ${email}`,
-      details: { role, name: displayName, approved: role === 'HR' ? approveNow : undefined }
+      summary: `Created ${ROLE_LABEL[role]} account ${email}`,
+      details: { role, name: displayName, approved: role === 'STUDENT' ? undefined : approveNow }
     });
     res.status(201).json({ message: 'Account created. The setup link was emailed.', user, setupUrl: url });
   } catch (error) {
@@ -97,7 +118,7 @@ const resendSetupLink = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: Number(req.params.id) },
-      select: { id: true, email: true, role: true, studentProfile: { select: { fullName: true } }, hrProfile: { select: { companyName: true } } }
+      select: { id: true, email: true, role: true, studentProfile: { select: { fullName: true } }, hrProfile: { select: { companyName: true } }, instructorProfile: { select: { fullName: true } } }
     });
     if (!user) return res.status(404).json({ message: 'User not found.' });
     if (user.role === 'ADMIN') return res.status(400).json({ message: 'Admin accounts get their password another way.' });
@@ -105,8 +126,8 @@ const resendSetupLink = async (req, res) => {
     const { url } = await createSetupLink(req, user.id);
     sendSetupEmail({
       to: user.email,
-      name: user.studentProfile?.fullName || user.hrProfile?.companyName || null,
-      roleLabel: user.role === 'STUDENT' ? 'student' : 'company',
+      name: user.studentProfile?.fullName || user.hrProfile?.companyName || user.instructorProfile?.fullName || null,
+      roleLabel: ROLE_LABEL[user.role] || 'account',
       link: url,
       invitedBy: `A Lehatw admin (${req.user.email})`
     });

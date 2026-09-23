@@ -4,7 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../useAuth';
 
-const DASHBOARD_PATH = { STUDENT: '/student-dashboard', HR: '/hr-dashboard', ADMIN: '/admin-dashboard' };
+const DASHBOARD_PATH = { STUDENT: '/student-dashboard', HR: '/hr-dashboard', INSTRUCTOR: '/instructor-dashboard', ADMIN: '/admin-dashboard' };
 
 const cardStyle = {
   maxWidth: '440px', margin: '60px auto', padding: '30px', backgroundColor: 'white',

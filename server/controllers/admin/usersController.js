@@ -10,7 +10,7 @@ const { deleteFromStorageUrl } = require('../../utils/supabaseStorage');
 
 const PAGE_SIZE = 25;
 const MIN_REASON = 5;
-const ROLES = ['STUDENT', 'HR', 'ADMIN'];
+const ROLES = ['STUDENT', 'HR', 'INSTRUCTOR', 'ADMIN'];
 const STATUSES = ['ACTIVE', 'SUSPENDED', 'BANNED'];
 
 const USER_SELECT = {
@@ -18,7 +18,8 @@ const USER_SELECT = {
   accountStatus: true, statusReason: true, suspendedUntil: true, isSuperAdmin: true,
   googleId: true, linkedinId: true,
   studentProfile: { select: { id: true, fullName: true, university: true } },
-  hrProfile: { select: { id: true, companyName: true, status: true } }
+  hrProfile: { select: { id: true, companyName: true, status: true } },
+  instructorProfile: { select: { id: true, fullName: true, status: true } }
 };
 
 function emailQuietly(to, subject, text) {
@@ -33,7 +34,7 @@ function shape(u) {
   const { googleId, linkedinId, ...rest } = u;
   return {
     ...rest,
-    name: u.studentProfile?.fullName || u.hrProfile?.companyName || null,
+    name: u.studentProfile?.fullName || u.hrProfile?.companyName || u.instructorProfile?.fullName || null,
     verified: isVerified(u),
     loginMethods: [googleId && 'google', linkedinId && 'linkedin'].filter(Boolean)
   };
@@ -86,6 +87,7 @@ const listUsers = handle('List Users', async (req, res) => {
         { email: contains },
         { studentProfile: { fullName: contains } },
         { hrProfile: { companyName: contains } },
+        { instructorProfile: { fullName: contains } },
         ...(/^\d+$/.test(q) ? [{ id: Number(q) }] : [])
       ]
     });
@@ -227,7 +229,7 @@ const markVerified = handle('Mark Verified', async (req, res) => {
 const setRole = handle('Set Role', async (req, res) => {
   const target = await loadManageableUser(req);
   const role = req.body.role;
-  if (!ROLES.includes(role)) return res.status(400).json({ message: 'Role must be STUDENT, HR, or ADMIN.' });
+  if (!ROLES.includes(role)) return res.status(400).json({ message: 'That role is not valid.' });
   if (role === target.role) return res.status(400).json({ message: 'The user already has this role.' });
   if ((role === 'ADMIN' || target.role === 'ADMIN') && !req.user.isSuperAdmin) {
     return res.status(403).json({ message: 'Only a super-admin can give or remove admin access.' });

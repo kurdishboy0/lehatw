@@ -6,6 +6,9 @@ const getDisplayName = async (user) => {
   if (user.role === 'STUDENT') {
     const profile = await prisma.studentProfile.findUnique({ where: { userId: user.id }, select: { fullName: true } });
     if (profile?.fullName) return profile.fullName;
+  } else if (user.role === 'INSTRUCTOR') {
+    const profile = await prisma.instructorProfile.findUnique({ where: { userId: user.id }, select: { fullName: true } });
+    if (profile?.fullName) return profile.fullName;
   } else if (user.role === 'HR') {
     const profile = await prisma.hRProfile.findUnique({ where: { userId: user.id }, select: { companyName: true } });
     if (profile?.companyName) return profile.companyName;

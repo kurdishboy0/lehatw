@@ -8,7 +8,7 @@ import { mutedStyle, inputStyle } from './adminStyles';
 
 const EMPTY = {
   role: 'STUDENT', email: '', phone: '',
-  fullName: '', university: '', fieldOfStudy: '', graduationYear: '',
+  fullName: '', university: '', fieldOfStudy: '', graduationYear: '', headline: '', expertise: '',
   companyName: '', industry: '', jobTitle: '', crNumber: '', approve: true
 };
 
@@ -35,6 +35,7 @@ function CreateAccountDialog({ onCreated, onClose }) {
   };
 
   const isStudent = form.role === 'STUDENT';
+  const isInstructor = form.role === 'INSTRUCTOR';
   const label = { fontSize: '14px', color: '#2d3748', fontWeight: 600 };
   const field = { ...inputStyle, display: 'block', width: '100%', marginTop: '4px', fontWeight: 400 };
 
@@ -46,6 +47,7 @@ function CreateAccountDialog({ onCreated, onClose }) {
           <select value={form.role} onChange={set('role')} style={field}>
             <option value="STUDENT">{t('adminConsole.role.STUDENT')}</option>
             <option value="HR">{t('adminConsole.role.HR')}</option>
+            <option value="INSTRUCTOR">{t('adminConsole.role.INSTRUCTOR')}</option>
           </select>
         </label>
         <label style={label}>
@@ -53,7 +55,30 @@ function CreateAccountDialog({ onCreated, onClose }) {
           <input type="email" required dir="ltr" value={form.email} onChange={set('email')} style={field} />
         </label>
 
-        {isStudent ? (
+        {isInstructor ? (
+          <>
+            <label style={label}>
+              {t('adminConsole.users.create_instructor_name')}
+              <input type="text" required dir="auto" value={form.fullName} onChange={set('fullName')} style={field} />
+            </label>
+            <label style={label}>
+              {t('adminConsole.users.create_headline')}
+              <input type="text" dir="auto" value={form.headline} onChange={set('headline')} style={field} />
+            </label>
+            <label style={label}>
+              {t('adminConsole.users.create_expertise')}
+              <input type="text" dir="auto" value={form.expertise} onChange={set('expertise')} style={field} />
+            </label>
+            <label style={label}>
+              {t('adminConsole.users.create_phone')}
+              <input type="tel" dir="ltr" value={form.phone} onChange={set('phone')} style={field} />
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#2d3748' }}>
+              <input type="checkbox" checked={form.approve} onChange={set('approve')} />
+              {t('adminConsole.users.create_approve_instructor')}
+            </label>
+          </>
+        ) : isStudent ? (
           <>
             <label style={label}>
               {t('adminConsole.users.create_student_name')}

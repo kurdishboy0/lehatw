@@ -42,6 +42,9 @@ router.put('/companies/:id/approve', approvals.approveCompany);
 router.put('/companies/:id/reject', approvals.rejectCompany);
 
 // Student-submitted custom skills
+router.get('/instructors', approvals.listInstructors);
+router.put('/instructors/:id/approve', approvals.approveInstructor);
+router.put('/instructors/:id/reject', approvals.rejectInstructor);
 router.get('/custom-skills', approvals.listPendingSkills);
 router.put('/custom-skills/:id/approve', approvals.approveCustomSkill);
 router.put('/custom-skills/:id/reject', approvals.rejectCustomSkill);

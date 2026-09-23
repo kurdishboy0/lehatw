@@ -12,7 +12,7 @@ import { cardStyle, mutedStyle, inputStyle, accountStatusTone } from './adminSty
 
 const SEARCH_DEBOUNCE_MS = 350;
 const MIN_REASON = 5;
-const ROLE_TONE = { STUDENT: 'blue', HR: 'yellow', ADMIN: 'red' };
+const ROLE_TONE = { STUDENT: 'blue', HR: 'yellow', INSTRUCTOR: 'green', ADMIN: 'red' };
 
 function canManage(target, me) {
   if (!target || !me) return false;
@@ -129,7 +129,7 @@ function UserDetailDialog({ userId, me, notify, onChanged, onClose }) {
 
   const title = user ? (user.name ? `${user.name}` : user.email) : t('adminConsole.loading');
   const manageable = canManage(user, me);
-  const roles = me?.isSuperAdmin ? ['STUDENT', 'HR', 'ADMIN'] : ['STUDENT', 'HR'];
+  const roles = me?.isSuperAdmin ? ['STUDENT', 'HR', 'INSTRUCTOR', 'ADMIN'] : ['STUDENT', 'HR', 'INSTRUCTOR'];
 
   let body;
   if (loadError) {
@@ -470,7 +470,7 @@ function UsersTab({ notify, me }) {
       </div>
       <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', marginBottom: '16px' }}>
         <FilterPills label={t('adminConsole.users.filter_role')} value={role} onChange={setFilter(setRole)}
-          options={[{ value: 'all', label: all }, ...['STUDENT', 'HR', 'ADMIN'].map((r) => ({ value: r, label: t(`adminConsole.role.${r}`) }))]} />
+          options={[{ value: 'all', label: all }, ...['STUDENT', 'HR', 'INSTRUCTOR', 'ADMIN'].map((r) => ({ value: r, label: t(`adminConsole.role.${r}`) }))]} />
         <FilterPills label={t('adminConsole.users.filter_status')} value={status} onChange={setFilter(setStatus)}
           options={[{ value: 'all', label: all }, ...['ACTIVE', 'SUSPENDED', 'BANNED'].map((s) => ({ value: s, label: t(`adminConsole.account_status.${s}`) }))]} />
         <FilterPills label={t('adminConsole.users.filter_verified')} value={verified} onChange={setFilter(setVerified)}

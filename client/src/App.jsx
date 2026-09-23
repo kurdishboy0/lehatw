@@ -13,6 +13,8 @@ import HRCandidates from './pages/HRCandidates';
 import SetPassword from './pages/SetPassword';
 import Events from './pages/Events';
 import EventDetail from './pages/EventDetail';
+import RegisterInstructor from './pages/RegisterInstructor';
+import InstructorDashboard from './pages/InstructorDashboard';
 import Jobs from './pages/Jobs';
 import JobDetail from './pages/JobDetail';
 import SkillMatch from './pages/SkillMatch';
@@ -123,6 +125,9 @@ function Header() {
             <Link to="/register" className="nav-item" style={{ textDecoration: 'none', color: '#1B2A4A', fontWeight: '700', fontSize: '14px', padding: '8px 14px' }}>
               {t('nav.student_signup')}
             </Link>
+            <Link to="/register-instructor" className="nav-item" style={{ textDecoration: 'none', color: '#4a5568', fontWeight: '600', fontSize: '14px', padding: '8px 14px' }}>
+              {t('nav.teach')}
+            </Link>
             <Link to="/register-hr" className="btn-hover" style={{
               textDecoration: 'none',
               backgroundColor: '#1B2A4A',
@@ -177,6 +182,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/register-hr" element={<RegisterHR />} />
+            <Route path="/register-instructor" element={<RegisterInstructor />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/set-password" element={<SetPassword />} />
             <Route path="/verify-phone" element={<VerifyPhone />} />
@@ -198,6 +204,9 @@ function App() {
             } />
             <Route path="/student-dashboard" element={
               <ProtectedRoute allowedRoles={['STUDENT']}><StudentDashboard /></ProtectedRoute>
+            } />
+            <Route path="/instructor-dashboard" element={
+              <ProtectedRoute allowedRoles={['INSTRUCTOR']}><InstructorDashboard /></ProtectedRoute>
             } />
             <Route path="/hr-dashboard" element={
               <ProtectedRoute allowedRoles={['HR']}><HRDashboard /></ProtectedRoute>
