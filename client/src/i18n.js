@@ -4,6 +4,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import adminStrings from './locales/admin';
 import matchingStrings from './locales/matching';
 import accountStrings from './locales/accounts';
+import eventStrings from './locales/events';
 
 // The Translation Dictionary
 const resources = {
@@ -1505,14 +1506,23 @@ const resources = {
   }
 };
 
-// Merge feature-specific string files into the main resources (one level deep,
-// so a shared section like userMenu keeps its existing keys).
-for (const bundle of [adminStrings, matchingStrings, accountStrings]) {
-  for (const [lang, sections] of Object.entries(bundle)) {
-    const target = resources[lang].translation;
-    for (const [section, strings] of Object.entries(sections)) {
-      target[section] = { ...(target[section] || {}), ...strings };
+// Merge feature-specific string files into the main resources. Nested
+// objects merge key by key, so a bundle can add one string to an existing
+// section without replacing the rest of it.
+function mergeStrings(target, additions) {
+  for (const [key, value] of Object.entries(additions)) {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      target[key] = mergeStrings({ ...(target[key] || {}) }, value);
+    } else {
+      target[key] = value;
     }
+  }
+  return target;
+}
+
+for (const bundle of [adminStrings, matchingStrings, accountStrings, eventStrings]) {
+  for (const [lang, sections] of Object.entries(bundle)) {
+    mergeStrings(resources[lang].translation, sections);
   }
 }
 

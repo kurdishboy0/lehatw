@@ -14,6 +14,7 @@ import TranslationsTab from './admin/TranslationsTab';
 import OverviewTab from './admin/OverviewTab';
 import AnnouncementsTab from './admin/AnnouncementsTab';
 import AuditTab from './admin/AuditTab';
+import EventsTab from './admin/EventsTab';
 
 const TABS = [
   { key: 'overview', icon: '📊', countKey: null, Component: OverviewTab },
@@ -23,6 +24,7 @@ const TABS = [
   { key: 'users', icon: '👥', countKey: null, Component: UsersTab },
   { key: 'catalog', icon: '🧩', countKey: null, Component: CatalogTab },
   { key: 'translations', icon: '🌐', countKey: null, Component: TranslationsTab },
+  { key: 'events', icon: '📅', countKey: null, Component: EventsTab },
   { key: 'announcements', icon: '📢', countKey: null, Component: AnnouncementsTab },
   { key: 'audit', icon: '📜', countKey: null, Component: AuditTab },
   { key: 'admins', icon: '🛡️', countKey: null, Component: AdminsTab, superOnly: true }

@@ -11,6 +11,8 @@ import HRJobPost from './pages/HRJobPost';
 import AdminDashboard from './pages/AdminDashboard';
 import HRCandidates from './pages/HRCandidates';
 import SetPassword from './pages/SetPassword';
+import Events from './pages/Events';
+import EventDetail from './pages/EventDetail';
 import Jobs from './pages/Jobs';
 import JobDetail from './pages/JobDetail';
 import SkillMatch from './pages/SkillMatch';
@@ -100,6 +102,7 @@ function Header() {
         <NavItem to="/" icon="🏠" label={t('nav.home')} />
         <NavItem to="/jobs" icon="💼" label={t('nav.jobs')} />
         <NavItem to="/skill-match" icon="🧭" label={t('nav.skill_match')} />
+        <NavItem to="/events" icon="📅" label={t('nav.events')} />
         <NavItem to="/about" icon="ℹ️" label={t('nav.about')} />
 
         {user && (
@@ -180,6 +183,8 @@ function App() {
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
             <Route path="/skill-match" element={<SkillMatch />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/events/:id" element={<EventDetail />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/privacy-policy" element={<LegalPlaceholder titleKey="legal.privacy_title" introKey="legal.privacy_intro" sectionsKey="legal.privacy_sections" />} />
             <Route path="/terms-of-service" element={<LegalPlaceholder titleKey="legal.terms_title" introKey="legal.terms_intro" sectionsKey="legal.terms_sections" />} />

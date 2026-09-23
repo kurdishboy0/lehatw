@@ -10,6 +10,7 @@ const translations = require('../controllers/translationController');
 const analytics = require('../controllers/admin/analyticsController');
 const audit = require('../controllers/admin/auditController');
 const announcements = require('../controllers/announcementController');
+const events = require('../controllers/eventController');
 
 const router = express.Router();
 
@@ -21,6 +22,13 @@ router.get('/me', overview.getMe);
 router.get('/pending-counts', overview.getPendingCounts);
 router.get('/analytics', analytics.getAnalytics);
 router.get('/audit', audit.listAudit);
+
+// Events
+router.get('/events', events.listAllEvents);
+router.post('/events', events.createEvent);
+router.put('/events/:id', events.updateEvent);
+router.delete('/events/:id', events.deleteEvent);
+router.get('/events/:id/registrations', events.listRegistrations);
 
 // Announcements
 router.get('/announcements', announcements.listAll);

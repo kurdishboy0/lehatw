@@ -55,6 +55,24 @@ const protect = async (req, res, next) => {
   next();
 };
 
+// For pages anyone may open, where being signed in adds something (for
+// example marking the events you already registered for). A missing or bad
+// token just means "not signed in", never an error.
+const optionalAuth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return next();
+  try {
+    const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
+    const user = await loadAuthUser(decoded.id);
+    if (user && !getAccountBlock(user)) {
+      req.user = { id: user.id, email: user.email, role: user.role, isSuperAdmin: user.isSuperAdmin };
+    }
+  } catch {
+    // Not signed in; carry on as a guest.
+  }
+  next();
+};
+
 const adminOnly = (req, res, next) => {
   if (req.user && req.user.role === 'ADMIN') return next();
   res.status(403).json({ message: "Access denied. Admins only!" });
@@ -65,4 +83,4 @@ const superAdminOnly = (req, res, next) => {
   res.status(403).json({ message: "Access denied. Super-admins only." });
 };
 
-module.exports = { protect, adminOnly, superAdminOnly, invalidateUserCache };
+module.exports = { protect, optionalAuth, adminOnly, superAdminOnly, invalidateUserCache };

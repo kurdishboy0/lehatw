@@ -38,6 +38,14 @@ enum ReportStatus {
   DISMISSED
 }
 
+enum EventType {
+  ACADEMIC
+  COMPANY
+  CAREER_FAIR
+  WORKSHOP
+  OTHER
+}
+
 enum AnnouncementType {
   INFO
   WARNING
@@ -81,12 +89,14 @@ model User {
   receivedMessages Message[]      @relation("ReceivedMessages")
   notifications    Notification[]
 
-  setupTokens      AccountSetupToken[]
-  reportsFiled     Report[]              @relation("ReportsFiled")
-  reportsResolved  Report[]              @relation("ReportsResolved")
-  adminActions     AdminAuditLog[]
-  announcements    Announcement[]
-  translationEdits TranslationOverride[]
+  setupTokens        AccountSetupToken[]
+  eventsCreated      Event[]
+  eventRegistrations EventRegistration[]
+  reportsFiled       Report[]              @relation("ReportsFiled")
+  reportsResolved    Report[]              @relation("ReportsResolved")
+  adminActions       AdminAuditLog[]
+  announcements      Announcement[]
+  translationEdits   TranslationOverride[]
 }
 
 // 3. Student Profiles (Public)
@@ -346,6 +356,45 @@ model AdminAuditLog {
 }
 
 // 16. Site-wide banner messages
+// Academic and company events, managed by admins.
+model Event {
+  id              Int       @id @default(autoincrement())
+  title_en        String
+  title_ar        String?
+  title_ckb       String?
+  description_en  String?
+  description_ar  String?
+  description_ckb String?
+  type            EventType @default(ACADEMIC)
+  host            String? // university, company, or organiser name
+  location        String? // venue; null for online-only events
+  isOnline        Boolean   @default(false)
+  onlineUrl       String? // meeting link, shown to people who registered
+  startsAt        DateTime
+  endsAt          DateTime?
+  capacity        Int? // null means no limit
+  registrationUrl String? // when registration happens on another site
+  isPublished     Boolean   @default(true)
+  createdById     Int?
+  createdBy       User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt       DateTime  @default(now())
+
+  registrations EventRegistration[]
+
+  @@index([startsAt])
+}
+
+model EventRegistration {
+  id        Int      @id @default(autoincrement())
+  eventId   Int
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, userId])
+}
+
 model Announcement {
   id          Int              @id @default(autoincrement())
   message_en  String
