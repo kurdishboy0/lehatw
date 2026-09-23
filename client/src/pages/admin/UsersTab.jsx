@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { authHeader } from '../../auth';
 import { formatDateTime, toLocalizedDigits } from '../../localizeDigits';
 import { Dialog } from '../../components/Dialog';
+import CreateAccountDialog from './CreateAccountDialog';
 import { buttonStyle } from '../../components/buttonStyle';
 import { Badge, FilterPills, EmptyState } from './adminUi';
 import { cardStyle, mutedStyle, inputStyle, accountStatusTone } from './adminStyles';
@@ -330,6 +331,16 @@ function UserDetailDialog({ userId, me, notify, onChanged, onClose }) {
                 </>
               )}
               <button type="button" onClick={() => openMode('reset')} style={buttonStyle('secondary')}>{t('adminConsole.users.reset_password')}</button>
+              {user.role !== 'ADMIN' && (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => run(() => axios.post(`/api/admin/users/${userId}/setup-link`, {}, cfg), t('adminConsole.users.setup_link_sent'))}
+                  style={buttonStyle('secondary')}
+                >
+                  {t('adminConsole.users.send_setup_link')}
+                </button>
+              )}
             </div>
             {error && !mode && <p role="alert" style={{ color: '#c53030', fontSize: '13px', margin: '8px 0 0 0' }}>{error}</p>}
 
@@ -402,6 +413,9 @@ function UsersTab({ notify, me }) {
   const [verified, setVerified] = useState('all');
   const [page, setPage] = useState(1);
   const [data, setData] = useState({ users: [], total: 0, totalPages: 1 });
+  const [creating, setCreating] = useState(false);
+  const [newAccount, setNewAccount] = useState(null); // { email, setupUrl }
+  const [linkCopied, setLinkCopied] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -443,14 +457,17 @@ function UsersTab({ notify, me }) {
 
   return (
     <section>
-      <input
-        type="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder={t('adminConsole.users.search_placeholder')}
-        aria-label={t('adminConsole.users.search_placeholder')}
-        style={{ ...inputStyle, width: '100%', marginBottom: '12px' }}
-      />
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '12px' }}>
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t('adminConsole.users.search_placeholder')}
+          aria-label={t('adminConsole.users.search_placeholder')}
+          style={{ ...inputStyle, flex: '1 1 260px' }}
+        />
+        <button type="button" onClick={() => setCreating(true)} style={buttonStyle('primary')}>➕ {t('adminConsole.users.create')}</button>
+      </div>
       <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', marginBottom: '16px' }}>
         <FilterPills label={t('adminConsole.users.filter_role')} value={role} onChange={setFilter(setRole)}
           options={[{ value: 'all', label: all }, ...['STUDENT', 'HR', 'ADMIN'].map((r) => ({ value: r, label: t(`adminConsole.role.${r}`) }))]} />
@@ -503,6 +520,34 @@ function UsersTab({ notify, me }) {
           <span style={mutedStyle}>{t('adminConsole.jobs.page', { page: num(page), total: num(data.totalPages) })}</span>
           <button type="button" disabled={page >= data.totalPages} onClick={() => setPage((p) => p + 1)} style={{ ...buttonStyle('secondary'), opacity: page >= data.totalPages ? 0.5 : 1 }}>{t('adminConsole.jobs.next')}</button>
         </div>
+      )}
+
+      {creating && (
+        <CreateAccountDialog
+          onClose={() => setCreating(false)}
+          onCreated={({ email, setupUrl }) => {
+            setCreating(false);
+            setLinkCopied(false);
+            notify(t('adminConsole.users.created', { email }));
+            if (setupUrl) setNewAccount({ email, setupUrl });
+            load();
+          }}
+        />
+      )}
+
+      {newAccount && (
+        <Dialog title={t('adminConsole.users.setup_link_title')} onClose={() => setNewAccount(null)}>
+          <p style={{ margin: '0 0 12px 0', color: '#4a5568', fontSize: '14px', lineHeight: 1.6 }}>{t('adminConsole.users.setup_link_hint')}</p>
+          <code dir="ltr" data-testid="setup-link" style={{ display: 'block', wordBreak: 'break-all', fontSize: '13px', padding: '10px', backgroundColor: '#f7fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+            {newAccount.setupUrl}
+          </code>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '14px' }}>
+            <button type="button" onClick={() => navigator.clipboard?.writeText(newAccount.setupUrl).then(() => setLinkCopied(true)).catch(() => {})} style={buttonStyle('secondary')}>
+              {linkCopied ? t('adminConsole.users.copied') : t('adminConsole.users.copy')}
+            </button>
+            <button type="button" onClick={() => setNewAccount(null)} style={buttonStyle('primary')}>{t('adminConsole.users.close')}</button>
+          </div>
+        </Dialog>
       )}
 
       {openUserId && (

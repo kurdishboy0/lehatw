@@ -81,6 +81,7 @@ model User {
   receivedMessages Message[]      @relation("ReceivedMessages")
   notifications    Notification[]
 
+  setupTokens      AccountSetupToken[]
   reportsFiled     Report[]              @relation("ReportsFiled")
   reportsResolved  Report[]              @relation("ReportsResolved")
   adminActions     AdminAuditLog[]
@@ -291,6 +292,20 @@ model Notification {
 }
 
 // 14. User-submitted reports of users, messages, or job posts, for admin review
+// One-time link that lets an admin-created account choose its own password.
+// The raw token is only ever in the email; the database keeps its hash.
+model AccountSetupToken {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
 model Report {
   id             Int          @id @default(autoincrement())
   reporterId     Int

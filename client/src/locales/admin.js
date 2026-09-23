@@ -179,7 +179,10 @@ const en = {
         USER_VERIFICATION_RESENT: "Resent a verification code",
         USER_VERIFIED: "Verified an account manually",
         USER_ROLE_CHANGED: "Changed an account type",
-        USER_DELETED: "Deleted an account"
+        USER_DELETED: "Deleted an account",
+        ACCOUNT_CREATED: "Created an account",
+        SETUP_LINK_SENT: "Sent a set-password link",
+        JOB_CREATED: "Posted a job for a company"
       }
     },
 
@@ -309,7 +312,28 @@ const en = {
       no_jobs: "No job posts match.",
       prev: "Previous",
       next: "Next",
-      page: "Page {{page}} of {{total}}"
+      page: "Page {{page}} of {{total}}",
+      create: "Add job post",
+      create_title: "Add a job post for a company",
+      create_company: "Company",
+      create_company_hint: "The post belongs to this company: it shows on their dashboard and they get the applicants.",
+      create_job_title: "Job title",
+      create_description: "Summary",
+      create_lines_hint: "One per line.",
+      create_responsibilities: "Responsibilities",
+      create_requirements: "Requirements",
+      create_benefits: "What we offer",
+      create_location: "Location",
+      create_type: "Employment type",
+      create_mode: "Work mode",
+      create_experience: "Experience level",
+      create_education: "Education",
+      create_requires_cv: "A CV is required to apply",
+      create_skills: "Required skills",
+      create_skills_hint: "Students are matched to this job by these skills.",
+      create_submit: "Post job",
+      created: "Job posted for {{company}}.",
+      no_companies: "No approved companies yet."
     },
 
     users: {
@@ -377,7 +401,28 @@ const en = {
       delete_reason_hint: "The user is emailed this reason.",
       delete_confirm_label: "Type {{email}} to confirm",
       delete_button: "Delete permanently",
-      deleted: "Account deleted."
+      deleted: "Account deleted.",
+      create: "Create account",
+      create_title: "Create a student or company account",
+      create_role: "Account type",
+      create_email: "Email address",
+      create_student_name: "Full name",
+      create_university: "University",
+      create_field: "Field of study",
+      create_grad_year: "Graduation year (optional)",
+      create_company: "Company name",
+      create_industry: "Industry (optional)",
+      create_job_title: "Contact's role (optional)",
+      create_cr: "CR number (optional)",
+      create_phone: "Phone (optional)",
+      create_approve: "Approve this company right away",
+      create_hint: "They get an email with a link to choose their own password. No password is ever emailed.",
+      create_submit: "Create account and send link",
+      created: "Account created for {{email}}. The link was emailed.",
+      setup_link_title: "Set-password link",
+      setup_link_hint: "We emailed this link to them. It works for 7 days. Copy it if the email doesn't arrive.",
+      send_setup_link: "Send set-password link",
+      setup_link_sent: "A new set-password link was emailed."
     },
 
     admins: {
@@ -605,7 +650,10 @@ const ar = {
         USER_VERIFICATION_RESENT: "إعادة إرسال رمز التحقق",
         USER_VERIFIED: "توثيق حساب يدوياً",
         USER_ROLE_CHANGED: "تغيير نوع حساب",
-        USER_DELETED: "حذف حساب"
+        USER_DELETED: "حذف حساب",
+        ACCOUNT_CREATED: "إنشاء حساب",
+        SETUP_LINK_SENT: "إرسال رابط تعيين كلمة المرور",
+        JOB_CREATED: "نشر وظيفة لشركة"
       }
     },
 
@@ -735,7 +783,28 @@ const ar = {
       no_jobs: "لا توجد إعلانات مطابقة.",
       prev: "السابق",
       next: "التالي",
-      page: "صفحة {{page}} من {{total}}"
+      page: "صفحة {{page}} من {{total}}",
+      create: "إضافة إعلان وظيفة",
+      create_title: "إضافة إعلان وظيفة لشركة",
+      create_company: "الشركة",
+      create_company_hint: "الإعلان يخص هذه الشركة: يظهر في لوحتها وتصلها طلبات التوظيف.",
+      create_job_title: "المسمى الوظيفي",
+      create_description: "نبذة",
+      create_lines_hint: "سطر لكل بند.",
+      create_responsibilities: "المهام",
+      create_requirements: "المتطلبات",
+      create_benefits: "ما نقدمه",
+      create_location: "الموقع",
+      create_type: "نوع الدوام",
+      create_mode: "نمط العمل",
+      create_experience: "مستوى الخبرة",
+      create_education: "المؤهل العلمي",
+      create_requires_cv: "السيرة الذاتية مطلوبة للتقديم",
+      create_skills: "المهارات المطلوبة",
+      create_skills_hint: "تتم مطابقة الطلاب بهذه الوظيفة عبر هذه المهارات.",
+      create_submit: "نشر الوظيفة",
+      created: "تم نشر الوظيفة لشركة {{company}}.",
+      no_companies: "لا توجد شركات مقبولة بعد."
     },
 
     users: {
@@ -803,7 +872,28 @@ const ar = {
       delete_reason_hint: "سيُرسل هذا السبب إلى المستخدم بالبريد الإلكتروني.",
       delete_confirm_label: "اكتب {{email}} للتأكيد",
       delete_button: "حذف نهائي",
-      deleted: "تم حذف الحساب."
+      deleted: "تم حذف الحساب.",
+      create: "إنشاء حساب",
+      create_title: "إنشاء حساب طالب أو شركة",
+      create_role: "نوع الحساب",
+      create_email: "البريد الإلكتروني",
+      create_student_name: "الاسم الكامل",
+      create_university: "الجامعة",
+      create_field: "التخصص",
+      create_grad_year: "سنة التخرج (اختياري)",
+      create_company: "اسم الشركة",
+      create_industry: "المجال (اختياري)",
+      create_job_title: "منصب جهة الاتصال (اختياري)",
+      create_cr: "رقم السجل التجاري (اختياري)",
+      create_phone: "الهاتف (اختياري)",
+      create_approve: "الموافقة على هذه الشركة فوراً",
+      create_hint: "سيصلهم بريد إلكتروني فيه رابط لاختيار كلمة المرور بأنفسهم. لا تُرسل أي كلمة مرور بالبريد.",
+      create_submit: "إنشاء الحساب وإرسال الرابط",
+      created: "تم إنشاء حساب {{email}} وإرسال الرابط بالبريد.",
+      setup_link_title: "رابط تعيين كلمة المرور",
+      setup_link_hint: "أرسلنا هذا الرابط إليهم بالبريد، وهو صالح لسبعة أيام. انسخه إن لم تصلهم الرسالة.",
+      send_setup_link: "إرسال رابط تعيين كلمة المرور",
+      setup_link_sent: "تم إرسال رابط جديد بالبريد."
     },
 
     admins: {
@@ -1031,7 +1121,10 @@ const ckb = {
         USER_VERIFICATION_RESENT: "ناردنەوەی کۆدی پشتڕاستکردنەوە",
         USER_VERIFIED: "پشتڕاستکردنەوەی دەستی هەژمار",
         USER_ROLE_CHANGED: "گۆڕینی جۆری هەژمار",
-        USER_DELETED: "سڕینەوەی هەژمار"
+        USER_DELETED: "سڕینەوەی هەژمار",
+        ACCOUNT_CREATED: "دروستکردنی هەژمار",
+        SETUP_LINK_SENT: "ناردنی بەستەری دانانی وشەی نهێنی",
+        JOB_CREATED: "بڵاوکردنەوەی کار بۆ کۆمپانیایەک"
       }
     },
 
@@ -1161,7 +1254,28 @@ const ckb = {
       no_jobs: "هیچ ڕیکلامێکی گونجاو نییە.",
       prev: "پێشوو",
       next: "دواتر",
-      page: "پەڕەی {{page}} لە {{total}}"
+      page: "پەڕەی {{page}} لە {{total}}",
+      create: "زیادکردنی ڕیکلامی کار",
+      create_title: "زیادکردنی ڕیکلامی کار بۆ کۆمپانیایەک",
+      create_company: "کۆمپانیا",
+      create_company_hint: "ڕیکلامەکە هی ئەم کۆمپانیایەیە: لە داشبۆردەکەیاندا دەردەکەوێت و داواکارییەکان بۆیان دەچێت.",
+      create_job_title: "ناونیشانی کار",
+      create_description: "کورتە",
+      create_lines_hint: "هەر دێڕێک بۆ خاڵێک.",
+      create_responsibilities: "ئەرکەکان",
+      create_requirements: "پێداویستییەکان",
+      create_benefits: "ئەوەی پێشکەشی دەکەین",
+      create_location: "شوێن",
+      create_type: "جۆری کار",
+      create_mode: "شێوازی کار",
+      create_experience: "ئاستی ئەزموون",
+      create_education: "بڕوانامە",
+      create_requires_cv: "بۆ داواکاری CV پێویستە",
+      create_skills: "تواناییە پێویستەکان",
+      create_skills_hint: "خوێندکاران بەم تواناییانە لەگەڵ ئەم کارە دەگونجێنرێن.",
+      create_submit: "بڵاوکردنەوەی کار",
+      created: "کارەکە بۆ {{company}} بڵاو کرایەوە.",
+      no_companies: "هێشتا هیچ کۆمپانیایەکی پەسەندکراو نییە."
     },
 
     users: {
@@ -1229,7 +1343,28 @@ const ckb = {
       delete_reason_hint: "ئەم هۆکارە بە ئیمەیڵ بۆ بەکارهێنەرەکە دەنێردرێت.",
       delete_confirm_label: "{{email}} بنووسە بۆ دڵنیاکردنەوە",
       delete_button: "سڕینەوەی هەمیشەیی",
-      deleted: "هەژمارەکە سڕایەوە."
+      deleted: "هەژمارەکە سڕایەوە.",
+      create: "دروستکردنی هەژمار",
+      create_title: "دروستکردنی هەژماری خوێندکار یان کۆمپانیا",
+      create_role: "جۆری هەژمار",
+      create_email: "ئیمەیڵ",
+      create_student_name: "ناوی تەواو",
+      create_university: "زانکۆ",
+      create_field: "پسپۆڕی",
+      create_grad_year: "ساڵی دەرچوون (ئارەزوومەندانە)",
+      create_company: "ناوی کۆمپانیا",
+      create_industry: "بوار (ئارەزوومەندانە)",
+      create_job_title: "پۆستی کەسی پەیوەندیکار (ئارەزوومەندانە)",
+      create_cr: "ژمارەی تۆماری بازرگانی (ئارەزوومەندانە)",
+      create_phone: "تەلەفۆن (ئارەزوومەندانە)",
+      create_approve: "دەستبەجێ ئەم کۆمپانیایە پەسەند بکە",
+      create_hint: "ئیمەیڵێکیان بۆ دەچێت کە بەستەرێکی تێدایە بۆ هەڵبژاردنی وشەی نهێنی خۆیان. هیچ وشەیەکی نهێنی بە ئیمەیڵ نانێردرێت.",
+      create_submit: "دروستکردنی هەژمار و ناردنی بەستەر",
+      created: "هەژمار بۆ {{email}} دروست کرا و بەستەرەکە نێردرا.",
+      setup_link_title: "بەستەری دانانی وشەی نهێنی",
+      setup_link_hint: "ئەم بەستەرەمان بە ئیمەیڵ بۆیان نارد و بۆ ماوەی حەوت ڕۆژ کار دەکات. کۆپی بکە ئەگەر ئیمەیڵەکە نەگەیشت.",
+      send_setup_link: "ناردنی بەستەری دانانی وشەی نهێنی",
+      setup_link_sent: "بەستەرێکی نوێ بە ئیمەیڵ نێردرا."
     },
 
     admins: {

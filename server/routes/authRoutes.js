@@ -1,4 +1,5 @@
 const express = require('express');
+const { checkSetupToken, completeSetup } = require('../controllers/accountSetupController');
 const {
   registerUser,
   loginUser,
@@ -26,5 +27,9 @@ router.post('/reset-password', resetPassword);
 // Phone verification (registration) Routes (Public)
 router.post('/send-phone-otp', sendPhoneOtp);
 router.post('/verify-phone-otp', verifyPhoneOtp);
+
+// Admin-created accounts choose their own password through a one-time link
+router.get('/setup/:token', checkSetupToken);
+router.post('/setup', completeSetup);
 
 module.exports = router;

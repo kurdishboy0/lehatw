@@ -10,6 +10,7 @@ import HRDashboard from './pages/HRDashboard';
 import HRJobPost from './pages/HRJobPost';
 import AdminDashboard from './pages/AdminDashboard';
 import HRCandidates from './pages/HRCandidates';
+import SetPassword from './pages/SetPassword';
 import Jobs from './pages/Jobs';
 import JobDetail from './pages/JobDetail';
 import SkillMatch from './pages/SkillMatch';
@@ -174,6 +175,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/register-hr" element={<RegisterHR />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/set-password" element={<SetPassword />} />
             <Route path="/verify-phone" element={<VerifyPhone />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />

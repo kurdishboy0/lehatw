@@ -3,6 +3,7 @@ const { protect, adminOnly, superAdminOnly } = require('../middleware/authMiddle
 const approvals = require('../controllers/admin/approvalsController');
 const moderation = require('../controllers/admin/moderationController');
 const users = require('../controllers/admin/usersController');
+const create = require('../controllers/admin/createController');
 const overview = require('../controllers/admin/overviewController');
 const catalog = require('../controllers/admin/catalogController');
 const translations = require('../controllers/translationController');
@@ -49,6 +50,9 @@ router.put('/reports/:id', moderation.closeReport);
 router.delete('/messages/:id', moderation.deleteMessage);
 
 // Users
+router.post('/users', create.createAccount);
+router.post('/users/:id/setup-link', create.resendSetupLink);
+router.post('/jobs', create.createJobForCompany);
 router.get('/users', users.listUsers);
 router.get('/users/:id', users.getUser);
 router.put('/users/:id/status', users.setStatus);

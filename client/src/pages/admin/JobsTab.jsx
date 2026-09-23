@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { authHeader } from '../../auth';
 import { formatDateTime, toLocalizedDigits } from '../../localizeDigits';
 import { ReasonDialog } from '../../components/Dialog';
+import CreateJobDialog from './CreateJobDialog';
 import { buttonStyle } from '../../components/buttonStyle';
 import { Badge, FilterPills, EmptyState } from './adminUi';
 import { cardStyle, mutedStyle, inputStyle } from './adminStyles';
@@ -28,6 +29,7 @@ function JobsTab({ notify, refreshCounts }) {
   const [data, setData] = useState({ jobs: [], total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(true);
   const [removing, setRemoving] = useState(null);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => { setDebouncedQuery(query.trim()); setPage(1); }, SEARCH_DEBOUNCE_MS);
@@ -95,6 +97,7 @@ function JobsTab({ notify, refreshCounts }) {
           onChange={changeStatus}
           options={['all', 'active', 'inactive', 'removed'].map((s) => ({ value: s, label: t(`adminConsole.jobs.filter.${s}`) }))}
         />
+        <button type="button" onClick={() => setCreating(true)} style={buttonStyle('primary')}>➕ {t('adminConsole.jobs.create')}</button>
       </div>
 
       {loading && data.jobs.length === 0 ? (
@@ -160,6 +163,18 @@ function JobsTab({ notify, refreshCounts }) {
             {t('adminConsole.jobs.next')}
           </button>
         </div>
+      )}
+
+      {creating && (
+        <CreateJobDialog
+          notify={notify}
+          onClose={() => setCreating(false)}
+          onCreated={({ company }) => {
+            setCreating(false);
+            notify(t('adminConsole.jobs.created', { company }));
+            load();
+          }}
+        />
       )}
 
       {removing && (
