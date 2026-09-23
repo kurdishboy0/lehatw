@@ -6,6 +6,7 @@ import matchingStrings from './locales/matching';
 import accountStrings from './locales/accounts';
 import eventStrings from './locales/events';
 import instructorStrings from './locales/instructors';
+import courseStrings from './locales/courses';
 
 // The Translation Dictionary
 const resources = {
@@ -1521,7 +1522,7 @@ function mergeStrings(target, additions) {
   return target;
 }
 
-for (const bundle of [adminStrings, matchingStrings, accountStrings, eventStrings, instructorStrings]) {
+for (const bundle of [adminStrings, matchingStrings, accountStrings, eventStrings, instructorStrings, courseStrings]) {
   for (const [lang, sections] of Object.entries(bundle)) {
     mergeStrings(resources[lang].translation, sections);
   }

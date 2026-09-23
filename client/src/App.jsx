@@ -15,6 +15,8 @@ import Events from './pages/Events';
 import EventDetail from './pages/EventDetail';
 import RegisterInstructor from './pages/RegisterInstructor';
 import InstructorDashboard from './pages/InstructorDashboard';
+import Courses from './pages/Courses';
+import CourseDetail from './pages/CourseDetail';
 import Jobs from './pages/Jobs';
 import JobDetail from './pages/JobDetail';
 import SkillMatch from './pages/SkillMatch';
@@ -104,6 +106,7 @@ function Header() {
         <NavItem to="/" icon="🏠" label={t('nav.home')} />
         <NavItem to="/jobs" icon="💼" label={t('nav.jobs')} />
         <NavItem to="/skill-match" icon="🧭" label={t('nav.skill_match')} />
+        <NavItem to="/courses" icon="📚" label={t('nav.courses')} />
         <NavItem to="/events" icon="📅" label={t('nav.events')} />
         <NavItem to="/about" icon="ℹ️" label={t('nav.about')} />
 
@@ -189,6 +192,8 @@ function App() {
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
             <Route path="/skill-match" element={<SkillMatch />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/courses/:id" element={<CourseDetail />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<EventDetail />} />
             <Route path="/about" element={<AboutUs />} />

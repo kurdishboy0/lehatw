@@ -46,6 +46,33 @@ enum ReportStatus {
   DISMISSED
 }
 
+enum CourseStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  ALL_LEVELS
+}
+
+enum CourseLanguage {
+  ENGLISH
+  ARABIC
+  KURDISH
+  MIXED
+}
+
+enum CourseDelivery {
+  ONLINE
+  IN_PERSON
+  HYBRID
+}
+
 enum EventType {
   ACADEMIC
   COMPANY
@@ -99,6 +126,7 @@ model User {
   notifications    Notification[]
 
   setupTokens        AccountSetupToken[]
+  courseEnrollments  CourseEnrollment[]
   eventsCreated      Event[]
   eventRegistrations EventRegistration[]
   reportsFiled       Report[]              @relation("ReportsFiled")
@@ -111,22 +139,108 @@ model User {
 // 3. Student Profiles (Public)
 // Someone who teaches courses on Lehatw.
 model InstructorProfile {
-  id        Int    @id @default(autoincrement())
-  userId    Int    @unique
-  user      User   @relation(fields: [userId], references: [id])
-  fullName  String
-  headline  String? // "Senior data engineer", "English teacher at ..."
-  bio       String?
-  expertise String? // free text: what they teach
-  website   String?
+  id          Int     @id @default(autoincrement())
+  userId      Int     @unique
+  user        User    @relation(fields: [userId], references: [id])
+  fullName    String
+  headline    String? // "Senior data engineer", "English teacher at ..."
+  bio         String?
+  expertise   String? // free text: what they teach
+  website     String?
   linkedinUrl String?
-  photoUrl  String?
-  phone     String?
+  photoUrl    String?
+  phone       String?
 
   status          InstructorStatus @default(PENDING)
   rejectionReason String? // shown to them so they know what to fix
 
+  courses   Course[]
   createdAt DateTime @default(now())
+}
+
+// A course taught by an instructor. Admins review each one before students
+// can see it, and can also create courses on an instructor's behalf.
+model Course {
+  id                  Int               @id @default(autoincrement())
+  instructorProfileId Int
+  instructor          InstructorProfile @relation(fields: [instructorProfileId], references: [id], onDelete: Cascade)
+  title               String
+  summary             String? // one or two lines for the course card
+  description         String?
+  level               CourseLevel       @default(ALL_LEVELS)
+  language            CourseLanguage    @default(ENGLISH)
+  delivery            CourseDelivery    @default(ONLINE)
+  location            String? // for in-person and hybrid courses
+  priceIqd            Int               @default(0) // 0 means free
+  durationHours       Int?
+  startsAt            DateTime? // for courses that run as a group; null means self-paced
+  externalUrl         String? // the instructor's own page, if they have one
+  coverImageUrl       String?
+
+  status          CourseStatus @default(DRAFT)
+  rejectionReason String? // shown to the instructor so they know what to fix
+  publishedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  skills      CourseSkill[]
+  lessons     CourseLesson[]
+  enrollments CourseEnrollment[]
+
+  @@index([status])
+}
+
+// What a course teaches, so it can be recommended for skills a student lacks.
+model CourseSkill {
+  id       Int    @id @default(autoincrement())
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  skillId  Int
+  skill    Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, skillId])
+}
+
+model CourseLesson {
+  id              Int     @id @default(autoincrement())
+  courseId        Int
+  course          Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  position        Int // order within the course
+  title           String
+  content         String? // the lesson text
+  videoUrl        String?
+  resourceUrl     String? // slides, exercises, anything to download
+  durationMinutes Int?
+  isPreview       Boolean @default(false) // readable before enrolling
+
+  progress LessonProgress[]
+
+  @@index([courseId, position])
+}
+
+model CourseEnrollment {
+  id          Int       @id @default(autoincrement())
+  courseId    Int
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  completedAt DateTime? // set when every lesson is done
+
+  progress LessonProgress[]
+
+  @@unique([courseId, userId])
+}
+
+model LessonProgress {
+  id           Int              @id @default(autoincrement())
+  enrollmentId Int
+  enrollment   CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lessonId     Int
+  lesson       CourseLesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  completedAt  DateTime         @default(now())
+
+  @@unique([enrollmentId, lessonId])
 }
 
 model StudentProfile {
@@ -210,6 +324,7 @@ model Skill {
 
   students StudentSkill[]
   jobPosts JobPostSkill[] // Links Skills to Job Posts
+  courses  CourseSkill[]
 }
 
 // 7. Mapping Students to Skills

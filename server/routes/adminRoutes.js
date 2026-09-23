@@ -11,6 +11,7 @@ const analytics = require('../controllers/admin/analyticsController');
 const audit = require('../controllers/admin/auditController');
 const announcements = require('../controllers/announcementController');
 const events = require('../controllers/eventController');
+const courses = require('../controllers/courseController');
 
 const router = express.Router();
 
@@ -22,6 +23,13 @@ router.get('/me', overview.getMe);
 router.get('/pending-counts', overview.getPendingCounts);
 router.get('/analytics', analytics.getAnalytics);
 router.get('/audit', audit.listAudit);
+
+// Courses
+router.get('/courses', courses.adminListCourses);
+router.post('/courses', courses.adminCreateCourse);
+router.put('/courses/:id/approve', courses.approveCourse);
+router.put('/courses/:id/reject', courses.rejectCourse);
+router.delete('/courses/:id', courses.adminDeleteCourse);
 
 // Events
 router.get('/events', events.listAllEvents);

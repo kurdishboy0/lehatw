@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { authHeader } from '../auth';
+import InstructorCourses from './instructor/InstructorCourses';
 
 const cardStyle = {
   border: '1px solid #e2e8f0', borderRadius: '14px', padding: '24px',
@@ -76,7 +77,7 @@ function InstructorDashboard() {
         )}
       </div>
 
-      <div style={cardStyle}>
+      <div style={{ ...cardStyle, marginBottom: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <h2 style={{ fontSize: '18px', color: '#1a202c', margin: 0 }}>{t('instructorDashboard.profile_heading')}</h2>
           {!editing && (
@@ -118,6 +119,8 @@ function InstructorDashboard() {
           </dl>
         )}
       </div>
+
+      <InstructorCourses approved={profile.status === 'APPROVED'} notify={(text) => setMessage(text)} />
     </div>
   );
 }
