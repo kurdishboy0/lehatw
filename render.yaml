@@ -3,10 +3,12 @@ services:
     name: lehatw
     runtime: node
     plan: free
-    buildCommand: "cd server && npm install && npx prisma generate && cd ../client && npm install && npm run build"
+    buildCommand: "cd server && npm ci && npx prisma generate && cd ../client && npm ci --include=dev && npm run build"
     startCommand: "NODE_ENV=production node server/index.js"
     healthCheckPath: /api/test
     envVars:
+      - key: CLIENT_URL
+        value: https://lehato.netlify.app
       - key: JWT_SECRET
         sync: false
       - key: DATABASE_URL
