@@ -6,7 +6,9 @@ import App from './App.jsx';
 import { AuthProvider } from './AuthContext.jsx';
 import { installAccountBlockInterceptor } from './accountBlock';
 import { loadTextOverrides } from './translationOverrides';
+import { installApiResponseGuard } from './apiResponseGuard';
 
+installApiResponseGuard();
 installAccountBlockInterceptor();
 loadTextOverrides();
 

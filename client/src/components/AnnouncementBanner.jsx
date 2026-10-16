@@ -9,7 +9,8 @@ const REFRESH_MS = 5 * 60 * 1000;
 
 function readDismissed() {
   try {
-    return JSON.parse(localStorage.getItem(DISMISSED_KEY)) || [];
+    const stored = JSON.parse(localStorage.getItem(DISMISSED_KEY));
+    return Array.isArray(stored) ? stored : [];
   } catch {
     return [];
   }
@@ -24,7 +25,7 @@ function AnnouncementBanner() {
   useEffect(() => {
     let cancelled = false;
     const load = () => axios.get('/api/announcements/active')
-      .then((res) => { if (!cancelled) setAnnouncements(res.data); })
+      .then((res) => { if (!cancelled && Array.isArray(res.data)) setAnnouncements(res.data); })
       .catch(() => {});
     load();
     const timer = setInterval(load, REFRESH_MS);

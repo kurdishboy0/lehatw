@@ -97,6 +97,7 @@ function Home() {
       setLoading(true);
       try {
         const res = await axios.get(`/api/student/all?page=${currentPage}`);
+        if (!Array.isArray(res.data?.students)) throw new Error('Invalid talent directory response');
         setStudents(res.data.students);
         setTotalPages(res.data.totalPages);
       } catch (err) {
@@ -112,7 +113,10 @@ function Home() {
   }, [currentPage]);
 
   useEffect(() => {
-    axios.get('/api/jobs').then(res => setRecentJobs(res.data.slice(0, 4))).catch(console.error);
+    axios.get('/api/jobs').then(res => {
+      if (!Array.isArray(res.data)) throw new Error('Invalid jobs response');
+      setRecentJobs(res.data.slice(0, 4));
+    }).catch(console.error);
   }, []);
 
   // One place that runs a search: the typing debounce and the Search button
@@ -121,6 +125,9 @@ function Home() {
     setSearching(true);
     try {
       const res = await axios.get(`/api/search?q=${encodeURIComponent(term)}`);
+      if (!Array.isArray(res.data?.students) || !Array.isArray(res.data?.jobs)) {
+        throw new Error('Invalid search response');
+      }
       setSearchResults(res.data);
     } catch (err) {
       console.error(err);
