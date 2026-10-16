@@ -7,21 +7,20 @@ import { AuthProvider } from './AuthContext.jsx';
 import { installAccountBlockInterceptor } from './accountBlock';
 import { loadTextOverrides } from './translationOverrides';
 import { installApiResponseGuard } from './apiResponseGuard';
+import { GOOGLE_CLIENT_ID } from './oauthConfig';
 
 installApiResponseGuard();
 installAccountBlockInterceptor();
 loadTextOverrides();
 
-// 1. Import the Google Provider
 import { GoogleOAuthProvider } from '@react-oauth/google';
+
+const app = <AuthProvider><App /></AuthProvider>;
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {/* 2. Wrap the App with the Provider and pass your Client ID from the .env file */}
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </GoogleOAuthProvider>
+    {GOOGLE_CLIENT_ID
+      ? <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>{app}</GoogleOAuthProvider>
+      : app}
   </StrictMode>,
 )
