@@ -15,7 +15,7 @@ async function loadAuthUser(id) {
 
   const user = await prisma.user.findUnique({
     where: { id },
-    select: { id: true, email: true, role: true, accountStatus: true, statusReason: true, suspendedUntil: true, isSuperAdmin: true }
+    select: { id: true, email: true, role: true, accountStatus: true, statusReason: true, suspendedUntil: true, isSuperAdmin: true, passwordChangedAt: true }
   });
   userCache.set(id, { user, at: Date.now() });
   return user;
@@ -23,6 +23,13 @@ async function loadAuthUser(id) {
 
 function invalidateUserCache(id) {
   userCache.delete(Number(id));
+}
+
+// A token carries its issued-at time in whole seconds, so one minted in the
+// same second as the change is given the benefit of the doubt.
+function isStaleToken(decoded, user) {
+  if (!user.passwordChangedAt || !decoded.iat) return false;
+  return decoded.iat * 1000 < new Date(user.passwordChangedAt).getTime() - 1000;
 }
 
 const protect = async (req, res, next) => {
@@ -41,6 +48,14 @@ const protect = async (req, res, next) => {
   const user = await loadAuthUser(decoded.id);
   if (!user) {
     return res.status(401).json({ message: "Not authorized, account no longer exists.", code: "ACCOUNT_DELETED" });
+  }
+
+  // A token minted before the password changed belongs to the old password,
+  // so it stops working the moment the password is replaced. Without this, a
+  // reset would lock nobody out: whoever held a token would keep their access
+  // for up to a day.
+  if (isStaleToken(decoded, user)) {
+    return res.status(401).json({ message: "Your password changed. Please sign in again.", code: "PASSWORD_CHANGED" });
   }
 
   const block = getAccountBlock(user);
@@ -64,7 +79,7 @@ const optionalAuth = async (req, res, next) => {
   try {
     const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
     const user = await loadAuthUser(decoded.id);
-    if (user && !getAccountBlock(user)) {
+    if (user && !getAccountBlock(user) && !isStaleToken(decoded, user)) {
       req.user = { id: user.id, email: user.email, role: user.role, isSuperAdmin: user.isSuperAdmin };
     }
   } catch {

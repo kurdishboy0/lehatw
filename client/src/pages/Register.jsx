@@ -76,7 +76,7 @@ function Register() {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '400px', margin: '50px auto' }}>
       <h2 style={{ textAlign: 'center', color: '#2d3748' }}>{t('register.title')}</h2>
 
       {error && <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}>{error}</p>}

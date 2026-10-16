@@ -8,6 +8,8 @@ import { buttonStyle } from '../../components/buttonStyle';
 import { ANNOUNCEMENT_STYLES } from '../../components/announcementStyles';
 import { Badge, EmptyState } from './adminUi';
 import { cardStyle, mutedStyle, inputStyle } from './adminStyles';
+import { Plus } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 const TYPES = ['INFO', 'WARNING', 'SUCCESS'];
 const STATUS_TONE = { live: 'green', scheduled: 'blue', ended: 'gray', off: 'gray' };
@@ -32,7 +34,7 @@ function BannerPreview({ type, message }) {
   const style = ANNOUNCEMENT_STYLES[type] || ANNOUNCEMENT_STYLES.INFO;
   return (
     <div style={{ display: 'flex', gap: '10px', alignItems: 'center', padding: '10px 14px', borderRadius: '8px', backgroundColor: style.bg, border: `1px solid ${style.border}`, color: style.color, fontSize: '14px', fontWeight: 600 }}>
-      <span aria-hidden="true">{style.icon}</span>
+      <InlineIcon icon={style.icon} size={16} />
       <span dir="auto">{message}</span>
     </div>
   );
@@ -167,7 +169,7 @@ function AnnouncementsTab({ notify }) {
     <section>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
         <p style={{ margin: 0, color: '#4a5568', fontSize: '14px', flex: '1 1 300px' }}>{t('adminConsole.announcements.intro')}</p>
-        <button type="button" onClick={() => setEditing({})} style={buttonStyle('primary')}>➕ {t('adminConsole.announcements.new')}</button>
+        <button type="button" onClick={() => setEditing({})} style={buttonStyle('primary')}><InlineIcon icon={Plus} /> {t('adminConsole.announcements.new')}</button>
       </div>
 
       {list.length === 0 ? (

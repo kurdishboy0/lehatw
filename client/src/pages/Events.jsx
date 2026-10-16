@@ -6,6 +6,8 @@ import { authHeader } from '../auth';
 import { formatDateTime, toLocalizedDigits } from '../localizeDigits';
 import { eventText } from '../eventText';
 import EventTypeBadge from '../components/EventTypeBadge';
+import { Globe, Check, CalendarDays, MapPin } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const cardStyle = {
   border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px',
@@ -19,15 +21,15 @@ function EventCard({ event, lang, t }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '6px' }}>
             <EventTypeBadge type={event.type} />
-            {event.isOnline && <span style={{ fontSize: '12px', color: '#276749', fontWeight: 600 }}>🌐 {t('events.online')}</span>}
-            {event.registered && <span style={{ fontSize: '12px', color: '#276749', fontWeight: 700 }}>✓ {t('events.registered')}</span>}
+            {event.isOnline && <span style={{ fontSize: '12px', color: '#276749', fontWeight: 600 }}><InlineIcon icon={Globe} size={13} /> {t('events.online')}</span>}
+            {event.registered && <span style={{ fontSize: '12px', color: '#276749', fontWeight: 700 }}><InlineIcon icon={Check} size={13} /> {t('events.registered')}</span>}
           </div>
           <h3 style={{ margin: '0 0 4px 0' }}>
             <Link to={`/events/${event.id}`} style={{ color: '#1a202c', textDecoration: 'none' }} dir="auto">{eventText(event, 'title', lang)}</Link>
           </h3>
           <div style={{ fontSize: '14px', color: '#718096', lineHeight: 1.7 }}>
-            <div>📅 {formatDateTime(event.startsAt, lang)}</div>
-            {event.location && <div dir="auto">📍 {event.location}</div>}
+            <div><InlineIcon icon={CalendarDays} tone="gold" /> {formatDateTime(event.startsAt, lang)}</div>
+            {event.location && <div dir="auto"><InlineIcon icon={MapPin} tone="gold" /> {event.location}</div>}
             {event.host && <div dir="auto">{t('events.host', { host: event.host })}</div>}
           </div>
         </div>
@@ -74,11 +76,11 @@ function Events() {
   return (
     <div>
       <div className="animate-fade-up" style={{ background: 'linear-gradient(135deg, #1B2A4A 0%, #14213B 100%)', borderBottom: '3px solid #C99A2E', padding: '48px 20px', textAlign: 'center' }}>
-        <h1 style={{ color: '#ffffff', fontSize: '2.2rem', margin: '0 0 10px 0' }}>📅 {t('events.heading')}</h1>
+        <h1 style={{ color: '#ffffff', fontSize: '2.2rem', margin: '0 0 10px 0' }}><InlineIcon icon={CalendarDays} size={32} tone="var(--color-gold-400)" /> {t('events.heading')}</h1>
         <p style={{ color: '#e6e9f0', fontSize: '1.05rem', margin: 0 }}>{t('events.subtitle')}</p>
       </div>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '30px 20px 60px 20px', fontFamily: 'sans-serif' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '30px 20px 60px 20px' }}>
         <div role="tablist" aria-label={t('events.heading')} style={{ display: 'flex', gap: '4px', borderBottom: '2px solid #e2e8f0', marginBottom: '22px', flexWrap: 'wrap' }}>
           {['upcoming', 'past'].map((key) => {
             const selected = tab === key;

@@ -3,15 +3,19 @@ import abbasPhoto from '../assets/team/abbas-salihi.jpeg';
 import ahmedPhoto from '../assets/team/ahmed-haji.jpeg';
 import soranPhoto from '../assets/team/soran-noori.png';
 import { toLocalizedDigits } from '../localizeDigits';
+import { Phone, GraduationCap } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
-// English shows the international format (+964, no leading 0); Arabic and
-// Kurdish keep the local format the number is stored in, just with
-// locale-appropriate digits.
+// English shows the international format (+964, no leading 0). Arabic and
+// Kurdish keep the local number, in Arabic-Indic digits and in two bracketed
+// groups: the network prefix, then the subscriber number as one unbroken run,
+// e.g. (٠٧٥٠) (٨٩٦٨٤٦٩). Splitting the second group would let the bidi
+// algorithm reorder the pieces and read as a different number.
 function formatPhoneDisplay(phone, lang) {
   const primary = (lang || '').split('-')[0];
   if (primary === 'en') return `+964 ${phone.replace(/^0/, '')}`;
-  const [areaCode, ...rest] = phone.split(' ');
-  return toLocalizedDigits(`(${areaCode}) ${rest.join(' ')}`, lang);
+  const [prefix, ...rest] = phone.split(' ');
+  return toLocalizedDigits(`(${prefix}) (${rest.join('')})`, lang);
 }
 
 function phoneHref(phone) {
@@ -43,7 +47,7 @@ const TEAM = [
   {
     photo: ahmedPhoto,
     name: 'Ahmed Haji',
-    degree: 'M.Sc. in Computer Science, AI Specialization',
+    degreeKey: 'contactUs.team_ahmed_degree',
     email: 'ahmed.haji@knu.edu.iq',
     phone: '0750 896 8469',
     linkedinUrl: 'https://www.linkedin.com/in/ahmed-bradosty-190b7917a'
@@ -51,7 +55,7 @@ const TEAM = [
   {
     photo: soranPhoto,
     name: 'Soran Bakhtyar Noori',
-    degree: 'M.Sc. in Computer Science, IoT Specialization',
+    degreeKey: 'contactUs.team_soran_degree',
     email: 'soran.noori@epu.edu.iq',
     phone: '0750 447 9072',
     linkedinUrl: 'https://www.linkedin.com/in/soran-rawandzy-560713400/'
@@ -92,12 +96,12 @@ function PersonCard({ photo, name, details, email, phone, scholarUrl, linkedinUr
         )}
         {phone && (
           <a href={phoneHref(phone)} style={{ fontSize: '13px', color: '#1B2A4A', fontWeight: '600', textDecoration: 'none' }}>
-            📞 {phoneLabel}: <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>{formatPhoneDisplay(phone, i18n.language)}</span>
+            <InlineIcon icon={Phone} tone="gold" /> {phoneLabel}: <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>{formatPhoneDisplay(phone, i18n.language)}</span>
           </a>
         )}
         {scholarUrl && (
           <a href={scholarUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#1B2A4A', fontWeight: '600', textDecoration: 'none' }}>
-            🎓 {scholarLabel}
+            <InlineIcon icon={GraduationCap} tone="gold" /> {scholarLabel}
           </a>
         )}
       </div>
@@ -109,7 +113,7 @@ function ContactUs() {
   const { t } = useTranslation();
 
   return (
-    <div style={{ maxWidth: '900px', margin: '20px auto 60px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '900px', margin: '20px auto 60px auto', padding: '0 20px' }}>
       <div style={{ textAlign: 'center', marginBottom: '44px' }}>
         <h1 style={{ fontSize: '2.2rem', color: '#1a202c', margin: '0 0 10px 0' }}>{t('contactUs.heading')}</h1>
         <p style={{ fontSize: '15px', color: '#718096', margin: '0 auto', maxWidth: '520px' }}>{t('contactUs.subtitle')}</p>
@@ -146,7 +150,7 @@ function ContactUs() {
             key={person.email}
             photo={person.photo}
             name={person.name}
-            details={person.degree}
+            details={t(person.degreeKey)}
             email={person.email}
             phone={person.phone}
             linkedinUrl={person.linkedinUrl}

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { authHeader } from '../auth';
+import { ClipboardList, MapPin, Clock, Building2, Briefcase, GraduationCap, FileText, Target, CircleCheck, Gift, Puzzle } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const EMPLOYMENT_TYPES = ['Full-Time', 'Part-Time', 'Internship', 'Contract', 'Freelance'];
 const WORK_MODES = ['On-Site', 'Remote', 'Hybrid'];
@@ -99,7 +101,7 @@ function HRJobPost() {
   };
 
   return (
-    <div style={{ maxWidth: '760px', margin: '40px auto', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ maxWidth: '760px', margin: '40px auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div>
         <h2 style={{ color: '#1a202c', margin: '0 0 6px 0' }}>{t('jobPost.heading')}</h2>
         <p style={{ color: '#718096', margin: 0 }}>{t('jobPost.subtitle')}</p>
@@ -115,7 +117,7 @@ function HRJobPost() {
 
         {/* BASIC DETAILS */}
         <div style={cardStyle}>
-          <h3 style={sectionHeadingStyle}>📋 {t('jobPost.section_basics')}</h3>
+          <h3 style={sectionHeadingStyle}><InlineIcon icon={ClipboardList} size={18} tone="gold" /> {t('jobPost.section_basics')}</h3>
           <div className="grid-2col">
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={labelStyle}>{t('jobPost.title_label')} <span style={{ color: '#e53e3e' }}>*</span></label>
@@ -123,12 +125,12 @@ function HRJobPost() {
             </div>
 
             <div>
-              <label style={labelStyle}>📍 {t('jobPost.location_label')}</label>
+              <label style={labelStyle}><InlineIcon icon={MapPin} size={14} tone="gold" /> {t('jobPost.location_label')}</label>
               <input type="text" placeholder={t('jobPost.location_placeholder')} value={location} onChange={(e) => setLocation(e.target.value)} style={inputStyle} />
             </div>
 
             <div>
-              <label style={labelStyle}>🕘 {t('jobPost.employment_type_label')}</label>
+              <label style={labelStyle}><InlineIcon icon={Clock} size={14} tone="gold" /> {t('jobPost.employment_type_label')}</label>
               <select value={employmentType} onChange={(e) => setEmploymentType(e.target.value)} style={inputStyle}>
                 {EMPLOYMENT_TYPES.map(type => (
                   <option key={type} value={type}>{t(`jobPost.employment_${type.toLowerCase().replace('-', '_')}`)}</option>
@@ -137,7 +139,7 @@ function HRJobPost() {
             </div>
 
             <div>
-              <label style={labelStyle}>🏢 {t('jobPost.work_mode_label')}</label>
+              <label style={labelStyle}><InlineIcon icon={Building2} size={14} tone="gold" /> {t('jobPost.work_mode_label')}</label>
               <select value={workMode} onChange={(e) => setWorkMode(e.target.value)} style={inputStyle}>
                 {WORK_MODES.map(mode => (
                   <option key={mode} value={mode}>{t(`jobPost.work_mode_${mode.toLowerCase().replace('-', '')}`)}</option>
@@ -146,12 +148,12 @@ function HRJobPost() {
             </div>
 
             <div>
-              <label style={labelStyle}>💼 {t('jobPost.experience_label')}</label>
+              <label style={labelStyle}><InlineIcon icon={Briefcase} size={14} tone="gold" /> {t('jobPost.experience_label')}</label>
               <input type="text" placeholder={t('jobPost.experience_placeholder')} value={experienceLevel} onChange={(e) => setExperienceLevel(e.target.value)} style={inputStyle} />
             </div>
 
             <div style={{ gridColumn: '1 / -1' }}>
-              <label style={labelStyle}>🎓 {t('jobPost.education_label')}</label>
+              <label style={labelStyle}><InlineIcon icon={GraduationCap} size={14} tone="gold" /> {t('jobPost.education_label')}</label>
               <input type="text" placeholder={t('jobPost.education_placeholder')} value={education} onChange={(e) => setEducation(e.target.value)} style={inputStyle} />
             </div>
           </div>
@@ -159,31 +161,31 @@ function HRJobPost() {
 
         {/* SUMMARY */}
         <div style={cardStyle}>
-          <h3 style={sectionHeadingStyle}>📝 {t('jobPost.section_summary')}</h3>
+          <h3 style={sectionHeadingStyle}><InlineIcon icon={FileText} size={18} tone="gold" /> {t('jobPost.section_summary')}</h3>
           <textarea placeholder={t('jobPost.summary_placeholder')} value={description} onChange={(e) => setDescription(e.target.value)} rows="4" style={{ ...inputStyle, resize: 'vertical' }} />
         </div>
 
         {/* RESPONSIBILITIES */}
         <div style={cardStyle}>
-          <h3 style={sectionHeadingStyle}>🎯 {t('jobPost.section_responsibilities')}</h3>
+          <h3 style={sectionHeadingStyle}><InlineIcon icon={Target} size={18} tone="gold" /> {t('jobPost.section_responsibilities')}</h3>
           <textarea placeholder={t('jobPost.responsibilities_placeholder')} value={responsibilities} onChange={(e) => setResponsibilities(e.target.value)} rows="5" style={{ ...inputStyle, resize: 'vertical' }} />
         </div>
 
         {/* REQUIREMENTS */}
         <div style={cardStyle}>
-          <h3 style={sectionHeadingStyle}>✅ {t('jobPost.section_requirements')}</h3>
+          <h3 style={sectionHeadingStyle}><InlineIcon icon={CircleCheck} size={18} tone="gold" /> {t('jobPost.section_requirements')}</h3>
           <textarea placeholder={t('jobPost.requirements_placeholder')} value={requirements} onChange={(e) => setRequirements(e.target.value)} rows="5" style={{ ...inputStyle, resize: 'vertical' }} />
         </div>
 
         {/* BENEFITS */}
         <div style={cardStyle}>
-          <h3 style={sectionHeadingStyle}>🎁 {t('jobPost.section_benefits')} <span style={{ fontWeight: 'normal', color: '#a0aec0', fontSize: '13px' }}>{t('common.optional')}</span></h3>
+          <h3 style={sectionHeadingStyle}><InlineIcon icon={Gift} size={18} tone="gold" /> {t('jobPost.section_benefits')} <span style={{ fontWeight: 'normal', color: '#a0aec0', fontSize: '13px' }}>{t('common.optional')}</span></h3>
           <textarea placeholder={t('jobPost.benefits_placeholder')} value={benefits} onChange={(e) => setBenefits(e.target.value)} rows="4" style={{ ...inputStyle, resize: 'vertical' }} />
         </div>
 
         {/* SKILLS */}
         <div style={cardStyle}>
-          <h3 style={sectionHeadingStyle}>🧩 {t('jobPost.section_skills')}</h3>
+          <h3 style={sectionHeadingStyle}><InlineIcon icon={Puzzle} size={18} tone="gold" /> {t('jobPost.section_skills')}</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
             {availableSkills.map(skill => (
               <label key={skill.id} style={{

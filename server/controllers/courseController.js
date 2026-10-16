@@ -176,7 +176,7 @@ const enroll = async (req, res) => {
       throw error;
     }
     notifyUser(course.instructor.userId, {
-      type: 'COURSE_ENROLLMENT', title: 'A student enrolled in your course',
+      type: 'COURSE_ENROLLMENT', title: 'A talent enrolled in your course',
       body: course.title, link: `/courses/${course.id}`
     });
     res.status(201).json({ message: 'You are enrolled.', enrolled: true });
@@ -223,7 +223,7 @@ const myCourses = async (req, res) => {
 // ask for counts for more than one only a single job wants.
 const recommendedCourses = async (req, res) => {
   try {
-    if (req.user.role !== 'STUDENT') return res.status(403).json({ message: 'Only students get course recommendations.' });
+    if (req.user.role !== 'STUDENT') return res.status(403).json({ message: 'Only talent get course recommendations.' });
     const profile = await prisma.studentProfile.findUnique({
       where: { userId: req.user.id },
       select: { skills: { select: { skillId: true } } }
@@ -432,7 +432,7 @@ const courseStudents = async (req, res) => {
     })));
   } catch (error) {
     console.error('Course Students Error:', error);
-    res.status(500).json({ message: 'Server error loading your students.' });
+    res.status(500).json({ message: 'Server error loading your talent.' });
   }
 };
 

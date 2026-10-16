@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
 import { formatDateTime, toLocalizedDigits } from '../localizeDigits';
 import { coursePrice } from '../courseDisplay';
+import { Lock, Paperclip, ArrowLeft, Target, Languages, Monitor, MapPin, Timer, Users, CalendarDays, Check, MessageSquare } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const cardStyle = {
   border: '1px solid #e2e8f0', borderRadius: '14px', padding: '24px',
@@ -49,7 +51,7 @@ function Lesson({ lesson, index, lang, enrolled, done, onToggle }) {
         </button>
         {lesson.isPreview && <span style={{ ...tagStyle, color: '#276749', backgroundColor: '#e6f4ea', border: 'none' }}>{t('courseDetail.preview')}</span>}
         {lesson.durationMinutes && <span style={{ fontSize: '13px', color: '#718096' }}>{num(lesson.durationMinutes)} min</span>}
-        {lesson.locked && <span style={{ fontSize: '13px', color: '#a0aec0' }}>🔒 {t('courseDetail.locked')}</span>}
+        {lesson.locked && <span style={{ fontSize: '13px', color: '#a0aec0' }}><InlineIcon icon={Lock} size={13} /> {t('courseDetail.locked')}</span>}
       </div>
 
       {open && readable && (
@@ -57,7 +59,7 @@ function Lesson({ lesson, index, lang, enrolled, done, onToggle }) {
           {lesson.content && <p style={{ margin: 0, color: '#2d3748', fontSize: '15px', lineHeight: 1.8, whiteSpace: 'pre-wrap' }} dir="auto">{lesson.content}</p>}
           <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginTop: '8px' }}>
             {lesson.videoUrl && <a href={lesson.videoUrl} target="_blank" rel="noreferrer" style={{ color: '#1B2A4A', fontWeight: 600, fontSize: '14px' }}>▶ {t('courseDetail.watch')}</a>}
-            {lesson.resourceUrl && <a href={lesson.resourceUrl} target="_blank" rel="noreferrer" style={{ color: '#1B2A4A', fontWeight: 600, fontSize: '14px' }}>📎 {t('courseDetail.resources')}</a>}
+            {lesson.resourceUrl && <a href={lesson.resourceUrl} target="_blank" rel="noreferrer" style={{ color: '#1B2A4A', fontWeight: 600, fontSize: '14px' }}><InlineIcon icon={Paperclip} /> {t('courseDetail.resources')}</a>}
           </div>
         </div>
       )}
@@ -135,8 +137,8 @@ function CourseDetail() {
   const total = course.lessons.length;
 
   return (
-    <div style={{ maxWidth: '860px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <Link to="/courses" style={{ color: '#1B2A4A', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>← {t('courseDetail.back')}</Link>
+    <div style={{ maxWidth: '860px', margin: '30px auto', padding: '0 20px' }}>
+      <Link to="/courses" style={{ color: '#1B2A4A', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}><InlineIcon icon={ArrowLeft} className="rtl:rotate-180" /> {t('courseDetail.back')}</Link>
 
       {course.status !== 'APPROVED' && (
         <p role="status" style={{ marginTop: '14px', padding: '10px 14px', borderRadius: '8px', backgroundColor: '#fdf6e3', color: '#8a6d1d', fontSize: '14px' }}>
@@ -151,13 +153,13 @@ function CourseDetail() {
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
           <span style={{ ...tagStyle, fontWeight: 700, color: course.priceIqd ? '#1a202c' : '#276749' }}>{coursePrice(course, t, toLocalizedDigits, lang)}</span>
-          <span style={tagStyle}>🎯 {t(`courses.level_${course.level}`)}</span>
-          <span style={tagStyle}>🗣️ {t(`courses.language_${course.language}`)}</span>
-          <span style={tagStyle}>💻 {t(`courses.delivery_${course.delivery}`)}</span>
-          {course.location && <span style={tagStyle} dir="auto">📍 {course.location}</span>}
-          {course.durationHours && <span style={tagStyle}>⏱️ {t('courses.hours', { count: num(course.durationHours) })}</span>}
-          <span style={tagStyle}>👥 {t('courses.students', { count: num(course.studentCount) })}</span>
-          <span style={tagStyle}>📅 {course.startsAt ? t('courses.starts', { date: formatDateTime(course.startsAt, lang, { withTime: false }) }) : t('courses.self_paced')}</span>
+          <span style={tagStyle}><InlineIcon icon={Target} tone="gold" size={13} /> {t(`courses.level_${course.level}`)}</span>
+          <span style={tagStyle}><InlineIcon icon={Languages} tone="gold" size={13} /> {t(`courses.language_${course.language}`)}</span>
+          <span style={tagStyle}><InlineIcon icon={Monitor} tone="gold" size={13} /> {t(`courses.delivery_${course.delivery}`)}</span>
+          {course.location && <span style={tagStyle} dir="auto"><InlineIcon icon={MapPin} tone="gold" size={13} /> {course.location}</span>}
+          {course.durationHours && <span style={tagStyle}><InlineIcon icon={Timer} tone="gold" size={13} /> {t('courses.hours', { count: num(course.durationHours) })}</span>}
+          <span style={tagStyle}><InlineIcon icon={Users} tone="gold" size={13} /> {t('courses.students', { count: num(course.studentCount) })}</span>
+          <span style={tagStyle}><InlineIcon icon={CalendarDays} tone="gold" size={13} /> {course.startsAt ? t('courses.starts', { date: formatDateTime(course.startsAt, lang, { withTime: false }) }) : t('courses.self_paced')}</span>
         </div>
 
         {course.skills.length > 0 && (
@@ -178,7 +180,7 @@ function CourseDetail() {
             <Link to="/login" style={{ color: '#1B2A4A', fontWeight: 600 }}>{t('courseDetail.login_to_enrol')}</Link>
           ) : course.enrolled ? (
             <>
-              <span style={{ padding: '12px 20px', backgroundColor: '#e6f4ea', color: '#276749', borderRadius: '8px', fontWeight: 700 }}>✓ {t('courseDetail.enrolled')}</span>
+              <span style={{ padding: '12px 20px', backgroundColor: '#e6f4ea', color: '#276749', borderRadius: '8px', fontWeight: 700 }}><InlineIcon icon={Check} /> {t('courseDetail.enrolled')}</span>
               <button type="button" disabled={busy} onClick={() => setEnrolment(false)} style={{ padding: '12px 20px', background: 'none', border: '1px solid #cbd5e0', borderRadius: '8px', cursor: 'pointer', color: '#4a5568', fontWeight: 600 }}>
                 {t('courseDetail.leave')}
               </button>
@@ -204,7 +206,7 @@ function CourseDetail() {
           <h2 style={{ fontSize: '18px', color: '#1a202c', margin: 0 }}>{t('courseDetail.lessons_heading')}</h2>
           {course.enrolled && total > 0 && (
             <span style={{ fontSize: '14px', fontWeight: 600, color: done.size === total ? '#276749' : '#4a5568' }}>
-              {done.size === total ? `✓ ${t('courseDetail.completed')}` : t('courseDetail.progress', { done: num(done.size), total: num(total) })}
+              {done.size === total ? <><InlineIcon icon={Check} /> {t('courseDetail.completed')}</> : t('courseDetail.progress', { done: num(done.size), total: num(total) })}
             </span>
           )}
         </div>
@@ -249,7 +251,7 @@ function CourseDetail() {
         <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
           {course.instructor.website && <a href={course.instructor.website} target="_blank" rel="noreferrer" style={{ color: '#1B2A4A', fontSize: '14px', fontWeight: 600 }}>Website</a>}
           {course.instructor.linkedinUrl && <a href={course.instructor.linkedinUrl} target="_blank" rel="noreferrer" style={{ color: '#1B2A4A', fontSize: '14px', fontWeight: 600 }}>LinkedIn</a>}
-          {user && !isOwner && <Link to={`/messages/${course.instructor.userId}`} style={{ color: '#1B2A4A', fontSize: '14px', fontWeight: 600 }}>💬 {t('skillMatch.message')}</Link>}
+          {user && !isOwner && <Link to={`/messages/${course.instructor.userId}`} style={{ color: '#1B2A4A', fontSize: '14px', fontWeight: 600 }}><InlineIcon icon={MessageSquare} /> {t('skillMatch.message')}</Link>}
         </div>
       </div>
     </div>

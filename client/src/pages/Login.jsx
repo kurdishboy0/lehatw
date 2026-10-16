@@ -140,7 +140,7 @@ function Login() {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '400px', margin: '50px auto' }}>
       <h2 style={{ textAlign: 'center', color: '#2d3748' }}>{t('login.title')}</h2>
 
       {accountBlock && (

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { authHeader } from '../auth';
 import InstructorCourses from './instructor/InstructorCourses';
+import { GraduationCap } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const cardStyle = {
   border: '1px solid #e2e8f0', borderRadius: '14px', padding: '24px',
@@ -54,8 +56,8 @@ function InstructorDashboard() {
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
   return (
-    <div style={{ maxWidth: '760px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <h1 style={{ fontSize: '24px', color: '#1a202c' }}>🎓 {t('instructorDashboard.heading')}</h1>
+    <div style={{ maxWidth: '760px', margin: '30px auto', padding: '0 20px' }}>
+      <h1 style={{ fontSize: '24px', color: '#1a202c' }}><InlineIcon icon={GraduationCap} size={24} tone="gold" /> {t('instructorDashboard.heading')}</h1>
 
       {message && <p role="status" style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: '#e6f4ea', color: '#276749', fontWeight: 600 }}>{message}</p>}
       {error && <p role="alert" style={{ color: '#c53030' }}>{error}</p>}

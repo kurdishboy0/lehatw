@@ -139,7 +139,7 @@ const getMatchingStudents = async (req, res) => {
     });
   } catch (error) {
     console.error("Match Engine Error:", error);
-    res.status(500).json({ message: "Error calculating student matches." });
+    res.status(500).json({ message: "Error calculating talent matches." });
   }
 };
 

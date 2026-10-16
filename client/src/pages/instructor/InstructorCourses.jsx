@@ -9,6 +9,8 @@ import { buttonStyle } from '../../components/buttonStyle';
 import { STATUS_TONE, coursePrice } from '../../courseDisplay';
 import CourseForm from './CourseForm';
 import LessonsDialog from './LessonsDialog';
+import { Check, MessageSquare, BookOpen, Plus } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 const cardStyle = {
   border: '1px solid #e2e8f0', borderRadius: '14px', padding: '18px',
@@ -61,9 +63,9 @@ function StudentsDialog({ course, lang, onClose }) {
               </div>
               <div style={{ textAlign: 'end' }}>
                 <div style={{ fontSize: '13px', fontWeight: 600, color: r.completedAt ? '#276749' : '#4a5568' }}>
-                  {r.completedAt ? `✓ ${t('instructorCourses.finished')}` : t('instructorCourses.progress', { done: num(r.completedLessons), total: num(r.lessonCount) })}
+                  {r.completedAt ? <><InlineIcon icon={Check} size={13} /> {t('instructorCourses.finished')}</> : t('instructorCourses.progress', { done: num(r.completedLessons), total: num(r.lessonCount) })}
                 </div>
-                <Link to={`/messages/${r.userId}`} style={{ fontSize: '13px', color: '#1B2A4A', fontWeight: 600 }}>💬 {t('skillMatch.message')}</Link>
+                <Link to={`/messages/${r.userId}`} style={{ fontSize: '13px', color: '#1B2A4A', fontWeight: 600 }}><InlineIcon icon={MessageSquare} size={13} /> {t('skillMatch.message')}</Link>
               </div>
             </div>
           ))}
@@ -131,7 +133,7 @@ function InstructorCourses({ approved, notify }) {
   if (!approved) {
     return (
       <div style={cardStyle}>
-        <h2 style={{ fontSize: '18px', color: '#1a202c', marginTop: 0 }}>📚 {t('instructorCourses.heading')}</h2>
+        <h2 style={{ fontSize: '18px', color: '#1a202c', marginTop: 0 }}><InlineIcon icon={BookOpen} size={18} tone="gold" /> {t('instructorCourses.heading')}</h2>
         <p style={{ color: '#718096', margin: 0 }}>{t('instructorCourses.needs_approval')}</p>
       </div>
     );
@@ -140,8 +142,8 @@ function InstructorCourses({ approved, notify }) {
   return (
     <section style={cardStyle}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-        <h2 style={{ fontSize: '18px', color: '#1a202c', margin: 0 }}>📚 {t('instructorCourses.heading')}</h2>
-        <button type="button" onClick={() => setEditing({})} style={buttonStyle('primary')}>➕ {t('instructorCourses.new')}</button>
+        <h2 style={{ fontSize: '18px', color: '#1a202c', margin: 0 }}><InlineIcon icon={BookOpen} size={18} tone="gold" /> {t('instructorCourses.heading')}</h2>
+        <button type="button" onClick={() => setEditing({})} style={buttonStyle('primary')}><InlineIcon icon={Plus} /> {t('instructorCourses.new')}</button>
       </div>
 
       {courses === null ? (

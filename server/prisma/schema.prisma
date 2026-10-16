@@ -104,6 +104,11 @@ model User {
   // Only super-admins can create/remove admins or change anyone to/from ADMIN.
   isSuperAdmin   Boolean       @default(false)
 
+  // When the password last changed. A token issued before this moment is
+  // refused, so changing a password ends every session that was already open
+  // with the old one.
+  passwordChangedAt DateTime?
+
   // --- FIELDS FOR OTP ---
   resetOtp        String? // Stores the 6-digit code
   resetOtpExpires DateTime? // Stores when the code expires (e.g., in 15 mins)

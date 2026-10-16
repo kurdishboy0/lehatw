@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
 import { Dialog } from './Dialog';
 import { buttonStyle } from './buttonStyle';
+import { Flag } from 'lucide-react';
+import InlineIcon from './InlineIcon';
 
 const REASONS = ['SPAM', 'SCAM', 'HARASSMENT', 'INAPPROPRIATE', 'FAKE_PROFILE', 'OTHER'];
 
@@ -52,7 +54,7 @@ function ReportButton({ targetType, targetId, compact = false, style }) {
           fontSize: compact ? '12px' : '13px', padding: compact ? '2px 4px' : '4px 6px', ...style
         }}
       >
-        ⚑{compact ? '' : ` ${t('report.button')}`}
+        <InlineIcon icon={Flag} size={compact ? 14 : 15} />{compact ? '' : ` ${t('report.button')}`}
       </button>
 
       {open && (

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import { GraduationCap, Building2, Briefcase } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 function Section({ title, body }) {
   return (
@@ -17,7 +19,7 @@ function StatCard({ icon, value, label }) {
       backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px',
       padding: '28px 20px', textAlign: 'center', borderTop: '4px solid #1B2A4A'
     }}>
-      <div style={{ fontSize: '32px', marginBottom: '8px' }}>{icon}</div>
+      <div style={{ marginBottom: '8px' }}><InlineIcon icon={icon} size={32} tone="gold" strokeWidth={1.5} /></div>
       <div style={{ fontSize: '2.2rem', fontWeight: '800', color: '#1B2A4A', lineHeight: 1 }}>
         {value === null ? '—' : value.toLocaleString()}
       </div>
@@ -35,16 +37,16 @@ function AboutUs() {
   }, []);
 
   return (
-    <div style={{ maxWidth: '820px', margin: '20px auto 60px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '820px', margin: '20px auto 60px auto', padding: '0 20px' }}>
       <div className="animate-fade-up" style={{ textAlign: 'center', marginBottom: '40px' }}>
         <h1 style={{ fontSize: '2.4rem', color: '#1a202c', margin: '0 0 12px 0' }}>{t('aboutUs.title')}</h1>
         <p style={{ fontSize: '1.15rem', color: '#718096', margin: 0 }}>{t('aboutUs.subtitle')}</p>
       </div>
 
       <div className="animate-fade-up card-grid-3col" style={{ marginBottom: '48px', animationDelay: '0.1s' }}>
-        <StatCard icon="🎓" value={stats?.studentCount ?? null} label={t('aboutUs.stat_students')} />
-        <StatCard icon="🏢" value={stats?.companyCount ?? null} label={t('aboutUs.stat_companies')} />
-        <StatCard icon="💼" value={stats?.jobCount ?? null} label={t('aboutUs.stat_jobs')} />
+        <StatCard icon={GraduationCap} value={stats?.studentCount ?? null} label={t('aboutUs.stat_students')} />
+        <StatCard icon={Building2} value={stats?.companyCount ?? null} label={t('aboutUs.stat_companies')} />
+        <StatCard icon={Briefcase} value={stats?.jobCount ?? null} label={t('aboutUs.stat_jobs')} />
       </div>
 
       <Section title={t('aboutUs.mission_title')} body={t('aboutUs.mission_body')} />
@@ -52,11 +54,11 @@ function AboutUs() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '32px' }}>
         <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '22px', borderTop: '3px solid #C99A2E' }}>
-          <h3 style={{ fontSize: '17px', color: '#1B2A4A', margin: '0 0 10px 0' }}>🎓 {t('aboutUs.students_title')}</h3>
+          <h3 style={{ fontSize: '17px', color: '#1B2A4A', margin: '0 0 10px 0' }}><InlineIcon icon={GraduationCap} tone="gold" /> {t('aboutUs.students_title')}</h3>
           <p style={{ fontSize: '14px', color: '#4a5568', lineHeight: '1.7', margin: 0 }}>{t('aboutUs.students_body')}</p>
         </div>
         <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '22px', borderTop: '3px solid #C99A2E' }}>
-          <h3 style={{ fontSize: '17px', color: '#1B2A4A', margin: '0 0 10px 0' }}>💼 {t('aboutUs.companies_title')}</h3>
+          <h3 style={{ fontSize: '17px', color: '#1B2A4A', margin: '0 0 10px 0' }}><InlineIcon icon={Briefcase} tone="gold" /> {t('aboutUs.companies_title')}</h3>
           <p style={{ fontSize: '14px', color: '#4a5568', lineHeight: '1.7', margin: 0 }}>{t('aboutUs.companies_body')}</p>
         </div>
       </div>

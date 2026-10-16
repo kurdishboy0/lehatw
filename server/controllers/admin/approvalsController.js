@@ -38,11 +38,11 @@ const approveCompany = async (req, res) => {
     notifyUser(profile.userId, {
       type: 'HR_APPROVED',
       title: 'Your company account was approved',
-      body: 'You can now post jobs and browse student talent.',
+      body: 'You can now post jobs and browse talent.',
       link: '/hr-dashboard'
     });
     emailQuietly(profile.user.email, 'Your Lehatw company account is approved',
-      `Good news: ${profile.companyName} has been approved on Lehatw.\n\nYou can now log in, post jobs, and browse student talent.`);
+      `Good news: ${profile.companyName} has been approved on Lehatw.\n\nYou can now log in, post jobs, and browse talent.`);
 
     await logAdminAction(req, {
       action: 'COMPANY_APPROVED', targetType: 'HR_PROFILE', targetId: profile.id,

@@ -22,17 +22,17 @@ const en = {
     see_all_jobs: "See all recommended jobs",
     peers_heading: "Peers like you",
     see_all_peers: "See all peers",
-    no_peers: "No matching students yet. Adding skills helps us find people like you.",
+    no_peers: "No matching talent yet. Adding skills helps us find people like you.",
     privacy_heading: "Privacy",
-    show_email_label: "Show my email to other students",
-    show_email_hint: "When this is on, students who see you under \"Peers like you\" can see your email. Companies can see it when you're a candidate for their job. Anyone can still message you in the app.",
-    show_email_on: "Your email is visible to other students.",
-    show_email_off: "Your email is hidden from other students."
+    show_email_label: "Show my email to other talent",
+    show_email_hint: "When this is on, talent who see you under \"Peers like you\" can see your email. Companies can see it when you're a candidate for their job. Anyone can still message you in the app.",
+    show_email_on: "Your email is visible to other talent.",
+    show_email_off: "Your email is hidden from other talent."
   },
 
   skillMatch: {
     peers_heading: "Peers like you",
-    peers_intro: "Students with skills and a field of study like yours.",
+    peers_intro: "Talent with skills and a field of study like yours.",
     same_field: "Same field",
     message: "Message"
   },
@@ -44,12 +44,12 @@ const en = {
   hrCandidates: {
     heading: "Candidates for \"{{title}}\"",
     back: "Back to dashboard",
-    intro: "Students ranked by how many of this job's skills they have.",
+    intro: "Talent ranked by how many of this job's skills they have.",
     job_skills: "Skills this job asks for:",
     threshold_label: "Minimum match: {{percent}}%",
     showing: "Showing {{shown}} of {{total}} candidates",
     none_above: "No candidates at this match level. Try lowering the minimum.",
-    none: "No students have any of this job's skills yet.",
+    none: "No talent have any of this job's skills yet.",
     no_skills: "This job post has no skills listed, so we can't match candidates. Edit the post to add skills.",
     not_live: "This job isn't live, so you can't invite anyone to it right now.",
     match: "Matches {{matched}}/{{total}} skills",
@@ -91,19 +91,19 @@ const ar = {
   studentDashboard: {
     recommended_jobs_heading: "وظائف مقترحة",
     see_all_jobs: "عرض كل الوظائف المقترحة",
-    peers_heading: "طلاب يشبهونك",
-    see_all_peers: "عرض كل الطلاب",
-    no_peers: "لا يوجد طلاب مطابقون بعد. إضافة المهارات تساعدنا على إيجاد من يشبهونك.",
+    peers_heading: "مواهب يشبهونك",
+    see_all_peers: "عرض كل المواهب",
+    no_peers: "لا يوجد مواهب مطابقون بعد. إضافة المهارات تساعدنا على إيجاد من يشبهونك.",
     privacy_heading: "الخصوصية",
-    show_email_label: "إظهار بريدي الإلكتروني للطلاب الآخرين",
-    show_email_hint: "عند التفعيل، يستطيع الطلاب الذين يرونك في قسم \"طلاب يشبهونك\" رؤية بريدك الإلكتروني. تستطيع الشركات رؤيته عندما تكون مرشحاً لوظائفها. ويمكن للجميع مراسلتك داخل التطبيق دائماً.",
-    show_email_on: "بريدك الإلكتروني ظاهر للطلاب الآخرين.",
-    show_email_off: "بريدك الإلكتروني مخفي عن الطلاب الآخرين."
+    show_email_label: "إظهار بريدي الإلكتروني للمواهب الآخرين",
+    show_email_hint: "عند التفعيل، يستطيع المواهب الذين يرونك في قسم \"مواهب يشبهونك\" رؤية بريدك الإلكتروني. تستطيع الشركات رؤيته عندما تكون مرشحاً لوظائفها. ويمكن للجميع مراسلتك داخل التطبيق دائماً.",
+    show_email_on: "بريدك الإلكتروني ظاهر للمواهب الآخرين.",
+    show_email_off: "بريدك الإلكتروني مخفي عن المواهب الآخرين."
   },
 
   skillMatch: {
-    peers_heading: "طلاب يشبهونك",
-    peers_intro: "طلاب لديهم مهارات وتخصص يشبهان مهاراتك وتخصصك.",
+    peers_heading: "مواهب يشبهونك",
+    peers_intro: "مواهب لديهم مهارات وتخصص يشبهان مهاراتك وتخصصك.",
     same_field: "نفس التخصص",
     message: "مراسلة"
   },
@@ -115,12 +115,12 @@ const ar = {
   hrCandidates: {
     heading: "المرشحون لوظيفة \"{{title}}\"",
     back: "العودة إلى لوحة التحكم",
-    intro: "طلاب مرتبون حسب عدد مهارات هذه الوظيفة التي يملكونها.",
+    intro: "مواهب مرتبون حسب عدد مهارات هذه الوظيفة التي يملكونها.",
     job_skills: "المهارات التي تطلبها هذه الوظيفة:",
     threshold_label: "الحد الأدنى للتطابق: {{percent}}%",
     showing: "عرض {{shown}} من {{total}} مرشحين",
     none_above: "لا يوجد مرشحون بهذا المستوى من التطابق. جرّب خفض الحد الأدنى.",
-    none: "لا يوجد طلاب يملكون أياً من مهارات هذه الوظيفة بعد.",
+    none: "لا يوجد مواهب يملكون أياً من مهارات هذه الوظيفة بعد.",
     no_skills: "لا تذكر هذه الوظيفة أي مهارات، لذا لا يمكننا مطابقة المرشحين. عدّل الإعلان لإضافة مهارات.",
     not_live: "هذه الوظيفة غير منشورة، لذا لا يمكنك دعوة أحد إليها الآن.",
     match: "يطابق {{matched}}/{{total}} من المهارات",
@@ -162,19 +162,19 @@ const ckb = {
   studentDashboard: {
     recommended_jobs_heading: "کاری پێشنیارکراو",
     see_all_jobs: "بینینی هەموو کارە پێشنیارکراوەکان",
-    peers_heading: "خوێندکارانی وەک تۆ",
+    peers_heading: "بەهرەمەندانی وەک تۆ",
     see_all_peers: "بینینی هەمووان",
-    no_peers: "هێشتا هیچ خوێندکارێکی گونجاو نییە. زیادکردنی توانایی یارمەتیمان دەدات کەسانی وەک تۆ بدۆزینەوە.",
+    no_peers: "هێشتا هیچ بەهرەمەندێکی گونجاو نییە. زیادکردنی توانایی یارمەتیمان دەدات کەسانی وەک تۆ بدۆزینەوە.",
     privacy_heading: "تایبەتمەندی",
-    show_email_label: "ئیمەیڵەکەم بۆ خوێندکارانی تر پیشان بدە",
-    show_email_hint: "کاتێک ئەمە چالاکە، ئەو خوێندکارانەی لە بەشی \"خوێندکارانی وەک تۆ\" دەتبینن ئیمەیڵەکەت دەبینن. کۆمپانیاکان کاتێک کاندیدی کارەکانیان بیت دەیبینن. هەمووان هەمیشە دەتوانن لەناو ئەپەکەدا نامەت بۆ بنێرن.",
-    show_email_on: "ئیمەیڵەکەت بۆ خوێندکارانی تر دیارە.",
-    show_email_off: "ئیمەیڵەکەت لە خوێندکارانی تر شاراوەیە."
+    show_email_label: "ئیمەیڵەکەم بۆ بەهرەمەندانی تر پیشان بدە",
+    show_email_hint: "کاتێک ئەمە چالاکە، ئەو بەهرەمەندانەی لە بەشی \"بەهرەمەندانی وەک تۆ\" دەتبینن ئیمەیڵەکەت دەبینن. کۆمپانیاکان کاتێک کاندیدی کارەکانیان بیت دەیبینن. هەمووان هەمیشە دەتوانن لەناو ئەپەکەدا نامەت بۆ بنێرن.",
+    show_email_on: "ئیمەیڵەکەت بۆ بەهرەمەندانی تر دیارە.",
+    show_email_off: "ئیمەیڵەکەت لە بەهرەمەندانی تر شاراوەیە."
   },
 
   skillMatch: {
-    peers_heading: "خوێندکارانی وەک تۆ",
-    peers_intro: "خوێندکارانێک کە توانایی و پسپۆڕییان وەک هی تۆیە.",
+    peers_heading: "بەهرەمەندانی وەک تۆ",
+    peers_intro: "بەهرەمەندانێک کە توانایی و پسپۆڕییان وەک هی تۆیە.",
     same_field: "هەمان پسپۆڕی",
     message: "نامە"
   },
@@ -186,12 +186,12 @@ const ckb = {
   hrCandidates: {
     heading: "کاندیدەکانی \"{{title}}\"",
     back: "گەڕانەوە بۆ داشبۆرد",
-    intro: "خوێندکاران ڕیزکراون بەپێی ئەوەی چەند لە تواناییەکانی ئەم کارەیان هەیە.",
+    intro: "بەهرەمەندان ڕیزکراون بەپێی ئەوەی چەند لە تواناییەکانی ئەم کارەیان هەیە.",
     job_skills: "ئەو تواناییانەی ئەم کارە داوایان دەکات:",
     threshold_label: "کەمترین گونجان: {{percent}}%",
     showing: "پیشاندانی {{shown}} لە {{total}} کاندید",
     none_above: "لەم ئاستەی گونجاندا هیچ کاندیدێک نییە. کەمترین ئاست دابەزێنە.",
-    none: "هێشتا هیچ خوێندکارێک هیچ کام لە تواناییەکانی ئەم کارەی نییە.",
+    none: "هێشتا هیچ بەهرەمەندێک هیچ کام لە تواناییەکانی ئەم کارەی نییە.",
     no_skills: "ئەم ڕیکلامە هیچ توانایییەکی تێدا نییە، بۆیە ناتوانین کاندید بگونجێنین. ڕیکلامەکە دەستکاری بکە و توانایی زیاد بکە.",
     not_live: "ئەم کارە بڵاونەکراوەتەوە، بۆیە ئێستا ناتوانیت کەس بانگهێشت بکەیت.",
     match: "{{matched}}/{{total}} توانایی دەگونجێت",

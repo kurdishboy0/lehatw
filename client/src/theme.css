@@ -1,0 +1,847 @@
+/* ============================================================================
+   Lehatw theme: the academic-corporate palette, the two typefaces, and the
+   compatibility rules that keep the pages we haven't redesigned yet looking
+   the way they did before Tailwind's reset arrived.
+
+   Every token below is emitted as a plain CSS variable on :root by Tailwind,
+   so inline styles can use var(--color-navy-900) and Tailwind classes can use
+   bg-navy-900. One source of truth for both.
+   ========================================================================= */
+
+@import "tailwindcss";
+
+@theme {
+  /* --- Primary: navy ------------------------------------------------- */
+  --color-navy-950: #0b1221;
+  --color-navy-900: #152238; /* primary */
+  --color-navy-800: #1b2a4a; /* the navy already used across the app */
+  --color-navy-700: #24365c;
+  --color-navy-600: #32497a;
+
+  /* --- Accent: gold -------------------------------------------------- */
+  --color-gold-700: #8a6a1f;
+  --color-gold-600: #a87d24;
+  --color-gold-500: #c99a3a; /* accent */
+  --color-gold-400: #dcb45f;
+  --color-gold-300: #ead28f;
+  --color-gold-100: #f6ecd4;
+
+  /* --- Background: cream --------------------------------------------- */
+  --color-cream-50: #faf8f2; /* page background */
+  --color-cream-100: #f4f0e4;
+  --color-cream-200: #e9e2cf;
+
+  /* --- Neutral grays: the values the existing pages already use ------- */
+  --color-ink-900: #1a202c;
+  --color-ink-800: #2d3748;
+  --color-ink-700: #4a5568;
+  --color-ink-500: #718096;
+  --color-ink-400: #a0aec0;
+  --color-ink-300: #cbd5e0;
+  --color-ink-200: #e2e8f0;
+  --color-ink-100: #edf2f7;
+  --color-ink-50: #f7fafc;
+
+  /* --- Type ----------------------------------------------------------- */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Lora", Georgia, "Times New Roman", serif;
+
+  /* Arabic and Kurdish read better with a face that has proper Arabic-script
+     coverage, so those stacks put one first and fall back to the Latin face.
+     Kurdish Sorani uses letters (ڕ ڵ ۆ ێ گ چ پ ژ) that many Arabic faces set
+     awkwardly, so it gets Vazirmatn, which draws the whole set evenly. */
+  --font-arabic: "Noto Kufi Arabic", "Segoe UI", Tahoma, sans-serif;
+  --font-kurdish: "Vazirmatn", "Noto Naskh Arabic", "Segoe UI", Tahoma, sans-serif;
+
+  /* --- Shared shape and depth ---------------------------------------- */
+  --radius-card: 12px;
+  --shadow-card: 0 1px 3px rgba(21, 34, 56, 0.06);
+  --shadow-card-hover: 0 12px 24px rgba(21, 34, 56, 0.12);
+}
+
+/* Kurdish swaps the script face for the whole subtree in one line: every rule
+   that reaches for --font-arabic picks this up, headings and forms included. */
+[lang="ckb"] {
+  --font-arabic: var(--font-kurdish);
+}
+
+/* Semantic aliases, so a component can say "the brand navy" without having to
+   remember which step of the ramp that is. */
+:root {
+  --brand-navy: var(--color-navy-900);
+  --brand-gold: var(--color-gold-500);
+  --brand-cream: var(--color-cream-50);
+  --brand-border: var(--color-ink-200);
+}
+
+/* ----------------------------------------------------------------------------
+   Preflight compatibility.
+
+   Tailwind's reset zeroes heading sizes, margins and list markers. Roughly
+   forty pages here still rely on the browser's defaults, so we hand those
+   defaults back with `revert` until each page is redesigned. Anything a page
+   sets inline still wins, because inline styles beat a stylesheet.
+   ------------------------------------------------------------------------- */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-size: revert;
+    font-weight: revert;
+    margin-block: revert;
+  }
+
+  p, blockquote, figure, dl, dd {
+    margin-block: revert;
+  }
+
+  ul, ol {
+    list-style: revert;
+    margin-block: revert;
+    padding-inline-start: revert;
+  }
+
+  /* Preflight makes every button inherit the page cursor; the app treats
+     buttons as clickable everywhere. */
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* Form controls keep their native look: the app styles them inline and
+     never shipped a forms plugin. */
+  input, select, textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-ink-800);
+    background-color: var(--brand-cream);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* The Arabic and Kurdish scripts get their own stack. */
+  [dir="rtl"] body,
+  [dir="rtl"] {
+    font-family: var(--font-arabic);
+  }
+}
+
+/* A heading in the new theme: Lora, tightened. Applied by the redesigned
+   components; the pages we haven't touched yet keep their current type. */
+.heading-serif {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+/* ============================================================================
+   Home hero: the photograph slider and the search card that overlaps it.
+   ========================================================================= */
+
+/* The hero reaches the edge of the window by cancelling the padding that
+   <main> puts around every page. Negative margins rather than 100vw, so a
+   visible scrollbar can't push the page sideways. */
+.hero-full-bleed {
+  margin: -20px -20px 0 -20px;
+}
+
+/* The header floats over the top of the hero, so the photograph starts level
+   with the window. When an announcement is on screen it keeps that space and
+   the hero begins below it. */
+.app-shell:not(:has(.announcement-banner)) .hero-full-bleed {
+  margin-top: -84px;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 460px;
+  height: 58vh;
+  max-height: 620px;
+  /* Shown when a photograph is still loading, or fails to load at all. */
+  background-color: var(--color-navy-900);
+  display: flex;
+  align-items: center;
+  border-bottom: 3px solid var(--color-gold-500);
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+.hero-slide.is-active {
+  opacity: 1;
+}
+
+.hero-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Navy wash, deepest through the middle band where the words sit, so white
+   text holds up over any of the three photographs. */
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(11, 18, 33, 0.2) 0%, rgba(11, 18, 33, 0.36) 45%, rgba(11, 18, 33, 0.36) 55%, rgba(11, 18, 33, 0.2) 100%),
+    linear-gradient(180deg, rgba(11, 18, 33, 0.22) 0%, rgba(11, 18, 33, 0.06) 40%, rgba(11, 18, 33, 0.34) 100%);
+}
+
+.hero-copy {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px 70px 40px;
+}
+
+.hero-copy-inner {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 20px 28px;
+  text-align: center;
+  /* A soft pool of navy behind the words only. It has no visible edge, so the
+     photograph stays bright everywhere else, while the letters keep something
+     dark of their own to sit on. */
+  background: radial-gradient(ellipse 78% 82% at 50% 50%, rgba(11, 18, 33, 0.38) 0%, rgba(11, 18, 33, 0.26) 52%, rgba(11, 18, 33, 0) 78%);
+}
+
+.hero-title {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: clamp(1.9rem, 4.4vw, 3.4rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.55), 0 0 22px rgba(11, 18, 33, 0.45);
+}
+
+/* Inter carries no Arabic script, so mirrored pages use the Arabic stack
+   rather than dropping to the browser default serif. */
+[dir="rtl"] .hero-title,
+[dir="rtl"] .hero-subtext {
+  font-family: var(--font-arabic);
+  letter-spacing: 0;
+}
+
+.hero-rule {
+  display: block;
+  width: 72px;
+  height: 3px;
+  border-radius: 2px;
+  background-color: var(--color-gold-500);
+  margin: 18px auto;
+}
+
+.hero-subtext {
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  line-height: 1.65;
+  color: #eef1f6;
+  margin: 0 auto;
+  max-width: 640px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 26px rgba(11, 18, 33, 0.62);
+}
+
+/* Each slide's words fade in, unless the reader asked for less movement. */
+.hero-title,
+.hero-subtext {
+  animation: heroCopyIn 0.5s ease both;
+}
+
+@keyframes heroCopyIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background-color: rgba(11, 18, 33, 0.35);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.hero-arrow:hover {
+  background-color: rgba(201, 154, 58, 0.9);
+  border-color: var(--color-gold-500);
+}
+
+.hero-arrow:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
+/* Logical placement, so the pair swaps sides in Arabic and Kurdish. */
+.hero-arrow-prev { inset-inline-start: 18px; }
+.hero-arrow-next { inset-inline-end: 18px; }
+
+/* The chevrons themselves point the other way once mirrored. */
+[dir="rtl"] .hero-arrow svg {
+  transform: rotate(180deg);
+}
+
+.hero-dots {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 74px;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.hero-dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease, width 0.15s ease;
+}
+
+.hero-dot.is-active {
+  width: 26px;
+  border-radius: 6px;
+  background-color: var(--color-gold-500);
+  border-color: var(--color-gold-500);
+}
+
+.hero-dot:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 3px;
+}
+
+/* The search card sits astride the bottom edge of the hero. */
+.hero-search {
+  position: relative;
+  z-index: 3;
+  max-width: 820px;
+  margin: -34px auto 40px auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background-color: #ffffff;
+  border: 1px solid var(--color-ink-200);
+  border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(21, 34, 56, 0.16);
+}
+
+.hero-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 15px;
+  padding: 12px 14px;
+  color: var(--color-ink-900);
+}
+
+.hero-search input::placeholder {
+  color: var(--color-ink-500);
+  opacity: 1;
+}
+
+.hero-search button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 10px;
+  background-color: var(--color-navy-900);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.hero-search button:hover {
+  background-color: var(--color-navy-700);
+}
+
+@media (max-width: 900px) {
+  .hero { min-height: 420px; height: 52vh; }
+  .hero-copy { padding: 0 24px 76px 24px; }
+}
+
+@media (max-width: 640px) {
+  .hero-full-bleed { margin: -12px -12px 0 -12px; }
+  .app-shell:not(:has(.announcement-banner)) .hero-full-bleed { margin-top: -68px; }
+  .hero { min-height: 400px; }
+  .hero-copy { padding-bottom: 108px; }
+  /* On a phone the words run the full width, so they cross brighter parts of
+     the photograph than they do on a desktop. The wash is a little deeper here
+     to keep the subtext above 4.5:1 against white. */
+  .hero-scrim {
+    background:
+      linear-gradient(90deg, rgba(11, 18, 33, 0.3) 0%, rgba(11, 18, 33, 0.4) 45%, rgba(11, 18, 33, 0.4) 55%, rgba(11, 18, 33, 0.3) 100%),
+      linear-gradient(180deg, rgba(11, 18, 33, 0.26) 0%, rgba(11, 18, 33, 0.2) 40%, rgba(11, 18, 33, 0.38) 100%);
+  }
+  /* On a narrow screen the circles would sit on top of the words, so the
+     controls move down into their own row with the dots. */
+  .hero-arrow {
+    width: 38px;
+    height: 38px;
+    top: auto;
+    bottom: 44px;
+    transform: none;
+  }
+  .hero-arrow-prev { inset-inline-start: 14px; }
+  .hero-arrow-next { inset-inline-end: 14px; }
+  .hero-dots { bottom: 58px; }
+  .hero-search {
+    margin: -26px 12px 30px 12px;
+    flex-wrap: wrap;
+  }
+  .hero-search input { flex-basis: 100%; }
+  .hero-search button { flex: 1; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide { transition: none; }
+  .hero-title, .hero-subtext { animation: none; }
+}
+
+/* ============================================================================
+   Site header. Transparent over the hero, solid navy once past it.
+   ========================================================================= */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Over the hero: no bar of its own, just a wash so white text stays legible
+   against whatever part of the photograph is underneath. */
+.site-header.is-over-hero {
+  background: linear-gradient(180deg, rgba(11, 18, 33, 0.75) 0%, rgba(11, 18, 33, 0.35) 60%, rgba(11, 18, 33, 0) 100%);
+  border-bottom: 1px solid transparent;
+  color: #ffffff;
+}
+
+.site-header.is-solid {
+  background-color: var(--color-navy-900);
+  border-bottom: 3px solid var(--color-gold-500);
+  box-shadow: 0 1px 10px rgba(11, 18, 33, 0.18);
+  color: #ffffff;
+}
+
+.site-header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 64px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.site-brand img {
+  height: 38px;
+  width: auto;
+  border-radius: 8px;
+}
+
+.site-brand span {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-inline-start: 14px;
+}
+
+.site-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-inline-start: auto;
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 20px 14px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+}
+
+/* The gold underline marks the page you are on, in both header states. */
+.nav-link.is-active {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.nav-link.is-active::after {
+  content: "";
+  position: absolute;
+  inset-inline: 12px;
+  bottom: 12px;
+  height: 3px;
+  border-radius: 2px;
+  background-color: var(--color-gold-500);
+}
+
+.nav-link:focus-visible,
+.site-burger:focus-visible,
+.nav-cta:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: -4px;
+  border-radius: 6px;
+}
+
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 20px;
+  background-color: var(--color-gold-500);
+  color: var(--color-navy-950);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.nav-cta:hover {
+  background-color: var(--color-gold-400);
+}
+
+.nav-language {
+  padding: 7px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* The closed list is white-on-navy like the bar; the open panel is a white
+   card, so its own items read dark. */
+.nav-language option {
+  color: var(--color-ink-900);
+}
+
+.nav-explore {
+  position: relative;
+}
+
+.nav-dropdown {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 100%;
+  min-width: 232px;
+  padding: 8px;
+  background-color: #ffffff;
+  border: 1px solid var(--color-ink-200);
+  border-radius: 12px;
+  box-shadow: 0 16px 34px rgba(11, 18, 33, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 1001;
+}
+
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--color-ink-800);
+  text-decoration: none;
+}
+
+.nav-dropdown-item:hover {
+  background-color: var(--color-cream-100);
+  color: var(--color-navy-900);
+}
+
+.nav-dropdown-item.is-active {
+  color: var(--color-navy-900);
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 var(--color-gold-500);
+}
+
+[dir="rtl"] .nav-dropdown-item.is-active {
+  box-shadow: inset -3px 0 0 var(--color-gold-500);
+}
+
+.nav-dropdown-item:focus-visible {
+  outline: 2px solid var(--color-gold-500);
+  outline-offset: -2px;
+}
+
+.site-burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin-inline-start: auto;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.site-mobile {
+  display: none;
+  flex-direction: column;
+  padding: 8px 16px 18px 16px;
+  background-color: var(--color-navy-900);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.site-mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 8px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.86);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.site-mobile-link.is-active {
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 var(--color-gold-500);
+}
+
+[dir="rtl"] .site-mobile-link.is-active {
+  box-shadow: inset -3px 0 0 var(--color-gold-500);
+}
+
+.site-mobile-sub {
+  display: flex;
+  flex-direction: column;
+  padding-inline-start: 16px;
+  margin-inline-start: 8px;
+  border-inline-start: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.site-mobile-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 900px) {
+  .site-header-inner { min-height: 56px; padding: 0 14px; }
+  .site-nav, .site-actions { display: none; }
+  .site-burger { display: inline-flex; }
+  .site-mobile { display: flex; }
+  .site-brand img { height: 32px; }
+  .site-brand span { font-size: 17px; }
+}
+
+/* ----------------------------------------------------------------------------
+   The signed-in trio: Messaging, Notifications and the "Me" menu. They sit on
+   the same navy bar as the other links, so they take the same light colouring
+   in both header states, and the red unread badge stays as it is.
+   ------------------------------------------------------------------------- */
+.header-tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 58px;
+  padding: 9px 10px 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.header-tool:hover,
+.header-tool.is-open {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.header-tool.is-active {
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: inset 0 -3px 0 var(--color-gold-500);
+}
+
+.header-tool:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: -2px;
+}
+
+/* The icon and its unread count travel together. */
+.header-tool-icon {
+  position: relative;
+  line-height: 1;
+}
+
+.header-tool-badge {
+  position: absolute;
+  top: -6px;
+  inset-inline-end: -10px;
+  min-width: 16px;
+  padding: 1px 5px;
+  border-radius: 10px;
+  background-color: #e53e3e;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Gold initial, so the avatar reads against the navy rather than sinking into
+   it the way a navy circle did. */
+.header-tool-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  background-color: var(--color-gold-500);
+  color: var(--color-navy-950);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ----------------------------------------------------------------------------
+   A search bar on a page banner. Same white card as the one on the home hero,
+   so the two read as one component wherever they appear.
+   ------------------------------------------------------------------------- */
+.banner-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 8px;
+  background-color: #ffffff;
+  border: 1px solid var(--color-ink-200);
+  border-radius: 14px;
+  box-shadow: 0 10px 26px rgba(11, 18, 33, 0.22);
+}
+
+.banner-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 15px;
+  color: var(--color-ink-900);
+}
+
+.banner-search input::placeholder {
+  color: var(--color-ink-500);
+  opacity: 1;
+}
+
+.banner-search button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border: none;
+  border-radius: 10px;
+  background-color: var(--color-navy-900);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.banner-search button:hover {
+  background-color: var(--color-navy-700);
+}
+
+.banner-search button:focus-visible,
+.banner-search input:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .banner-search { flex-wrap: wrap; }
+  .banner-search input { flex-basis: 100%; }
+  .banner-search button { flex: 1; justify-content: center; }
+}

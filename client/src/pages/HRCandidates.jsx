@@ -6,6 +6,8 @@ import { authHeader } from '../auth';
 import { toLocalizedDigits } from '../localizeDigits';
 import { Dialog } from '../components/Dialog';
 import { buttonStyle } from '../components/buttonStyle';
+import { GraduationCap, Check, Mail, Phone, MessageSquare, ArrowLeft } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const DEFAULT_THRESHOLD = 50;
 
@@ -77,7 +79,7 @@ function CandidateCard({ candidate, job, lang, onInvite }) {
           <img src={candidate.photoUrl} alt="" style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
         ) : (
           <div aria-hidden="true" style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#1B2A4A', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, flexShrink: 0 }}>
-            {initials(candidate.fullName) || '🎓'}
+            {initials(candidate.fullName) || <InlineIcon icon={GraduationCap} size={24} />}
           </div>
         )}
         <div style={{ flex: '1 1 260px', minWidth: 0 }}>
@@ -88,7 +90,7 @@ function CandidateCard({ candidate, job, lang, onInvite }) {
             </span>
           </div>
           <div style={{ fontSize: '14px', color: '#718096', marginTop: '2px' }}>
-            {candidate.university} · {candidate.fieldOfStudy}{candidate.graduationYear ? ` · 🎓 ${num(candidate.graduationYear)}` : ''}
+            {candidate.university} · {candidate.fieldOfStudy}{candidate.graduationYear ? ` · ${num(candidate.graduationYear)}` : ''}
           </div>
           <div
             role="meter"
@@ -107,7 +109,7 @@ function CandidateCard({ candidate, job, lang, onInvite }) {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
           <strong style={{ color: '#276749' }}>{t('hrCandidates.has')}</strong>
           {match.matchedSkillIds.map((id) => (
-            <span key={id} style={chip('#e6f4ea', '#276749')}>✓ {skillName(byId[id], lang)}</span>
+            <span key={id} style={chip('#e6f4ea', '#276749')}><InlineIcon icon={Check} size={12} /> {skillName(byId[id], lang)}</span>
           ))}
         </div>
         {match.missingSkillIds.length > 0 && (
@@ -126,19 +128,19 @@ function CandidateCard({ candidate, job, lang, onInvite }) {
       </div>
 
       <div style={{ marginTop: '12px', display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '14px', color: '#4a5568' }}>
-        <a href={`mailto:${candidate.email}`} dir="ltr" style={{ color: '#1B2A4A' }}>✉️ {candidate.email}</a>
+        <a href={`mailto:${candidate.email}`} dir="ltr" style={{ color: '#1B2A4A' }}><InlineIcon icon={Mail} size={13} /> {candidate.email}</a>
         {candidate.phone && (
-          <span>📞 <a href={`tel:${candidate.phone}`} dir="ltr" style={{ color: '#1B2A4A' }}>{candidate.phone}</a> <span style={{ color: '#a0aec0', fontSize: '12px' }}>({t('hrCandidates.phone_unverified')})</span></span>
+          <span><InlineIcon icon={Phone} size={13} tone="muted" /> <a href={`tel:${candidate.phone}`} dir="ltr" style={{ color: '#1B2A4A' }}>{candidate.phone}</a> <span style={{ color: '#a0aec0', fontSize: '12px' }}>({t('hrCandidates.phone_unverified')})</span></span>
         )}
       </div>
 
       <div style={{ marginTop: '14px', display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
         <Link to={`/students/${candidate.id}`} style={{ ...buttonStyle('secondary'), textDecoration: 'none' }}>{t('hrCandidates.view_profile')}</Link>
-        <Link to={`/messages/${candidate.userId}`} style={{ ...buttonStyle('secondary'), textDecoration: 'none' }}>💬 {t('hrCandidates.message')}</Link>
+        <Link to={`/messages/${candidate.userId}`} style={{ ...buttonStyle('secondary'), textDecoration: 'none' }}><InlineIcon icon={MessageSquare} size={14} /> {t('hrCandidates.message')}</Link>
         {candidate.applied ? (
-          <span style={{ ...buttonStyle('secondary'), backgroundColor: '#e6f4ea', color: '#276749', border: 'none', cursor: 'default' }}>✓ {t('hrCandidates.applied')}</span>
+          <span style={{ ...buttonStyle('secondary'), backgroundColor: '#e6f4ea', color: '#276749', border: 'none', cursor: 'default' }}><InlineIcon icon={Check} size={14} /> {t('hrCandidates.applied')}</span>
         ) : candidate.invitedAt ? (
-          <span style={{ ...buttonStyle('secondary'), backgroundColor: '#fdf6e3', color: '#8a6d1d', border: 'none', cursor: 'default' }}>✉️ {t('hrCandidates.invited')}</span>
+          <span style={{ ...buttonStyle('secondary'), backgroundColor: '#fdf6e3', color: '#8a6d1d', border: 'none', cursor: 'default' }}><InlineIcon icon={Mail} size={14} /> {t('hrCandidates.invited')}</span>
         ) : (
           <button type="button" disabled={!job.live} onClick={() => onInvite(candidate)} style={{ ...buttonStyle('primary'), opacity: job.live ? 1 : 0.5 }}>
             {t('hrCandidates.invite')}
@@ -180,8 +182,8 @@ function HRCandidates() {
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <Link to="/hr-dashboard?section=jobs" style={{ color: '#1B2A4A', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>← {t('hrCandidates.back')}</Link>
+    <div style={{ maxWidth: '900px', margin: '30px auto', padding: '0 20px' }}>
+      <Link to="/hr-dashboard?section=jobs" style={{ color: '#1B2A4A', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}><InlineIcon icon={ArrowLeft} className="rtl:rotate-180" /> {t('hrCandidates.back')}</Link>
       <h1 style={{ fontSize: '24px', color: '#1a202c', margin: '14px 0 6px 0' }} dir="auto">{t('hrCandidates.heading', { title: job.title })}</h1>
       <p style={{ margin: '0 0 12px 0', color: '#4a5568' }}>{t('hrCandidates.intro')}</p>
 

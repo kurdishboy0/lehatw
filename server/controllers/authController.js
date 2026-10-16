@@ -8,6 +8,11 @@ const { getAccountBlock, blockedResponse } = require('../utils/accountStatus');
 
 // --- NEW GOOGLE IMPORT ---
 const { OAuth2Client } = require('google-auth-library');
+const { generateOtp, hashOtp, otpExpiry, otpMatches, notExpired } = require('../utils/otpCodes');
+const { invalidateUserCache } = require('../middleware/authMiddleware');
+
+// Matches the rule the set-password page already enforces.
+const MIN_PASSWORD = 8;
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { getDisplayName } = require('../utils/displayName');
 
@@ -108,7 +113,10 @@ const loginUser = async (req, res) => {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return res.status(404).json({ message: "User not found!" });
+      // Deliberately the same status and wording as a wrong password: a
+      // different answer here would let anyone test which addresses have
+      // accounts, one request at a time.
+      return res.status(401).json({ message: "Invalid credentials!" });
     }
 
     // --- SAFETY CHECK FOR SOCIAL LOGINS ---
@@ -159,12 +167,34 @@ const loginUser = async (req, res) => {
 // ==========================================
 const googleLogin = async (req, res) => {
   try {
-    const { token } = req.body; 
+    const { token } = req.body;
+
+    // Who the token was issued TO, not just who it belongs to. Asking the
+    // userinfo endpoint alone answers "which Google user is this", and would
+    // accept a token minted for somebody else's application entirely: anyone
+    // running their own Google app could take a token their users handed them
+    // and sign in here as those people. tokeninfo returns the audience, so we
+    // can insist it is ours.
+    const infoResponse = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(token || '')}`);
+    const info = await infoResponse.json();
+
+    if (!infoResponse.ok) {
+      return res.status(401).json({ message: 'Google sign-in failed. Please try again.' });
+    }
+    if (info.aud !== process.env.GOOGLE_CLIENT_ID) {
+      console.warn('Google login rejected: token issued for another application.');
+      return res.status(401).json({ message: 'Google sign-in failed. Please try again.' });
+    }
+    // An address Google has not confirmed must not be allowed to claim the
+    // account that owns it here.
+    if (String(info.email_verified) !== 'true') {
+      return res.status(401).json({ message: 'Your Google email address is not verified.' });
+    }
 
     const googleResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: { Authorization: `Bearer ${token}` }
     });
-    
+
     const googleUser = await googleResponse.json();
 
     if (!googleResponse.ok) {
@@ -172,6 +202,10 @@ const googleLogin = async (req, res) => {
     }
 
     const { email, sub: googleId } = googleUser;
+    // The profile call and the audience check must describe the same person.
+    if (!email || (info.email && info.email !== email) || (info.sub && info.sub !== googleId)) {
+      return res.status(401).json({ message: 'Google sign-in failed. Please try again.' });
+    }
 
     let user = await prisma.user.findUnique({ where: { email } });
 
@@ -308,24 +342,30 @@ const forgotPassword = async (req, res) => {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return res.status(404).json({ message: "If this email exists, an OTP will be sent." }); 
+      // Answer as though a code went out. Saying "no such account" here
+      // would undo the same protection the sign-in form now has.
+      return res.status(200).json({ message: "If this email exists, an OTP will be sent." });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpires = new Date(Date.now() + 15 * 60 * 1000);
+    const otp = generateOtp();
 
     await prisma.user.update({
       where: { email },
       data: {
-        resetOtp: otp,
-        resetOtpExpires: otpExpires,
+        resetOtp: hashOtp(otp),
+        resetOtpExpires: otpExpiry(),
       },
     });
 
     const message = `Your password reset code is: ${otp}\n\nIt will expire in 15 minutes.`;
-    await sendEmail(email, "Password Reset Code - Lehatw", message);
+    // Sent in the background, for two reasons. An address with no account
+    // answers immediately, so if this waited for the mail server the two
+    // cases would still be told apart by how long the answer took. And the
+    // person at the form shouldn't watch a spinner while Gmail is contacted.
+    sendEmail(email, "Password Reset Code - Lehatw", message)
+      .catch((err) => console.error('Forgot Password email failed:', err.message));
 
-    res.status(200).json({ message: "OTP sent successfully!" });
+    res.status(200).json({ message: "If this email exists, an OTP will be sent." });
   } catch (error) {
     console.error("Forgot Password Error:", error);
     res.status(500).json({ message: "Server error. Could not send OTP." });
@@ -337,12 +377,8 @@ const verifyOTP = async (req, res) => {
     const { email, otp } = req.body;
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || user.resetOtp !== otp) {
-      return res.status(400).json({ message: "Invalid code." });
-    }
-
-    if (user.resetOtpExpires < new Date()) {
-      return res.status(400).json({ message: "Code has expired. Please request a new one." });
+    if (!user || !otpMatches(otp, user.resetOtp) || !notExpired(user.resetOtpExpires)) {
+      return res.status(400).json({ message: "Invalid or expired code. Please request a new one." });
     }
 
     res.status(200).json({ message: "OTP verified successfully!" });
@@ -352,22 +388,39 @@ const verifyOTP = async (req, res) => {
   }
 };
 
+// Sets a new password, and only for someone holding the code we emailed. The
+// earlier version trusted the email address alone, which let anyone who knew
+// an address take the account: the code is checked here, at the point the
+// password actually changes, not only in the separate verify step the browser
+// happens to call first.
 const resetPassword = async (req, res) => {
   try {
-    const { email, newPassword } = req.body;
+    const { email, otp, newPassword } = req.body;
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    if (typeof newPassword !== 'string' || newPassword.length < MIN_PASSWORD) {
+      return res.status(400).json({ message: `Your password must be at least ${MIN_PASSWORD} characters.` });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    // One answer for a wrong code, an unknown address or an expired code, so
+    // this can't be used to find out which addresses have accounts.
+    if (!user || !otpMatches(otp, user.resetOtp) || !notExpired(user.resetOtpExpires)) {
+      return res.status(400).json({ message: "Invalid or expired code. Please request a new one." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await prisma.user.update({
       where: { email },
       data: {
         password: hashedPassword,
+        passwordChangedAt: new Date(),
         resetOtp: null,
         resetOtpExpires: null,
       },
     });
 
+    invalidateUserCache(user.id);
     res.status(200).json({ message: "Password reset successful! You can now log in." });
   } catch (error) {
     console.error("Reset Password Error:", error);
@@ -381,10 +434,10 @@ const resetPassword = async (req, res) => {
 
 // Generates and stores a fresh 6-digit verification code for a user, valid 15 minutes.
 async function issueVerificationCode(user) {
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const otp = generateOtp();
   await prisma.user.update({
     where: { id: user.id },
-    data: { phoneOtp: otp, phoneOtpExpires: new Date(Date.now() + 15 * 60 * 1000) }
+    data: { phoneOtp: hashOtp(otp), phoneOtpExpires: otpExpiry() }
   });
   return otp;
 }
@@ -437,11 +490,8 @@ const verifyPhoneOtp = async (req, res) => {
     const { email, otp } = req.body;
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || user.phoneOtp !== otp) {
-      return res.status(400).json({ message: "Invalid code." });
-    }
-    if (!user.phoneOtpExpires || user.phoneOtpExpires < new Date()) {
-      return res.status(400).json({ message: "Code has expired. Please request a new one." });
+    if (!user || !otpMatches(otp, user.phoneOtp) || !notExpired(user.phoneOtpExpires)) {
+      return res.status(400).json({ message: "Invalid or expired code. Please request a new one." });
     }
 
     const block = getAccountBlock(user);

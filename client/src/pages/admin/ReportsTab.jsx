@@ -8,8 +8,10 @@ import { Dialog, ReasonDialog } from '../../components/Dialog';
 import { buttonStyle } from '../../components/buttonStyle';
 import { Badge, FilterPills, EmptyState } from './adminUi';
 import { cardStyle, mutedStyle, accountStatusTone } from './adminStyles';
+import { User, MessageSquare, Briefcase } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
-const TARGET_ICON = { USER: '👤', MESSAGE: '💬', JOB: '💼' };
+const TARGET_ICON = { USER: User, MESSAGE: MessageSquare, JOB: Briefcase };
 
 // What the reported thing looks like right now (it may have changed or been deleted).
 function CurrentTarget({ report }) {
@@ -124,7 +126,7 @@ function ReportsTab({ notify, refreshCounts }) {
             return (
               <article key={r.id} data-report-id={r.id} style={cardStyle}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <Badge tone="gray">{TARGET_ICON[r.targetType]} {t(`adminConsole.reports.target.${r.targetType}`)}</Badge>
+                  <Badge tone="gray"><InlineIcon icon={TARGET_ICON[r.targetType]} size={13} /> {t(`adminConsole.reports.target.${r.targetType}`)}</Badge>
                   <Badge tone="red">{t(`report.reasons.${r.reason}`)}</Badge>
                   <span style={mutedStyle}>
                     {t('adminConsole.reports.reported_by', { email: r.reporter?.email, date: formatDateTime(r.createdAt, lang) })}

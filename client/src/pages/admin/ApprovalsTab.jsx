@@ -7,6 +7,8 @@ import { Dialog, ReasonDialog } from '../../components/Dialog';
 import { buttonStyle } from '../../components/buttonStyle';
 import { Badge, FilterPills, SectionHeading, EmptyState } from './adminUi';
 import { cardStyle, mutedStyle, inputStyle, accountStatusTone } from './adminStyles';
+import { Building2, Mail, Phone, Puzzle, GraduationCap } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 const MIN_REASON = 5;
 
@@ -66,7 +68,7 @@ function CompaniesSection({ notify, refreshCounts }) {
           />
         }
       >
-        🏢 {t('adminConsole.approvals.companies_heading')}
+        <InlineIcon icon={Building2} tone="gold" /> {t('adminConsole.approvals.companies_heading')}
       </SectionHeading>
 
       {loading ? (
@@ -85,8 +87,8 @@ function CompaniesSection({ notify, refreshCounts }) {
                   )}
                 </div>
                 <div style={{ ...mutedStyle, marginTop: '4px', lineHeight: 1.7 }}>
-                  <div>✉️ <span dir="ltr">{c.user.email}</span></div>
-                  {c.user.phone && <div>📞 <span dir="ltr">{c.user.phone}</span> · {t('adminConsole.approvals.phone')}</div>}
+                  <div><InlineIcon icon={Mail} tone="muted" /> <span dir="ltr">{c.user.email}</span></div>
+                  {c.user.phone && <div><InlineIcon icon={Phone} tone="muted" /> <span dir="ltr">{c.user.phone}</span> · {t('adminConsole.approvals.phone')}</div>}
                   <div>{t('adminConsole.approvals.industry')}: {c.industry || '-'} · {t('adminConsole.approvals.job_title')}: {c.jobTitle || '-'}</div>
                   <div>{t('adminConsole.approvals.cr_number')}: <span dir="ltr">{c.crNumber || '-'}</span></div>
                   <div>{t('adminConsole.approvals.registered', { date: formatDateTime(c.user.createdAt, i18n.language, { withTime: false }) })}</div>
@@ -260,7 +262,7 @@ function SkillsSection({ notify, refreshCounts }) {
 
   return (
     <section>
-      <SectionHeading>🧩 {t('adminConsole.approvals.skills_heading')}</SectionHeading>
+      <SectionHeading><InlineIcon icon={Puzzle} tone="gold" /> {t('adminConsole.approvals.skills_heading')}</SectionHeading>
 
       {loading ? (
         <p style={mutedStyle}>{t('adminConsole.loading')}</p>
@@ -389,7 +391,7 @@ function InstructorsSection({ notify, refreshCounts }) {
           />
         }
       >
-        🎓 {t('adminConsole.approvals.instructors_heading')}
+        <InlineIcon icon={GraduationCap} tone="gold" /> {t('adminConsole.approvals.instructors_heading')}
       </SectionHeading>
 
       {loading ? (
@@ -409,8 +411,8 @@ function InstructorsSection({ notify, refreshCounts }) {
                 </div>
                 <div style={{ ...mutedStyle, marginTop: '4px', lineHeight: 1.7 }}>
                   {i.headline && <div dir="auto">{i.headline}</div>}
-                  <div>✉️ <span dir="ltr">{i.user.email}</span></div>
-                  {i.phone && <div>📞 <span dir="ltr">{i.phone}</span></div>}
+                  <div><InlineIcon icon={Mail} tone="muted" /> <span dir="ltr">{i.user.email}</span></div>
+                  {i.phone && <div><InlineIcon icon={Phone} tone="muted" /> <span dir="ltr">{i.phone}</span></div>}
                   {i.expertise && <div dir="auto">{t('adminConsole.approvals.teaches', { expertise: i.expertise })}</div>}
                   <div>{t('adminConsole.approvals.registered', { date: formatDateTime(i.user.createdAt, i18n.language, { withTime: false }) })}</div>
                 </div>

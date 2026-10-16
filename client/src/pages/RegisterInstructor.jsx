@@ -2,6 +2,8 @@ import { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { GraduationCap } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const inputStyle = { width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '15px', marginTop: '6px', boxSizing: 'border-box' };
 const labelStyle = { fontSize: '14px', fontWeight: 600, color: '#2d3748', display: 'block' };
@@ -33,8 +35,8 @@ function RegisterInstructor() {
   };
 
   return (
-    <div style={{ maxWidth: '520px', margin: '40px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <h1 style={{ fontSize: '24px', color: '#1a202c', marginBottom: '6px' }}>🎓 {t('registerInstructor.title')}</h1>
+    <div style={{ maxWidth: '520px', margin: '40px auto', padding: '0 20px' }}>
+      <h1 style={{ fontSize: '24px', color: '#1a202c', marginBottom: '6px' }}><InlineIcon icon={GraduationCap} size={24} tone="gold" /> {t('registerInstructor.title')}</h1>
       <p style={{ color: '#4a5568', fontSize: '15px', lineHeight: 1.7, marginTop: 0 }}>{t('registerInstructor.subtitle')}</p>
 
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '20px' }}>

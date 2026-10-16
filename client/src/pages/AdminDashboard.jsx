@@ -16,20 +16,22 @@ import AnnouncementsTab from './admin/AnnouncementsTab';
 import AuditTab from './admin/AuditTab';
 import EventsTab from './admin/EventsTab';
 import CoursesTab from './admin/CoursesTab';
+import { ChartColumn, CircleCheck, Flag, Briefcase, Users, Puzzle, Globe, BookOpen, CalendarDays, Megaphone, ScrollText, ShieldCheck } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const TABS = [
-  { key: 'overview', icon: '📊', countKey: null, Component: OverviewTab },
-  { key: 'approvals', icon: '✅', countKey: 'approvals', Component: ApprovalsTab },
-  { key: 'reports', icon: '⚑', countKey: 'reports', Component: ReportsTab },
-  { key: 'jobs', icon: '💼', countKey: null, Component: JobsTab },
-  { key: 'users', icon: '👥', countKey: null, Component: UsersTab },
-  { key: 'catalog', icon: '🧩', countKey: null, Component: CatalogTab },
-  { key: 'translations', icon: '🌐', countKey: null, Component: TranslationsTab },
-  { key: 'courses', icon: '📚', countKey: null, Component: CoursesTab },
-  { key: 'events', icon: '📅', countKey: null, Component: EventsTab },
-  { key: 'announcements', icon: '📢', countKey: null, Component: AnnouncementsTab },
-  { key: 'audit', icon: '📜', countKey: null, Component: AuditTab },
-  { key: 'admins', icon: '🛡️', countKey: null, Component: AdminsTab, superOnly: true }
+  { key: 'overview', icon: ChartColumn, countKey: null, Component: OverviewTab },
+  { key: 'approvals', icon: CircleCheck, countKey: 'approvals', Component: ApprovalsTab },
+  { key: 'reports', icon: Flag, countKey: 'reports', Component: ReportsTab },
+  { key: 'jobs', icon: Briefcase, countKey: null, Component: JobsTab },
+  { key: 'users', icon: Users, countKey: null, Component: UsersTab },
+  { key: 'catalog', icon: Puzzle, countKey: null, Component: CatalogTab },
+  { key: 'translations', icon: Globe, countKey: null, Component: TranslationsTab },
+  { key: 'courses', icon: BookOpen, countKey: null, Component: CoursesTab },
+  { key: 'events', icon: CalendarDays, countKey: null, Component: EventsTab },
+  { key: 'announcements', icon: Megaphone, countKey: null, Component: AnnouncementsTab },
+  { key: 'audit', icon: ScrollText, countKey: null, Component: AuditTab },
+  { key: 'admins', icon: ShieldCheck, countKey: null, Component: AdminsTab, superOnly: true }
 ];
 
 function AdminDashboard() {
@@ -77,8 +79,8 @@ function AdminDashboard() {
   const waitingForMe = !me && TABS.some((tab) => tab.superOnly && tab.key === searchParams.get('tab'));
 
   return (
-    <div style={{ maxWidth: '1040px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <h2 style={{ margin: '0 0 18px 0', color: '#1a202c' }}>🛡️ {t('adminConsole.heading')}</h2>
+    <div style={{ maxWidth: '1040px', margin: '30px auto', padding: '0 20px' }}>
+      <h2 style={{ margin: '0 0 18px 0', color: '#1a202c' }}><InlineIcon icon={ShieldCheck} size={20} tone="gold" /> {t('adminConsole.heading')}</h2>
 
       <div role="tablist" aria-label={t('adminConsole.heading')} style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', borderBottom: '2px solid #e2e8f0', marginBottom: '22px' }}>
         {tabs.map((tab) => {
@@ -97,7 +99,7 @@ function AdminDashboard() {
                 color: selected ? '#1B2A4A' : '#718096', whiteSpace: 'nowrap'
               }}
             >
-              <span aria-hidden="true">{tab.icon}</span>
+              <InlineIcon icon={tab.icon} />
               {t(`adminConsole.tabs.${tab.key}`)}
               {count > 0 && (
                 <span style={{ backgroundColor: '#c53030', color: 'white', fontSize: '11px', fontWeight: 700, borderRadius: '10px', padding: '1px 7px' }}>

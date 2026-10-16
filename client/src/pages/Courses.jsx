@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { authHeader, getUser } from '../auth';
 import { formatDateTime, toLocalizedDigits } from '../localizeDigits';
 import { COURSE_LEVELS, COURSE_LANGUAGES, COURSE_DELIVERIES, coursePrice } from '../courseDisplay';
+import { Check, Target, Languages, Monitor, BookOpen, Timer, Users, Sparkles, Briefcase } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const SEARCH_DEBOUNCE_MS = 350;
 const cardStyle = {
@@ -41,17 +43,17 @@ function CourseCard({ course, lang, t }) {
         </div>
         <div style={{ textAlign: 'end', display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end' }}>
           <strong style={{ fontSize: '16px', color: course.priceIqd ? '#1a202c' : '#276749' }}>{coursePrice(course, t, toLocalizedDigits, lang)}</strong>
-          {course.enrolled && <span style={{ fontSize: '12px', fontWeight: 700, color: '#276749' }}>✓ {t('courses.enrolled')}</span>}
+          {course.enrolled && <span style={{ fontSize: '12px', fontWeight: 700, color: '#276749' }}><InlineIcon icon={Check} size={13} /> {t('courses.enrolled')}</span>}
         </div>
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '14px' }}>
-        <span style={tagStyle}>🎯 {t(`courses.level_${course.level}`)}</span>
-        <span style={tagStyle}>🗣️ {t(`courses.language_${course.language}`)}</span>
-        <span style={tagStyle}>💻 {t(`courses.delivery_${course.delivery}`)}</span>
-        <span style={tagStyle}>📚 {t('courses.lessons', { count: num(course.lessonCount) })}</span>
-        {course.durationHours && <span style={tagStyle}>⏱️ {t('courses.hours', { count: num(course.durationHours) })}</span>}
-        <span style={tagStyle}>👥 {t('courses.students', { count: num(course.studentCount) })}</span>
+        <span style={tagStyle}><InlineIcon icon={Target} tone="gold" size={13} /> {t(`courses.level_${course.level}`)}</span>
+        <span style={tagStyle}><InlineIcon icon={Languages} tone="gold" size={13} /> {t(`courses.language_${course.language}`)}</span>
+        <span style={tagStyle}><InlineIcon icon={Monitor} tone="gold" size={13} /> {t(`courses.delivery_${course.delivery}`)}</span>
+        <span style={tagStyle}><InlineIcon icon={BookOpen} tone="gold" size={13} /> {t('courses.lessons', { count: num(course.lessonCount) })}</span>
+        {course.durationHours && <span style={tagStyle}><InlineIcon icon={Timer} tone="gold" size={13} /> {t('courses.hours', { count: num(course.durationHours) })}</span>}
+        <span style={tagStyle}><InlineIcon icon={Users} tone="gold" size={13} /> {t('courses.students', { count: num(course.studentCount) })}</span>
       </div>
 
       {course.skills.length > 0 && (
@@ -66,14 +68,14 @@ function CourseCard({ course, lang, t }) {
       {reason.length > 0 && (
         <div style={{ marginTop: '12px', padding: '10px 12px', borderRadius: '10px', backgroundColor: '#f0f6ff', border: '1px solid #cfe0f7', fontSize: '13px' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
-            <strong style={{ color: '#1B2A4A' }}>✨ {t('courses.recommended_gap')}</strong>
+            <strong style={{ color: '#1B2A4A' }}><InlineIcon icon={Sparkles} tone="gold" /> {t('courses.recommended_gap')}</strong>
             {reason.map((sk) => (
               <span key={sk.id} style={{ padding: '2px 9px', borderRadius: '10px', backgroundColor: 'white', border: '1px solid #cfe0f7', color: '#1B2A4A' }}>{skillName(sk, lang)}</span>
             ))}
           </div>
           {course.jobCount > 0 && (
             <div style={{ color: '#4a5568', marginTop: '6px' }}>
-              💼 {t('courses.recommended_jobs', { count: num(course.jobCount) })}
+              <InlineIcon icon={Briefcase} tone="muted" /> {t('courses.recommended_jobs', { count: num(course.jobCount) })}
             </div>
           )}
         </div>
@@ -145,7 +147,7 @@ function Courses() {
   return (
     <div>
       <div className="animate-fade-up" style={{ background: 'linear-gradient(135deg, #1B2A4A 0%, #14213B 100%)', borderBottom: '3px solid #C99A2E', padding: '48px 20px', textAlign: 'center' }}>
-        <h1 style={{ color: '#ffffff', fontSize: '2.2rem', margin: '0 0 10px 0' }}>📚 {t('courses.heading')}</h1>
+        <h1 style={{ color: '#ffffff', fontSize: '2.2rem', margin: '0 0 10px 0' }}><InlineIcon icon={BookOpen} size={32} tone="var(--color-gold-400)" /> {t('courses.heading')}</h1>
         <p style={{ color: '#e6e9f0', fontSize: '1.05rem', margin: '0 0 24px 0' }}>{t('courses.subtitle')}</p>
         <input
           type="search"
@@ -157,7 +159,7 @@ function Courses() {
         />
       </div>
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '30px 20px 60px 20px', fontFamily: 'sans-serif' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '30px 20px 60px 20px' }}>
         {error && <p role="alert" style={{ color: '#c53030', textAlign: 'center' }}>{error}</p>}
 
         {isStudent && (
@@ -177,7 +179,7 @@ function Courses() {
                     fontSize: '15px', fontWeight: selected ? 700 : 600, color: selected ? '#1B2A4A' : '#718096'
                   }}
                 >
-                  {key === 'recommended' ? '✨ ' : ''}{t(`courses.tab_${key}`)}
+                  {key === 'recommended' && <InlineIcon icon={Sparkles} tone="gold" />} {t(`courses.tab_${key}`)}
                 </button>
               );
             })}

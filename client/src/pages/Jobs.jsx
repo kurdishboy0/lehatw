@@ -4,6 +4,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
 import { toLocalizedDigits } from '../localizeDigits';
+import { Sparkles, Check, MapPin, Clock, Building2, Briefcase, Mail, Search } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const EMPLOYMENT_TYPES = ['Full-Time', 'Part-Time', 'Internship', 'Contract', 'Freelance'];
 const WORK_MODES = ['On-Site', 'Remote', 'Hybrid'];
@@ -165,19 +167,24 @@ function Jobs() {
       }}>
         <h1 style={{ color: '#ffffff', fontSize: '2.2rem', margin: '0 0 10px 0' }}>{t('jobs.heading')}</h1>
         <p style={{ color: '#e6e9f0', fontSize: '1.05rem', margin: '0 0 24px 0' }}>{t('jobs.subtitle')}</p>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t('jobs.search_placeholder')}
-          style={{
-            width: '100%', maxWidth: '560px', padding: '14px 20px', fontSize: '15px', borderRadius: '30px',
-            border: 'none', boxSizing: 'border-box', boxShadow: '0 4px 14px rgba(0,0,0,0.2)'
-          }}
-        />
+        {/* Filtering happens as you type; the button is here for the Enter key
+            and for anyone who expects one. */}
+        <form className="banner-search" role="search" onSubmit={(e) => e.preventDefault()}>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('jobs.search_placeholder')}
+            aria-label={t('jobs.search_placeholder')}
+          />
+          <button type="submit">
+            <InlineIcon icon={Search} size={17} />
+            {t('hero.search_button')}
+          </button>
+        </form>
       </div>
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '30px 20px 60px 20px', fontFamily: 'sans-serif' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '30px 20px 60px 20px' }}>
         {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
 
         {isStudent && jobs.length > 0 && (
@@ -197,7 +204,7 @@ function Jobs() {
                     fontSize: '15px', fontWeight: selected ? 700 : 600, color: selected ? '#1B2A4A' : '#718096'
                   }}
                 >
-                  {key === 'recommended' ? '✨ ' : ''}{t(`jobs.tab_${key}`)}
+                  {key === 'recommended' && <InlineIcon icon={Sparkles} tone="gold" />} {t(`jobs.tab_${key}`)}
                 </button>
               );
             })}
@@ -279,16 +286,16 @@ function Jobs() {
                                 backgroundColor: match.percent >= 50 ? '#e6f4ea' : '#fdf6e3', color: match.percent >= 50 ? '#276749' : '#8a6d1d'
                               }}
                             >
-                              ✓ {t('jobs.match_badge', { matched: num(match.matched), total: num(match.total) })}
+                              <InlineIcon icon={Check} size={13} /> {t('jobs.match_badge', { matched: num(match.matched), total: num(match.total) })}
                             </span>
                           )}
                         </div>
 
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '14px' }}>
-                          {job.location && <span style={tagStyle}>📍 {job.location}</span>}
-                          {job.employmentType && <span style={tagStyle}>🕘 {job.employmentType}</span>}
-                          {job.workMode && <span style={tagStyle}>🏢 {job.workMode}</span>}
-                          {job.experienceLevel && <span style={tagStyle}>💼 {job.experienceLevel}</span>}
+                          {job.location && <span style={tagStyle}><InlineIcon icon={MapPin} tone="gold" size={13} /> {job.location}</span>}
+                          {job.employmentType && <span style={tagStyle}><InlineIcon icon={Clock} tone="gold" size={13} /> {job.employmentType}</span>}
+                          {job.workMode && <span style={tagStyle}><InlineIcon icon={Building2} tone="gold" size={13} /> {job.workMode}</span>}
+                          {job.experienceLevel && <span style={tagStyle}><InlineIcon icon={Briefcase} tone="gold" size={13} /> {job.experienceLevel}</span>}
                         </div>
 
                         {tab === 'recommended' && match && (
@@ -296,7 +303,7 @@ function Jobs() {
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
                               <strong style={{ color: '#276749' }}>{t('jobs.you_have')}</strong>
                               {match.matchedSkillIds.map((id) => skillById[id] && (
-                                <span key={id} style={{ padding: '2px 9px', borderRadius: '10px', backgroundColor: '#e6f4ea', color: '#276749' }}>✓ {skillName(skillById[id], i18n.language)}</span>
+                                <span key={id} style={{ padding: '2px 9px', borderRadius: '10px', backgroundColor: '#e6f4ea', color: '#276749' }}><InlineIcon icon={Check} size={12} /> {skillName(skillById[id], i18n.language)}</span>
                               ))}
                             </div>
                             {match.missingSkillIds.length > 0 && (
@@ -311,12 +318,12 @@ function Jobs() {
                         )}
 
                         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', marginTop: '14px' }}>
-                          {invited && !applied && <span style={{ fontSize: '13px', fontWeight: 600, color: '#8a6d1d' }}>✉️ {t('jobs.invited')}</span>}
+                          {invited && !applied && <span style={{ fontSize: '13px', fontWeight: 600, color: '#8a6d1d' }}><InlineIcon icon={Mail} size={13} /> {t('jobs.invited')}</span>}
                           <Link to={`/jobs/${job.id}`} style={{ padding: '9px 18px', border: '1px solid #cbd5e0', color: '#1B2A4A', borderRadius: '20px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>
                             {t('jobs.view_details')}
                           </Link>
                           {isStudent && (applied ? (
-                            <span style={{ padding: '9px 18px', backgroundColor: '#e6f4ea', color: '#276749', borderRadius: '20px', fontSize: '13px', fontWeight: 700 }}>✓ {t('jobs.applied')}</span>
+                            <span style={{ padding: '9px 18px', backgroundColor: '#e6f4ea', color: '#276749', borderRadius: '20px', fontSize: '13px', fontWeight: 700 }}><InlineIcon icon={Check} size={13} /> {t('jobs.applied')}</span>
                           ) : (
                             <Link to={`/jobs/${job.id}?apply=1`} style={{ padding: '9px 18px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '20px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>
                               {t('jobs.apply')}

@@ -29,8 +29,28 @@ const courseRoutes = require('./routes/courseRoutes');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Which websites a browser may call this API from.
+//
+// In production the same service serves the built client and the API, so the
+// app's own requests are same-origin and never consult this list at all. In
+// development Vite proxies /api, which is also same-origin. The list is for
+// everything else: it stops an unrelated page from using someone's browser to
+// call this API. Requests with no Origin at all (curl, a mobile app, the Vite
+// proxy, health checks) are left alone, since the browser rule doesn't apply
+// to them. Set CORS_ORIGINS to a comma-separated list to add more.
+const allowedOrigins = [
+  ...String(process.env.CORS_ORIGINS || '').split(',').map((o) => o.trim()).filter(Boolean),
+  process.env.CLIENT_URL,
+  'http://localhost:5173',
+  'http://localhost:4173'
+].filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  }
+}));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Dialog } from '../../components/Dialog';
 import { buttonStyle } from '../../components/buttonStyle';
 import { COURSE_LEVELS, COURSE_LANGUAGES, COURSE_DELIVERIES } from '../../courseDisplay';
+import { X } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 const inputStyle = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '15px', marginTop: '4px', boxSizing: 'border-box' };
 const labelStyle = { fontSize: '14px', fontWeight: 600, color: '#2d3748', display: 'block' };
@@ -137,7 +139,7 @@ function CourseForm({ course, extraFields, onSubmit, onClose, titleText }) {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', margin: '8px 0' }}>
               {selected.map((s) => (
                 <button key={s.id} type="button" onClick={() => toggleSkill(s.id)} style={{ border: 'none', cursor: 'pointer', padding: '4px 10px', borderRadius: '12px', backgroundColor: '#1B2A4A', color: 'white', fontSize: '13px' }}>
-                  {skillName(s, i18n.language)} ✕
+                  {skillName(s, i18n.language)} <InlineIcon icon={X} size={13} />
                 </button>
               ))}
             </div>

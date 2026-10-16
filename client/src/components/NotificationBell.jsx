@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { authHeader } from '../auth';
+import { Bell } from 'lucide-react';
+import InlineIcon from './InlineIcon';
 
 const POLL_INTERVAL_MS = 20000;
 
@@ -77,25 +79,13 @@ function NotificationBell() {
     <div ref={panelRef} style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="nav-item"
+        className={`header-tool${open ? ' is-open' : ''}`}
         aria-label={t('notifications.title')}
-        style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
-          background: 'none', border: 'none', cursor: 'pointer', color: '#4a5568',
-          padding: '6px 12px', fontSize: '11px', fontWeight: '600', minWidth: '56px'
-        }}
+        aria-expanded={open}
       >
-        <span style={{ fontSize: '20px', lineHeight: 1, position: 'relative' }}>
-          🔔
-          {unreadCount > 0 && (
-            <span style={{
-              position: 'absolute', top: '-6px', insetInlineEnd: '-10px',
-              backgroundColor: '#e53e3e', color: 'white', fontSize: '10px', fontWeight: 'bold',
-              borderRadius: '10px', padding: '1px 5px', minWidth: '16px', textAlign: 'center'
-            }}>
-              {unreadCount}
-            </span>
-          )}
+        <span className="header-tool-icon">
+          <InlineIcon icon={Bell} size={20} />
+          {unreadCount > 0 && <span className="header-tool-badge">{unreadCount}</span>}
         </span>
         <span className="nav-item-label">{t('notifications.title')}</span>
       </button>

@@ -5,7 +5,7 @@ const en = {
 
   events: {
     heading: "Events",
-    subtitle: "Academic and company events for students in Kurdistan.",
+    subtitle: "Academic and company events for talent in Kurdistan.",
     tab_upcoming: "Upcoming",
     tab_past: "Past",
     none_upcoming: "No upcoming events yet. Check back soon.",
@@ -95,7 +95,7 @@ const ar = {
 
   events: {
     heading: "الفعاليات",
-    subtitle: "فعاليات أكاديمية وفعاليات شركات لطلاب كردستان.",
+    subtitle: "فعاليات أكاديمية وفعاليات شركات لمواهب كردستان.",
     tab_upcoming: "القادمة",
     tab_past: "السابقة",
     none_upcoming: "لا توجد فعاليات قادمة بعد. عد قريباً.",
@@ -185,7 +185,7 @@ const ckb = {
 
   events: {
     heading: "بۆنەکان",
-    subtitle: "بۆنەی ئەکادیمی و کۆمپانیاکان بۆ خوێندکارانی کوردستان.",
+    subtitle: "بۆنەی ئەکادیمی و کۆمپانیاکان بۆ بەهرەمەندانی کوردستان.",
     tab_upcoming: "داهاتوو",
     tab_past: "ڕابردوو",
     none_upcoming: "هێشتا هیچ بۆنەیەکی داهاتوو نییە. دواتر سەردانمان بکەرەوە.",

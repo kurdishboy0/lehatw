@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { House, Pencil, Puzzle, FileText, MessageSquare, Plus, ClipboardList, CircleCheck, Flag, Briefcase, LogOut, ChevronDown } from 'lucide-react';
+import InlineIcon from './InlineIcon';
 
 const DASHBOARD_PATH = {
   STUDENT: '/student-dashboard',
@@ -19,31 +21,31 @@ function getMenuItems(user, t) {
 
   if (user.role === 'STUDENT') {
     return [
-      { label: t('userMenu.dashboard'), to: dashboard, icon: '🏠' },
-      { label: t('userMenu.edit_profile'), to: `${dashboard}?edit=1`, icon: '✏️' },
-      { label: t('userMenu.add_skills'), to: `${dashboard}?section=skills`, icon: '🧩' },
-      { label: t('userMenu.my_applications'), to: `${dashboard}?section=applications`, icon: '📄' },
-      { label: t('userMenu.messages'), to: '/messages', icon: '💬' }
+      { label: t('userMenu.dashboard'), to: dashboard, icon: House },
+      { label: t('userMenu.edit_profile'), to: `${dashboard}?edit=1`, icon: Pencil },
+      { label: t('userMenu.add_skills'), to: `${dashboard}?section=skills`, icon: Puzzle },
+      { label: t('userMenu.my_applications'), to: `${dashboard}?section=applications`, icon: FileText },
+      { label: t('userMenu.messages'), to: '/messages', icon: MessageSquare }
     ];
   }
 
   if (user.role === 'HR') {
     return [
-      { label: t('userMenu.dashboard'), to: dashboard, icon: '🏠' },
-      { label: t('userMenu.edit_profile'), to: `${dashboard}?edit=1`, icon: '✏️' },
-      { label: t('userMenu.post_job'), to: '/hr-dashboard/post-job', icon: '➕' },
-      { label: t('userMenu.my_job_posts'), to: `${dashboard}?section=jobs`, icon: '📋' },
-      { label: t('userMenu.messages'), to: '/messages', icon: '💬' }
+      { label: t('userMenu.dashboard'), to: dashboard, icon: House },
+      { label: t('userMenu.edit_profile'), to: `${dashboard}?edit=1`, icon: Pencil },
+      { label: t('userMenu.post_job'), to: '/hr-dashboard/post-job', icon: Plus },
+      { label: t('userMenu.my_job_posts'), to: `${dashboard}?section=jobs`, icon: ClipboardList },
+      { label: t('userMenu.messages'), to: '/messages', icon: MessageSquare }
     ];
   }
 
   // ADMIN
   return [
-    { label: t('userMenu.dashboard'), to: dashboard, icon: '🏠' },
-    { label: t('userMenu.admin_approvals'), to: `${dashboard}?tab=approvals`, icon: '✅' },
-    { label: t('userMenu.admin_reports'), to: `${dashboard}?tab=reports`, icon: '⚑' },
-    { label: t('userMenu.admin_jobs'), to: `${dashboard}?tab=jobs`, icon: '💼' },
-    { label: t('userMenu.messages'), to: '/messages', icon: '💬' }
+    { label: t('userMenu.dashboard'), to: dashboard, icon: House },
+    { label: t('userMenu.admin_approvals'), to: `${dashboard}?tab=approvals`, icon: CircleCheck },
+    { label: t('userMenu.admin_reports'), to: `${dashboard}?tab=reports`, icon: Flag },
+    { label: t('userMenu.admin_jobs'), to: `${dashboard}?tab=jobs`, icon: Briefcase },
+    { label: t('userMenu.messages'), to: '/messages', icon: MessageSquare }
   ];
 }
 
@@ -66,25 +68,16 @@ function UserMenu({ user, onLogout }) {
     <div ref={ref} style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className={`nav-item${open ? ' active' : ''}`}
-        style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
-          background: 'none', border: 'none', cursor: 'pointer',
-          padding: '6px 12px', fontSize: '11px', fontWeight: '600',
-          color: open ? '#1B2A4A' : '#4a5568', minWidth: '56px'
-        }}
+        className={`header-tool${open ? ' is-open' : ''}`}
+        aria-haspopup="true"
+        aria-expanded={open}
       >
-        <span style={{
-          width: '22px', height: '22px', borderRadius: '50%',
-          backgroundColor: '#1B2A4A', color: 'white',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '11px', fontWeight: 'bold'
-        }}>
+        <span className="header-tool-avatar">
           {getFirstName(user).charAt(0).toUpperCase()}
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
           {t('nav.me')}
-          <span style={{ fontSize: '8px' }}>{open ? '▲' : '▼'}</span>
+          <InlineIcon icon={ChevronDown} size={12} style={{ transform: open ? 'rotate(180deg)' : 'none' }} />
         </span>
       </button>
 
@@ -112,7 +105,7 @@ function UserMenu({ user, onLogout }) {
                 fontSize: '14px', fontWeight: '500', borderBottom: '1px solid #f1f1f1'
               }}
             >
-              <span>{item.icon}</span>
+              <InlineIcon icon={item.icon} tone="muted" />
               {item.label}
             </Link>
           ))}
@@ -124,7 +117,7 @@ function UserMenu({ user, onLogout }) {
               fontSize: '14px', fontWeight: '600', color: '#e53e3e', textAlign: 'start'
             }}
           >
-            <span>🚪</span>
+            <InlineIcon icon={LogOut} />
             {t('userMenu.logout')}
           </button>
         </div>

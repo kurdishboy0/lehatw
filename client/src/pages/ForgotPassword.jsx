@@ -2,6 +2,8 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ArrowLeft } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 function ForgotPassword() {
   const { t } = useTranslation();
@@ -61,7 +63,9 @@ function ForgotPassword() {
     }
 
     try {
-      const res = await axios.post('/api/auth/reset-password', { email, newPassword });
+      // The code travels with the new password: the server checks it again at
+      // the moment the password changes, not only in the step before.
+      const res = await axios.post('/api/auth/reset-password', { email, otp, newPassword });
       alert(res.data.message);
       navigate('/login');
     } catch (err) {
@@ -70,7 +74,7 @@ function ForgotPassword() {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '400px', margin: '50px auto' }}>
       <h2>{t('forgotPassword.title')}</h2>
 
       {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
@@ -155,7 +159,7 @@ function ForgotPassword() {
       {/* Back to Login Link */}
       <div style={{ marginTop: '20px', textAlign: 'center' }}>
         <a href="/login" style={{ color: '#1B2A4A', textDecoration: 'none', fontSize: '14px' }}>
-          {t('forgotPassword.back_to_login')}
+          <InlineIcon icon={ArrowLeft} className="rtl:rotate-180" /> {t('forgotPassword.back_to_login')}
         </a>
       </div>
     </div>

@@ -4,6 +4,8 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
 import ReportButton from '../components/ReportButton';
+import { MapPin, Clock, Building2, Briefcase, GraduationCap, FileText, Target, CircleCheck, Gift, ArrowLeft } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 function bulletsFrom(text) {
   return (text || '').split('\n').map(line => line.trim()).filter(Boolean);
@@ -17,7 +19,7 @@ function MetaRow({ icon, label, value }) {
   if (!value) return null;
   return (
     <div style={metaRowStyle}>
-      <span style={{ fontSize: '18px' }}>{icon}</span>
+      <InlineIcon icon={icon} size={18} tone="gold" />
       <div>
         <div style={metaLabelStyle}>{label}</div>
         <div style={metaValueStyle}>{value}</div>
@@ -31,7 +33,7 @@ function Section({ icon, title, children }) {
   return (
     <div style={{ marginBottom: '28px' }}>
       <h3 style={{ fontSize: '17px', color: '#1a202c', margin: '0 0 12px 0', paddingBottom: '10px', borderBottom: '2px solid #ebf4ff' }}>
-        {icon} {title}
+        <InlineIcon icon={icon} size={18} tone="gold" /> {title}
       </h3>
       {children}
     </div>
@@ -84,7 +86,7 @@ function JobDetail() {
   useEffect(() => {
     if (user?.role !== 'STUDENT') return;
     axios.get('/api/student/profile', { headers: authHeader() })
-      .then(res => setProfileResumeUrl(res.data.resumeUrl || null))
+      .then(res => setProfileResumeUrl(res.data.hasResume ? 'on-file' : null))
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount, `user` is stable for the page's lifetime
   }, []);
@@ -113,9 +115,9 @@ function JobDetail() {
   const showFileInput = !profileResumeUrl || useDifferentCv;
 
   return (
-    <div style={{ maxWidth: '900px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '900px', margin: '30px auto', padding: '0 20px' }}>
       <Link to="/jobs" style={{ color: '#1B2A4A', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>
-        {t('jobDetail.back')}
+        <InlineIcon icon={ArrowLeft} className="rtl:rotate-180" /> {t('jobDetail.back')}
       </Link>
 
       <div style={{ marginTop: '16px', marginBottom: '24px' }}>
@@ -129,11 +131,11 @@ function JobDetail() {
       <div className="sidebar-layout">
         {/* SIDEBAR META CARD */}
         <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '20px', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-          <MetaRow icon="📍" label={t('jobDetail.meta_location')} value={job.location} />
-          <MetaRow icon="🕘" label={t('jobDetail.meta_type')} value={job.employmentType} />
-          <MetaRow icon="🏢" label={t('jobDetail.meta_mode')} value={job.workMode} />
-          <MetaRow icon="💼" label={t('jobDetail.meta_experience')} value={job.experienceLevel} />
-          <MetaRow icon="🎓" label={t('jobDetail.meta_education')} value={job.education} />
+          <MetaRow icon={MapPin} label={t('jobDetail.meta_location')} value={job.location} />
+          <MetaRow icon={Clock} label={t('jobDetail.meta_type')} value={job.employmentType} />
+          <MetaRow icon={Building2} label={t('jobDetail.meta_mode')} value={job.workMode} />
+          <MetaRow icon={Briefcase} label={t('jobDetail.meta_experience')} value={job.experienceLevel} />
+          <MetaRow icon={GraduationCap} label={t('jobDetail.meta_education')} value={job.education} />
 
           {job.skills?.length > 0 && (
             <div style={{ paddingTop: '14px' }}>
@@ -151,19 +153,19 @@ function JobDetail() {
 
         {/* MAIN CONTENT */}
         <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '24px', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-          <Section icon="📝" title={t('jobDetail.section_summary')}>
+          <Section icon={FileText} title={t('jobDetail.section_summary')}>
             {job.description && <p style={{ color: '#4a5568', fontSize: '14px', lineHeight: '1.8', margin: 0 }}>{job.description}</p>}
           </Section>
 
-          <Section icon="🎯" title={t('jobDetail.section_responsibilities')}>
+          <Section icon={Target} title={t('jobDetail.section_responsibilities')}>
             <BulletList text={job.responsibilities} />
           </Section>
 
-          <Section icon="✅" title={t('jobDetail.section_requirements')}>
+          <Section icon={CircleCheck} title={t('jobDetail.section_requirements')}>
             <BulletList text={job.requirements} />
           </Section>
 
-          <Section icon="🎁" title={t('jobDetail.section_benefits')}>
+          <Section icon={Gift} title={t('jobDetail.section_benefits')}>
             <BulletList text={job.benefits} />
           </Section>
 
@@ -189,7 +191,7 @@ function JobDetail() {
 
                 {profileResumeUrl && !useDifferentCv ? (
                   <div style={{ fontSize: '13px', color: '#2d3748', backgroundColor: '#f0fff4', border: '1px solid #c6f6d5', borderRadius: '6px', padding: '10px 12px' }}>
-                    📄 {t('jobDetail.cv_using_profile')} <a href={profileResumeUrl} target="_blank" rel="noreferrer" style={{ color: '#2f855a', fontWeight: '600' }}>{t('jobDetail.cv_view')}</a>
+                    <InlineIcon icon={FileText} /> {t('jobDetail.cv_using_profile')} <a href={profileResumeUrl} target="_blank" rel="noreferrer" style={{ color: '#2f855a', fontWeight: '600' }}>{t('jobDetail.cv_view')}</a>
                     {' · '}
                     <button type="button" onClick={() => setUseDifferentCv(true)} style={{ background: 'none', border: 'none', color: '#1B2A4A', fontWeight: '600', cursor: 'pointer', padding: 0, fontSize: '13px' }}>
                       {t('jobDetail.cv_upload_different')}

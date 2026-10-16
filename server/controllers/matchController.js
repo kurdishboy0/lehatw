@@ -19,7 +19,7 @@ const FIELD_WEIGHT = 0.15;
 const getSimilarStudents = async (req, res) => {
   try {
     if (req.user.role !== 'STUDENT') {
-      return res.status(403).json({ message: "Only students can view peer matches." });
+      return res.status(403).json({ message: "Only talent can view peer matches." });
     }
 
     const me = await prisma.studentProfile.findUnique({
@@ -156,7 +156,7 @@ const searchStudents = async (req, res) => {
     });
   } catch (error) {
     console.error("Search Students Error:", error);
-    res.status(500).json({ message: "Server error searching students." });
+    res.status(500).json({ message: "Server error searching talent." });
   }
 };
 

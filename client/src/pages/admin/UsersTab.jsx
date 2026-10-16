@@ -9,6 +9,8 @@ import CreateAccountDialog from './CreateAccountDialog';
 import { buttonStyle } from '../../components/buttonStyle';
 import { Badge, FilterPills, EmptyState } from './adminUi';
 import { cardStyle, mutedStyle, inputStyle, accountStatusTone } from './adminStyles';
+import { Plus, Mail, Phone } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 const SEARCH_DEBOUNCE_MS = 350;
 const MIN_REASON = 5;
@@ -278,8 +280,8 @@ function UserDetailDialog({ userId, me, notify, onChanged, onClose }) {
           <Badge tone={user.verified ? 'green' : 'yellow'}>{user.verified ? t('adminConsole.users.verified') : t('adminConsole.users.unverified')}</Badge>
         </div>
         <div style={{ ...mutedStyle, marginTop: '10px', lineHeight: 1.8 }}>
-          <div>✉️ <span dir="ltr">{user.email}</span> · ID <span dir="ltr">{num(user.id)}</span></div>
-          {user.phone && <div>📞 <span dir="ltr">{user.phone}</span></div>}
+          <div><InlineIcon icon={Mail} tone="muted" /> <span dir="ltr">{user.email}</span> · ID <span dir="ltr">{num(user.id)}</span></div>
+          {user.phone && <div><InlineIcon icon={Phone} tone="muted" /> <span dir="ltr">{user.phone}</span></div>}
           <div>{t('adminConsole.users.joined', { date: formatDateTime(user.createdAt, lang, { withTime: false }) })}</div>
           <div>{t('adminConsole.users.login_methods', { methods: methods.join(', ') })}</div>
           <div>
@@ -466,7 +468,7 @@ function UsersTab({ notify, me }) {
           aria-label={t('adminConsole.users.search_placeholder')}
           style={{ ...inputStyle, flex: '1 1 260px' }}
         />
-        <button type="button" onClick={() => setCreating(true)} style={buttonStyle('primary')}>➕ {t('adminConsole.users.create')}</button>
+        <button type="button" onClick={() => setCreating(true)} style={buttonStyle('primary')}><InlineIcon icon={Plus} /> {t('adminConsole.users.create')}</button>
       </div>
       <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', marginBottom: '16px' }}>
         <FilterPills label={t('adminConsole.users.filter_role')} value={role} onChange={setFilter(setRole)}

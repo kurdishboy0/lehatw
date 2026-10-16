@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { authHeader } from '../../auth';
 import { Dialog, ConfirmDialog } from '../../components/Dialog';
 import { buttonStyle } from '../../components/buttonStyle';
+import { ArrowUp, ArrowDown, Plus } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 const inputStyle = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '15px', marginTop: '4px', boxSizing: 'border-box' };
 const labelStyle = { fontSize: '14px', fontWeight: 600, color: '#2d3748', display: 'block' };
@@ -128,8 +130,8 @@ function LessonsDialog({ course, notify, onClose, onChanged }) {
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                    <button type="button" onClick={() => move(index, -1)} disabled={index === 0} aria-label={t('instructorCourses.move_up')} style={{ ...smallButton('secondary'), opacity: index === 0 ? 0.4 : 1 }}>↑</button>
-                    <button type="button" onClick={() => move(index, 1)} disabled={index === lessons.length - 1} aria-label={t('instructorCourses.move_down')} style={{ ...smallButton('secondary'), opacity: index === lessons.length - 1 ? 0.4 : 1 }}>↓</button>
+                    <button type="button" onClick={() => move(index, -1)} disabled={index === 0} aria-label={t('instructorCourses.move_up')} style={{ ...smallButton('secondary'), opacity: index === 0 ? 0.4 : 1 }}><InlineIcon icon={ArrowUp} size={14} /></button>
+                    <button type="button" onClick={() => move(index, 1)} disabled={index === lessons.length - 1} aria-label={t('instructorCourses.move_down')} style={{ ...smallButton('secondary'), opacity: index === lessons.length - 1 ? 0.4 : 1 }}><InlineIcon icon={ArrowDown} size={14} /></button>
                     <button type="button" onClick={() => setEditing(lesson)} style={smallButton('secondary')}>{t('instructorCourses.edit')}</button>
                     <button type="button" onClick={() => setDeleting(lesson)} style={smallButton('danger')}>{t('instructorCourses.delete')}</button>
                   </div>
@@ -138,7 +140,7 @@ function LessonsDialog({ course, notify, onClose, onChanged }) {
             </ol>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', marginTop: '14px', flexWrap: 'wrap' }}>
-            <button type="button" onClick={() => setEditing({ ...EMPTY })} style={buttonStyle('primary')}>➕ {t('instructorCourses.lesson_new')}</button>
+            <button type="button" onClick={() => setEditing({ ...EMPTY })} style={buttonStyle('primary')}><InlineIcon icon={Plus} /> {t('instructorCourses.lesson_new')}</button>
             <button type="button" onClick={onClose} style={buttonStyle('secondary')}>{t('adminConsole.users.close')}</button>
           </div>
         </>

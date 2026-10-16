@@ -9,6 +9,8 @@ import CreateJobDialog from './CreateJobDialog';
 import { buttonStyle } from '../../components/buttonStyle';
 import { Badge, FilterPills, EmptyState } from './adminUi';
 import { cardStyle, mutedStyle, inputStyle } from './adminStyles';
+import { Plus, Flag } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 const SEARCH_DEBOUNCE_MS = 350;
 
@@ -97,7 +99,7 @@ function JobsTab({ notify, refreshCounts }) {
           onChange={changeStatus}
           options={['all', 'active', 'inactive', 'removed'].map((s) => ({ value: s, label: t(`adminConsole.jobs.filter.${s}`) }))}
         />
-        <button type="button" onClick={() => setCreating(true)} style={buttonStyle('primary')}>➕ {t('adminConsole.jobs.create')}</button>
+        <button type="button" onClick={() => setCreating(true)} style={buttonStyle('primary')}><InlineIcon icon={Plus} /> {t('adminConsole.jobs.create')}</button>
       </div>
 
       {loading && data.jobs.length === 0 ? (
@@ -114,7 +116,7 @@ function JobsTab({ notify, refreshCounts }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     <strong style={{ fontSize: '16px', color: '#1a202c' }} dir="auto">{job.title}</strong>
                     <Badge tone={STATE_TONE[state]}>{t(`adminConsole.jobs.status.${state}`)}</Badge>
-                    {job.openReportCount > 0 && <Badge tone="red">⚑ {t('adminConsole.jobs.open_reports', { count: num(job.openReportCount) })}</Badge>}
+                    {job.openReportCount > 0 && <Badge tone="red"><InlineIcon icon={Flag} size={13} /> {t('adminConsole.jobs.open_reports', { count: num(job.openReportCount) })}</Badge>}
                   </div>
                   <div style={{ ...mutedStyle, marginTop: '4px', lineHeight: 1.7 }}>
                     <div>{job.hrProfile?.companyName} · <span dir="ltr">{job.hrProfile?.user?.email}</span></div>

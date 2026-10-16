@@ -15,7 +15,7 @@ const ROLE_LABEL = { STUDENT: 'student', HR: 'company', INSTRUCTOR: 'instructor'
 const createAccount = async (req, res) => {
   try {
     const role = ['STUDENT', 'HR', 'INSTRUCTOR'].includes(req.body.role) ? req.body.role : null;
-    if (!role) return res.status(400).json({ message: 'Choose whether this is a student, company, or instructor account.' });
+    if (!role) return res.status(400).json({ message: 'Choose whether this is a talent, company, or instructor account.' });
 
     const email = clean(req.body.email, 200).toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ message: 'Please enter a valid email address.' });

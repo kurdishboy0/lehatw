@@ -4,6 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
 import ReportButton from '../components/ReportButton';
+import { User, ArrowLeft, MessageSquare } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const CONVERSATIONS_POLL_MS = 10000;
 const THREAD_POLL_MS = 5000;
@@ -18,7 +20,7 @@ function Avatar({ name, size = 44 }) {
       width: size, height: size, borderRadius: '50%', backgroundColor: '#1B2A4A', color: 'white',
       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size / 2.6, fontWeight: 'bold', flexShrink: 0
     }}>
-      {initials(name) || '👤'}
+      {initials(name) || <InlineIcon icon={User} size={18} />}
     </div>
   );
 }
@@ -139,7 +141,7 @@ function ThreadPane({ userId, onActivity, t }) {
           aria-label={t('messages.back_to_list')}
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#1a202c', padding: '0 4px 0 0', display: 'none' }}
         >
-          ←
+          <InlineIcon icon={ArrowLeft} size={18} />
         </button>
         <Avatar name={otherUser?.name} size={36} />
         <strong style={{ color: '#1a202c', fontSize: '15px' }}>{otherUser?.name}</strong>
@@ -212,7 +214,7 @@ function Messages() {
   const activeUserId = userId ? Number(userId) : null;
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '1000px', margin: '30px auto', padding: '0 20px' }}>
       <div className={`messages-layout${activeUserId ? ' has-active-thread' : ''}`} style={{ display: 'flex', height: '72vh', border: '1px solid #e2e8f0', borderRadius: '14px', overflow: 'hidden', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <ConversationList
           conversations={conversations}
@@ -226,7 +228,7 @@ function Messages() {
             <ThreadPane key={activeUserId} userId={activeUserId} onActivity={fetchConversations} t={t} />
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#a0aec0', fontSize: '14px', textAlign: 'center', padding: '40px' }}>
-              💬<br />{conversations.length > 0 ? t('messages.select_conversation') : t('messages.no_conversations')}
+              <InlineIcon icon={MessageSquare} size={28} tone="muted" /><br />{conversations.length > 0 ? t('messages.select_conversation') : t('messages.no_conversations')}
             </div>
           )}
         </div>

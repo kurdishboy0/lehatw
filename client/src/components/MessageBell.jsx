@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { authHeader } from '../auth';
+import { MessageSquare } from 'lucide-react';
+import InlineIcon from './InlineIcon';
 
 const POLL_INTERVAL_MS = 20000;
 
@@ -32,24 +34,11 @@ function MessageBell() {
   return (
     <Link
       to="/messages"
-      className={`nav-item${isActive ? ' active' : ''}`}
-      style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
-        textDecoration: 'none', color: isActive ? '#1B2A4A' : '#4a5568',
-        padding: '6px 12px', fontSize: '11px', fontWeight: '600', minWidth: '56px'
-      }}
+      className={`header-tool${isActive ? ' is-active' : ''}`}
     >
-      <span style={{ fontSize: '20px', lineHeight: 1, position: 'relative' }}>
-        💬
-        {unread > 0 && (
-          <span style={{
-            position: 'absolute', top: '-6px', insetInlineEnd: '-10px',
-            backgroundColor: '#e53e3e', color: 'white', fontSize: '10px', fontWeight: 'bold',
-            borderRadius: '10px', padding: '1px 5px', minWidth: '16px', textAlign: 'center'
-          }}>
-            {unread}
-          </span>
-        )}
+      <span className="header-tool-icon">
+        <InlineIcon icon={MessageSquare} size={20} />
+        {unread > 0 && <span className="header-tool-badge">{unread}</span>}
       </span>
       <span className="nav-item-label">{t('nav.messaging')}</span>
     </Link>

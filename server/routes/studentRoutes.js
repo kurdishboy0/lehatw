@@ -7,7 +7,8 @@ const {
   getAllStudentsPaginated, // <-- 1. Import the new function
   uploadProfilePhoto,
   uploadResume,
-  removeResume
+  removeResume,
+  getResumeLink
 } = require('../controllers/studentController');
 const { protect } = require('../middleware/authMiddleware'); // Bring in the Bouncer!
 const { handlePhotoUpload, handleResumeUpload } = require('../middleware/upload');
@@ -28,6 +29,9 @@ router.post('/profile/resume', protect, handleResumeUpload, uploadResume);
 router.delete('/profile/resume', protect, removeResume);
 
 // --- PUBLIC: single student profile by id (kept below the literal routes above) ---
+// Before '/:id' would also match, and behind protect: a CV link is never
+// handed to someone who isn't signed in.
+router.get('/:id/resume', protect, getResumeLink);
 router.get('/:id', getStudentById);
 
 module.exports = router;

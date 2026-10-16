@@ -6,7 +6,7 @@ const { logAdminAction } = require('../../utils/audit');
 const { invalidateUserCache } = require('../../middleware/authMiddleware');
 const { sendVerificationEmail } = require('../authController');
 const { generateTempPassword } = require('../../utils/tempPassword');
-const { deleteFromStorageUrl } = require('../../utils/supabaseStorage');
+const { deleteStoredFile } = require('../../utils/supabaseStorage');
 
 const PAGE_SIZE = 25;
 const MIN_REASON = 5;
@@ -184,8 +184,11 @@ const resetPassword = handle('Admin Reset Password', async (req, res) => {
   const tempPassword = generateTempPassword();
   await prisma.user.update({
     where: { id: target.id },
-    data: { password: await bcrypt.hash(tempPassword, 10), resetOtp: null, resetOtpExpires: null }
+    data: { password: await bcrypt.hash(tempPassword, 10), passwordChangedAt: new Date(), resetOtp: null, resetOtpExpires: null }
   });
+  // Any session opened with the old password ends here, which is usually the
+  // point of an admin resetting it.
+  invalidateUserCache(target.id);
   emailQuietly(target.email, 'Your Lehatw password was reset',
     `A Lehatw admin reset your password.\n\nTemporary password: ${tempPassword}\n\nLog in with it, then change it with "Forgot your password?" on the login page.`);
   // The password itself is never written to the audit log.
@@ -292,7 +295,7 @@ const deleteUser = handle('Delete User', async (req, res) => {
     prisma.user.delete({ where: { id: target.id } })
   ]);
   invalidateUserCache(target.id);
-  for (const url of files) deleteFromStorageUrl(url);
+  for (const file of files) deleteStoredFile(file);
 
   emailQuietly(target.email, 'Your Lehatw account was deleted',
     `Your Lehatw account (${target.email}) was deleted by an admin.\n\nReason: ${reason}\n\nIf you think this is a mistake, reply to this email.`);

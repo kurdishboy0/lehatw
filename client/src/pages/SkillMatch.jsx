@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
+import { GraduationCap, Mail, MessageSquare, Compass, Handshake } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const cardStyle = {
   border: '1px solid #e2e8f0', borderRadius: '10px', padding: '20px',
@@ -34,7 +36,7 @@ function Avatar({ photoUrl, fullName, size = 44 }) {
       width: size, height: size, borderRadius: '50%', backgroundColor: '#1B2A4A', color: 'white',
       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size / 2.6, fontWeight: 'bold', flexShrink: 0
     }}>
-      {initials(fullName) || '🎓'}
+      {initials(fullName) || <InlineIcon icon={GraduationCap} size={22} />}
     </div>
   );
 }
@@ -82,7 +84,7 @@ function StudentCard({ student, t, scoreLabel, showMessage = false }) {
       {/* Only present when this peer chose to show their email to students. */}
       {student.email && (
         <a href={`mailto:${student.email}`} dir="ltr" style={{ display: 'block', marginTop: '10px', fontSize: '13px', color: '#1B2A4A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          ✉️ {student.email}
+          <InlineIcon icon={Mail} size={13} /> {student.email}
         </a>
       )}
 
@@ -92,7 +94,7 @@ function StudentCard({ student, t, scoreLabel, showMessage = false }) {
         </Link>
         {showMessage && student.userId && (
           <Link to={`/messages/${student.userId}`} style={{ flex: 1, textAlign: 'center', padding: '8px', border: '1px solid #cbd5e0', color: '#1B2A4A', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: '600' }}>
-            💬 {t('skillMatch.message')}
+            <InlineIcon icon={MessageSquare} size={14} /> {t('skillMatch.message')}
           </Link>
         )}
       </div>
@@ -190,16 +192,16 @@ function SkillMatch() {
   };
 
   return (
-    <div style={{ maxWidth: '1100px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '1100px', margin: '30px auto', padding: '0 20px' }}>
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h1 style={{ fontSize: '2rem', color: '#1a202c', margin: '0 0 8px 0' }}>🧭 {t('skillMatch.heading')}</h1>
+        <h1 style={{ fontSize: '2rem', color: '#1a202c', margin: '0 0 8px 0' }}><InlineIcon icon={Compass} size={26} tone="gold" /> {t('skillMatch.heading')}</h1>
         <p style={{ color: '#718096', margin: 0 }}>{t('skillMatch.subtitle')}</p>
       </div>
 
       {/* RECOMMENDED FOR YOU */}
       {recommended !== null && (
         <div style={{ marginBottom: '36px' }}>
-          <h2 style={{ fontSize: '19px', color: '#1a202c', margin: '0 0 4px 0' }}>🤝 {t('skillMatch.peers_heading')}</h2>
+          <h2 style={{ fontSize: '19px', color: '#1a202c', margin: '0 0 4px 0' }}><InlineIcon icon={Handshake} size={20} tone="gold" /> {t('skillMatch.peers_heading')}</h2>
           <p style={{ color: '#718096', margin: '0 0 14px 0', fontSize: '14px' }}>{t('skillMatch.peers_intro')}</p>
           {recommended.length === 0 ? (
             <p style={{ color: '#718096' }}>{t('skillMatch.recommended_empty')}</p>

@@ -35,7 +35,7 @@ const completeSetup = async (req, res) => {
     const user = await prisma.user.update({
       where: { id: row.user.id },
       // The admin already vouched for this address, so it counts as verified.
-      data: { password: await bcrypt.hash(password, 10), phoneVerified: true, phoneOtp: null, phoneOtpExpires: null }
+      data: { password: await bcrypt.hash(password, 10), passwordChangedAt: new Date(), phoneVerified: true, phoneOtp: null, phoneOtpExpires: null }
     });
     await prisma.accountSetupToken.update({ where: { tokenHash: hash(token) }, data: { usedAt: new Date() } });
 

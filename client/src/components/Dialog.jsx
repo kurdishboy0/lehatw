@@ -32,8 +32,7 @@ export function Dialog({ title, onClose, children, width = 480 }) {
         aria-label={title}
         style={{
           backgroundColor: 'white', borderRadius: '12px', width: '100%', maxWidth: `${width}px`,
-          maxHeight: '90vh', overflowY: 'auto', padding: '22px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-          fontFamily: 'sans-serif'
+          maxHeight: '90vh', overflowY: 'auto', padding: '22px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
         }}
       >
         <h3 style={{ margin: '0 0 14px 0', fontSize: '18px', color: '#1a202c' }}>{title}</h3>

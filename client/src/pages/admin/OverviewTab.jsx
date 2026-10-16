@@ -7,6 +7,8 @@ import { toLocalizedDigits } from '../../localizeDigits';
 import { buttonStyle } from '../../components/buttonStyle';
 import { Badge } from './adminUi';
 import { cardStyle, mutedStyle } from './adminStyles';
+import { Check } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 // Chart roles (validated categorical slots 1-2 on the white card surface).
 const SERIES = { students: '#2a78d6', companies: '#eb6834' };
@@ -348,7 +350,7 @@ function OverviewTab({ notify }) {
             ))}
           </div>
         ) : (
-          <p style={{ ...cardStyle, margin: 0, color: '#276749', fontWeight: 600 }}>✓ {t('adminConsole.overview.all_clear')}</p>
+          <p style={{ ...cardStyle, margin: 0, color: '#276749', fontWeight: 600 }}><InlineIcon icon={Check} /> {t('adminConsole.overview.all_clear')}</p>
         )}
       </section>
 

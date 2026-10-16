@@ -10,6 +10,8 @@ import { Badge, FilterPills, EmptyState } from './adminUi';
 import { cardStyle, mutedStyle, inputStyle } from './adminStyles';
 import { STATUS_TONE, coursePrice } from '../../courseDisplay';
 import CourseForm from '../instructor/CourseForm';
+import { Plus } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 const FILTERS = ['PENDING', 'APPROVED', 'DRAFT', 'REJECTED'];
 
@@ -82,7 +84,7 @@ function CoursesTab({ notify }) {
     <section>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
         <p style={{ margin: 0, color: '#4a5568', fontSize: '14px', flex: '1 1 280px' }}>{t('adminConsole.courses.intro')}</p>
-        <button type="button" onClick={() => { setInstructorId(''); setCreating(true); }} style={buttonStyle('primary')}>➕ {t('adminConsole.courses.create')}</button>
+        <button type="button" onClick={() => { setInstructorId(''); setCreating(true); }} style={buttonStyle('primary')}><InlineIcon icon={Plus} /> {t('adminConsole.courses.create')}</button>
       </div>
 
       <div style={{ marginBottom: '16px' }}>

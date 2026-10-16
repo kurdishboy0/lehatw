@@ -6,6 +6,8 @@ import { getUser, authHeader } from '../auth';
 import { formatDateTime, toLocalizedDigits } from '../localizeDigits';
 import { eventText } from '../eventText';
 import EventTypeBadge from '../components/EventTypeBadge';
+import { ArrowLeft, Globe, CalendarDays, MapPin, Landmark, Users, Check } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const cardStyle = {
   border: '1px solid #e2e8f0', borderRadius: '14px', padding: '24px',
@@ -54,23 +56,23 @@ function EventDetail() {
   const description = eventText(event, 'description', lang);
 
   return (
-    <div style={{ maxWidth: '800px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
-      <Link to="/events" style={{ color: '#1B2A4A', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>← {t('events.back')}</Link>
+    <div style={{ maxWidth: '800px', margin: '30px auto', padding: '0 20px' }}>
+      <Link to="/events" style={{ color: '#1B2A4A', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}><InlineIcon icon={ArrowLeft} className="rtl:rotate-180" /> {t('events.back')}</Link>
 
       <div style={{ ...cardStyle, marginTop: '16px' }}>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '10px' }}>
           <EventTypeBadge type={event.type} />
-          {event.isOnline && <span style={{ fontSize: '13px', color: '#276749', fontWeight: 600 }}>🌐 {t('events.online')}</span>}
+          {event.isOnline && <span style={{ fontSize: '13px', color: '#276749', fontWeight: 600 }}><InlineIcon icon={Globe} /> {t('events.online')}</span>}
           {finished && <span style={{ fontSize: '13px', color: '#9b2c2c', fontWeight: 600 }}>{t('events.finished')}</span>}
         </div>
 
         <h1 style={{ fontSize: '26px', color: '#1a202c', margin: '0 0 10px 0' }} dir="auto">{eventText(event, 'title', lang)}</h1>
 
         <div style={{ fontSize: '15px', color: '#4a5568', lineHeight: 1.9 }}>
-          <div>📅 {formatDateTime(event.startsAt, lang)}{event.endsAt ? ` - ${formatDateTime(event.endsAt, lang)}` : ''}</div>
-          {event.location && <div dir="auto">📍 {event.location}</div>}
-          {event.host && <div dir="auto">🏛️ {t('events.host', { host: event.host })}</div>}
-          <div>👥 {t('events.attendees', { count: num(event.registrationCount) })}
+          <div><InlineIcon icon={CalendarDays} tone="gold" /> {formatDateTime(event.startsAt, lang)}{event.endsAt ? ` - ${formatDateTime(event.endsAt, lang)}` : ''}</div>
+          {event.location && <div dir="auto"><InlineIcon icon={MapPin} tone="gold" /> {event.location}</div>}
+          {event.host && <div dir="auto"><InlineIcon icon={Landmark} tone="gold" /> {t('events.host', { host: event.host })}</div>}
+          <div><InlineIcon icon={Users} tone="gold" /> {t('events.attendees', { count: num(event.registrationCount) })}
             {event.capacity !== null && <> · {event.spotsLeft === 0 ? t('events.full') : t('events.spots_left', { count: num(event.spotsLeft) })}</>}
           </div>
         </div>
@@ -98,7 +100,7 @@ function EventDetail() {
             </p>
           ) : event.registered ? (
             <>
-              <span style={{ padding: '12px 20px', backgroundColor: '#e6f4ea', color: '#276749', borderRadius: '8px', fontWeight: 700 }}>✓ {t('events.registered')}</span>
+              <span style={{ padding: '12px 20px', backgroundColor: '#e6f4ea', color: '#276749', borderRadius: '8px', fontWeight: 700 }}><InlineIcon icon={Check} /> {t('events.registered')}</span>
               <button type="button" disabled={busy} onClick={() => setRegistration(false)} style={{ padding: '12px 20px', background: 'none', border: '1px solid #cbd5e0', borderRadius: '8px', cursor: 'pointer', color: '#4a5568', fontWeight: 600 }}>
                 {t('events.cancel_registration')}
               </button>

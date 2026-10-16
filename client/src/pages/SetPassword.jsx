@@ -3,12 +3,14 @@ import axios from 'axios';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../useAuth';
+import { KeyRound, ArrowLeft } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 const DASHBOARD_PATH = { STUDENT: '/student-dashboard', HR: '/hr-dashboard', INSTRUCTOR: '/instructor-dashboard', ADMIN: '/admin-dashboard' };
 
 const cardStyle = {
   maxWidth: '440px', margin: '60px auto', padding: '30px', backgroundColor: 'white',
-  border: '1px solid #e2e8f0', borderRadius: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', fontFamily: 'sans-serif'
+  border: '1px solid #e2e8f0', borderRadius: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
 };
 const inputStyle = { width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '15px', marginTop: '6px' };
 
@@ -61,7 +63,7 @@ function SetPassword() {
       <div style={cardStyle}>
         <h1 style={{ fontSize: '22px', color: '#1a202c', marginTop: 0 }}>{t('setPassword.invalid_title')}</h1>
         <p role="alert" style={{ color: '#c53030', fontSize: '15px' }}>{linkError}</p>
-        <Link to="/login" style={{ color: '#1B2A4A', fontWeight: 600 }}>{t('setPassword.back_to_login')}</Link>
+        <Link to="/login" style={{ color: '#1B2A4A', fontWeight: 600 }}><InlineIcon icon={ArrowLeft} className="rtl:rotate-180" /> {t('setPassword.back_to_login')}</Link>
       </div>
     );
   }
@@ -70,7 +72,7 @@ function SetPassword() {
 
   return (
     <div style={cardStyle}>
-      <h1 style={{ fontSize: '22px', color: '#1a202c', margin: '0 0 6px 0' }}>🔑 {t('setPassword.heading')}</h1>
+      <h1 style={{ fontSize: '22px', color: '#1a202c', margin: '0 0 6px 0' }}><InlineIcon icon={KeyRound} size={22} tone="gold" /> {t('setPassword.heading')}</h1>
       <p style={{ color: '#4a5568', fontSize: '15px', marginTop: 0 }} dir="auto">{t('setPassword.subtitle', { email: account.email })}</p>
 
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '18px' }}>

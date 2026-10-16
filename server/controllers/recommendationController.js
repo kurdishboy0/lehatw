@@ -10,7 +10,7 @@ const MAX_INVITE_MESSAGE = 2000;
 
 const getMyJobMatches = async (req, res) => {
   try {
-    if (req.user.role !== 'STUDENT') return res.status(403).json({ message: 'Only students get job recommendations.' });
+    if (req.user.role !== 'STUDENT') return res.status(403).json({ message: 'Only talent get job recommendations.' });
     const profile = await prisma.studentProfile.findUnique({
       where: { userId: req.user.id },
       select: { id: true, skills: { select: { skillId: true, proficiency: true } } }
@@ -124,21 +124,21 @@ const inviteCandidate = async (req, res) => {
     const job = await loadOwnJob(req, res);
     if (!job) return;
     if (!job.isActive || job.removedByAdmin) {
-      return res.status(400).json({ message: 'This job post is not live, so students can\'t apply to it.' });
+      return res.status(400).json({ message: 'This job post is not live, so talent can\'t apply to it.' });
     }
 
     const text = String(req.body.message || '').trim();
-    if (!text) return res.status(400).json({ message: 'Please write a short message to the student.' });
+    if (!text) return res.status(400).json({ message: 'Please write a short message to the talent.' });
     if (text.length > MAX_INVITE_MESSAGE) return res.status(400).json({ message: `Messages can be at most ${MAX_INVITE_MESSAGE} characters.` });
 
     const profile = await prisma.studentProfile.findUnique({
       where: { id: Number(req.body.studentProfileId) },
       select: { id: true, fullName: true, user: { select: { id: true, email: true, accountStatus: true } } }
     });
-    if (!profile || profile.user.accountStatus !== 'ACTIVE') return res.status(404).json({ message: 'Student not found.' });
+    if (!profile || profile.user.accountStatus !== 'ACTIVE') return res.status(404).json({ message: 'Talent not found.' });
 
     const alreadyApplied = await prisma.application.findFirst({ where: { jobPostId: job.id, studentId: profile.user.id }, select: { id: true } });
-    if (alreadyApplied) return res.status(409).json({ message: 'This student has already applied to this job.' });
+    if (alreadyApplied) return res.status(409).json({ message: 'This talent has already applied to this job.' });
 
     try {
       await prisma.$transaction([
@@ -146,7 +146,7 @@ const inviteCandidate = async (req, res) => {
         prisma.message.create({ data: { senderId: req.user.id, recipientId: profile.user.id, content: text } })
       ]);
     } catch (error) {
-      if (error.code === 'P2002') return res.status(409).json({ message: 'You already invited this student to this job.' });
+      if (error.code === 'P2002') return res.status(409).json({ message: 'You already invited this talent to this job.' });
       throw error;
     }
 

@@ -4,6 +4,8 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
 import ReportButton from '../components/ReportButton';
+import { GraduationCap, MessageSquare, ArrowLeft } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
 
 function StudentProfileView() {
   const { t } = useTranslation();
@@ -54,12 +56,12 @@ function StudentProfileView() {
   const isOwnProfile = user && user.id === profile.userId;
 
   return (
-    <div style={{ maxWidth: '900px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '900px', margin: '30px auto', padding: '0 20px' }}>
       <button
         onClick={() => navigate(-1)}
         style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#1B2A4A', textDecoration: 'none', fontSize: '15px', fontWeight: '600' }}
       >
-        {t('studentProfile.back')}
+        <InlineIcon icon={ArrowLeft} className="rtl:rotate-180" /> {t('studentProfile.back')}
       </button>
 
       <div style={{ marginTop: '20px', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '36px', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
@@ -68,13 +70,13 @@ function StudentProfileView() {
             <img src={profile.photoUrl} alt={profile.fullName} style={{ width: '110px', height: '110px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
           ) : (
             <div style={{ width: '110px', height: '110px', borderRadius: '50%', backgroundColor: '#1B2A4A', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '38px', fontWeight: 'bold', flexShrink: 0 }}>
-              {profile.fullName.trim().split(/\s+/).slice(0, 2).map(w => w.charAt(0).toUpperCase()).join('') || '🎓'}
+              {profile.fullName.trim().split(/\s+/).slice(0, 2).map(w => w.charAt(0).toUpperCase()).join('') || <InlineIcon icon={GraduationCap} size={30} />}
             </div>
           )}
           <div>
             <h1 style={{ fontSize: '30px', color: '#1a202c', margin: '0 0 8px 0' }}>{profile.fullName}</h1>
             <div style={{ fontSize: '17px', color: '#718096' }}>{profile.university} · {profile.fieldOfStudy}</div>
-            {profile.graduationYear && <div style={{ fontSize: '14px', color: '#a0aec0', marginTop: '6px' }}>🎓 {profile.graduationYear}</div>}
+            {profile.graduationYear && <div style={{ fontSize: '14px', color: '#a0aec0', marginTop: '6px' }}><InlineIcon icon={GraduationCap} tone="gold" /> {profile.graduationYear}</div>}
           </div>
           {!isOwnProfile && <ReportButton targetType="USER" targetId={profile.userId} style={{ marginInlineStart: 'auto', alignSelf: 'flex-start' }} />}
         </div>
@@ -109,7 +111,7 @@ function StudentProfileView() {
         </div>
 
         <hr style={{ margin: '28px 0', border: 'none', borderTop: '1px solid #edf2f7' }} />
-        <h3 style={{ fontSize: '19px', color: '#1a202c', margin: '0 0 16px 0' }}>💬 {t('studentProfile.contact_heading')}</h3>
+        <h3 style={{ fontSize: '19px', color: '#1a202c', margin: '0 0 16px 0' }}><InlineIcon icon={MessageSquare} size={20} tone="gold" /> {t('studentProfile.contact_heading')}</h3>
 
         {isOwnProfile ? (
           <p style={{ color: '#a0aec0', fontSize: '15px' }}>{t('studentProfile.own_profile_note')}</p>

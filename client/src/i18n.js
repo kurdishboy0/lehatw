@@ -34,13 +34,21 @@ const resources = {
         about: "About Us",
         me: "Me",
         login: "Login",
-        student_signup: "Student Signup",
+        explore: "Explore",
+        contact: "Contact Us",
+        signup: "Sign up",
+        primary: "Main",
+        language: "Language",
+        open_menu: "Open menu",
+        close_menu: "Close menu",
+        student_signup: "Talent Signup",
         company_signup: "Company Signup"
       },
 
       accountBlock: {
         banned: "This account has been banned.",
         deleted: "This account has been deleted.",
+        password_changed: "Your password was changed. Please sign in again.",
         suspended: "This account is suspended.",
         suspended_until: "This account is suspended until {{until}}.",
         reason: "Reason: {{reason}}"
@@ -67,11 +75,57 @@ const resources = {
         logout: "Logout"
       },
 
+      signup: {
+        heading: "Join Lehatw",
+        subtitle: "Pick the path that fits you. You can always add the other later.",
+        talent_title: "I am talent",
+        talent_body: "Undergraduates and graduates building a profile that shows what they can do.",
+        talent_point_1: "A skills-based profile employers can search",
+        talent_point_2: "Jobs ranked by how many of their skills you have",
+        talent_point_3: "Courses that fill the gaps you are missing",
+        talent_cta: "Sign up as talent",
+        company_title: "We are hiring",
+        company_body: "Companies and organisations looking for talent across the Kurdistan Region and Iraq.",
+        company_point_1: "Post a job and get applicants ranked by skill match",
+        company_point_2: "Search profiles by field of study and skill",
+        company_point_3: "Invite the right people to apply",
+        company_cta: "Sign up as a company",
+        instructor_prompt: "Teaching a course?",
+        instructor_link: "Apply as an instructor",
+        have_account: "Already have an account?"
+      },
+
+      cv: {
+        opening: "Opening...",
+        error_open: "Could not open this CV. Please try again."
+      },
+
+      hero: {
+        carousel_label: "Lehatw highlights",
+        previous: "Previous slide",
+        next: "Next slide",
+        go_to_slide: "Go to slide {{number}}",
+        search_placeholder: "Search jobs, skills, talent, or universities",
+        search_button: "Search",
+        slide1: {
+          heading: "Where academic talent meets opportunity",
+          subtext: "Connecting talent and employers across the Kurdistan Region and Iraq."
+        },
+        slide2: {
+          heading: "Build your profile. Get discovered.",
+          subtext: "Create your profile and let companies find you by what you can do."
+        },
+        slide3: {
+          heading: "Every opportunity, in one place",
+          subtext: "Browse roles ranked by your skills and field of study."
+        }
+      },
+
       home: {
         title: "Lehatw Talent Showcase",
-        subtitle: "Discover top student talent across every field of study.",
-        no_students: "No student profiles found yet. Be the first to register!",
-        error_load: "Failed to load the student directory.",
+        subtitle: "Discover top talent across every field of study.",
+        no_students: "No talent profiles found yet. Be the first to register!",
+        error_load: "Failed to load the talent directory.",
         loading: "Loading profiles...",
         uni: "Uni",
         major: "Major",
@@ -79,24 +133,24 @@ const resources = {
         more: "more",
         previous: "Previous",
         next: "Next",
-        search_placeholder: "Search students, universities, skills, or jobs...",
+        search_placeholder: "Search talent, universities, skills, or jobs...",
         searching: "Searching...",
         results_for: "Results for \"{{query}}\"",
         clear_search: "Clear search",
-        students_heading: "Students",
+        students_heading: "Talent",
         jobs_heading: "Jobs",
-        no_results: "No students or jobs matched your search.",
-        recent_students_heading: "Recently Joined Students",
+        no_results: "No talent or jobs matched your search.",
+        recent_students_heading: "Recently Joined Talent",
         recent_jobs_heading: "Recent Job Openings",
         no_recent_jobs: "No active job posts yet.",
-        view_all_jobs: "View all jobs →"
+        view_all_jobs: "View all jobs"
       },
 
       footer: {
-        desc: "Connecting top student talent across every field with innovative companies. Build your profile, showcase your skills, and get hired.",
+        desc: "Connecting top talent across every field with innovative companies. Build your profile, showcase your skills, and get hired.",
         platform: "Platform",
         browse_talent: "Browse Talent",
-        for_students: "For Students",
+        for_students: "For Talent",
         for_companies: "For Companies",
         legal_support: "Legal & Support",
         privacy_policy: "Privacy Policy",
@@ -107,18 +161,18 @@ const resources = {
 
       aboutUs: {
         title: "About Lehatw",
-        subtitle: "Connecting Kurdistan's student talent, across every field of study, with the companies ready to hire them.",
+        subtitle: "Connecting Kurdistan's talent, across every field of study, with the companies ready to hire them.",
         mission_title: "Our Mission",
-        mission_body: "Lehatw exists to close the gap between graduating students and the local job market. We give students a real, skills-based profile instead of a plain resume, and we give companies a fast way to find candidates who actually match what a role needs.",
+        mission_body: "Lehatw exists to close the gap between graduating talent and the local job market. We give talent a real, skills-based profile instead of a plain resume, and we give companies a fast way to find candidates who actually match what a role needs.",
         what_title: "What We Do",
-        what_body: "Lehatw is a trilingual (English, Arabic, Kurdish Sorani) talent platform. Students build a profile from a structured catalog of academic fields and skills, upload a CV, and apply to jobs directly on the platform. Companies post openings, search the student directory, and get ranked candidate matches based on shared, proficiency-weighted skills.",
-        students_title: "For Students",
+        what_body: "Lehatw is a trilingual (English, Arabic, Kurdish Sorani) talent platform. Talent build a profile from a structured catalog of academic fields and skills, upload a CV, and apply to jobs directly on the platform. Companies post openings, search the talent directory, and get ranked candidate matches based on shared, proficiency-weighted skills.",
+        students_title: "For Talent",
         students_body: "Create a profile, pick your field of study and skills (or add your own for admin review), attach a resume, and apply to jobs in a couple of clicks. Our Skill Match engine also helps you find peers with similar skills to learn from or collaborate with.",
         companies_title: "For Companies",
-        companies_body: "Post a job once and get applicants automatically ranked by how well their skills match your requirements, or search the full student directory by field of study, university, or specific skills. Every company account is reviewed by our team before it goes live.",
+        companies_body: "Post a job once and get applicants automatically ranked by how well their skills match your requirements, or search the full talent directory by field of study, university, or specific skills. Every company account is reviewed by our team before it goes live.",
         goal_title: "Where We're Headed",
         goal_body: "We're building toward a platform that makes hiring university graduates in Kurdistan faster, fairer, and driven by real, verifiable skills, not just who you know.",
-        stat_students: "Students Joined",
+        stat_students: "Talent Joined",
         stat_companies: "Companies",
         stat_jobs: "Active Job Posts"
       },
@@ -131,21 +185,21 @@ const resources = {
         privacy_intro: "This Privacy Policy explains what information Lehatw collects, how we use it, and the choices you have. By using Lehatw, you agree to the practices described here.",
         privacy_sections: [
           { title: "Information We Collect", body: "Account details (email, password, role); profile information (name, university, field of study, graduation year, bio, links); a phone number used only to verify you're a real, authorized user; skills, resume/CV, and profile photo you choose to upload; messages you send through the platform; and basic usage data needed to operate the site." },
-          { title: "How We Use Your Information", body: "To create and manage your account; to match student profiles with relevant job posts and companies; to verify your identity via a one-time code sent by email or SMS; to send you in-app and email notifications about applications, messages, and account updates; and to respond to support requests." },
+          { title: "How We Use Your Information", body: "To create and manage your account; to match talent profiles with relevant job posts and companies; to verify your identity via a one-time code sent by email or SMS; to send you in-app and email notifications about applications, messages, and account updates; and to respond to support requests." },
           { title: "Who Can See Your Information", body: "Companies can see the profile information you choose to complete once your account is active. We do not sell your personal data. A small number of trusted service providers, including our email delivery service, our SMS/OTP provider, Google/LinkedIn sign-in, and our database hosting provider, process data strictly to help run the platform, and only to the extent needed." },
-          { title: "Data Security", body: "Passwords are stored hashed, never in plain text. Access to the platform is controlled with token-based authentication, and administrative access to student and company data is limited to the Lehatw team." },
+          { title: "Data Security", body: "Passwords are stored hashed, never in plain text. Access to the platform is controlled with token-based authentication, and administrative access to talent and company data is limited to the Lehatw team." },
           { title: "Your Rights", body: "You can review and update most of your profile information directly from your dashboard at any time. To request a copy of your data, a correction, or full account deletion, contact us using the details on our Contact page." },
-          { title: "Who This Service Is For", body: "Lehatw is built for university students, graduates, and employers. It is not directed at children, and we don't knowingly collect data from anyone under 16." },
+          { title: "Who This Service Is For", body: "Lehatw is built for university talent and employers. It is not directed at children, and we don't knowingly collect data from anyone under 16." },
           { title: "Changes to This Policy", body: "We may update this policy as the platform evolves. Continuing to use Lehatw after a change means you accept the updated policy." }
         ],
         terms_intro: "These Terms of Service govern your use of Lehatw. Please read them carefully before creating an account.",
         terms_sections: [
           { title: "Acceptance of Terms", body: "By creating an account or using Lehatw, you agree to these Terms of Service and our Privacy Policy." },
-          { title: "Who Can Use Lehatw", body: "Lehatw is intended for students and graduates seeking opportunities, and for company representatives seeking to hire talent. You must provide accurate information when registering." },
-          { title: "Account Registration & Verification", body: "Students verify their account with a one-time code sent to their email or phone. Company (HR) accounts are reviewed and approved by our administrators before they can post jobs or browse student profiles, to keep the platform trustworthy." },
+          { title: "Who Can Use Lehatw", body: "Lehatw is intended for talent seeking opportunities, and for company representatives seeking to hire. You must provide accurate information when registering." },
+          { title: "Account Registration & Verification", body: "A talent account is verified with a one-time code sent to its email or phone. Company (HR) accounts are reviewed and approved by our administrators before they can post jobs or browse talent profiles, to keep the platform trustworthy." },
           { title: "Acceptable Use", body: "You agree not to create fake profiles, impersonate someone else, post fraudulent or misleading job listings, scrape or misuse platform data, or harass other users through messages or applications." },
           { title: "Your Content", body: "You retain ownership of the content you upload, including your resume, photo, bio, and portfolio links. By uploading it, you grant Lehatw a limited license to display it to other users as part of the normal operation of the platform (for example, showing your profile to companies)." },
-          { title: "Job Postings & Applications", body: "Lehatw is a platform that connects students and employers. We do not guarantee job placement, interview outcomes, or the accuracy of any job posting. Companies are solely responsible for the listings they publish and their hiring decisions." },
+          { title: "Job Postings & Applications", body: "Lehatw is a platform that connects talent and employers. We do not guarantee job placement, interview outcomes, or the accuracy of any job posting. Companies are solely responsible for the listings they publish and their hiring decisions." },
           { title: "Suspension & Termination", body: "We may suspend or remove any account that violates these terms, including fake accounts, fraudulent job posts, or abusive behavior." },
           { title: "Limitation of Liability", body: "Lehatw is provided \"as is.\" We are not liable for hiring decisions made by companies, the accuracy of content posted by other users, or indirect damages arising from your use of the platform." },
           { title: "Changes to These Terms", body: "We may update these terms from time to time. Continued use of Lehatw after a change means you accept the updated terms." }
@@ -161,6 +215,8 @@ const resources = {
         supervisor_specialization: "Specialization: Molecular Physiology",
         supervisor_contact_note: "Please reach out by email only.",
         team_heading: "Development Team",
+        team_ahmed_degree: "M.Sc. in Computer Science, AI Specialization",
+        team_soran_degree: "M.Sc. in Computer Science, IoT Specialization",
         email_label: "Email",
         phone_label: "Phone",
         scholar_label: "Google Scholar",
@@ -176,9 +232,9 @@ const resources = {
         or: "OR",
         google: "Continue with Google",
         linkedin: "Continue with LinkedIn",
-        success: "Login successful! 🎉",
-        google_success: "Google Login successful! 🎉",
-        linkedin_success: "LinkedIn Login successful! 🎉",
+        success: "Login successful!",
+        google_success: "Google Login successful!",
+        linkedin_success: "LinkedIn Login successful!",
         error_default: "Login failed. Please try again.",
         error_google: "Google authentication failed. Please try again.",
         error_google_cancel: "Google Login was canceled or failed.",
@@ -186,18 +242,18 @@ const resources = {
       },
 
       register: {
-        title: "Student Registration",
+        title: "Talent Registration",
         email_placeholder: "Email address",
         phone_placeholder: "Phone number (e.g. +964 750 123 4567)",
         password_placeholder: "Password",
         submit: "Register",
         password_error: "Password must be at least 8 characters long, contain one uppercase letter, one number, and one special character.",
-        success: "Registration successful! 🎉 Please log in.",
+        success: "Registration successful! Please log in.",
         error_default: "Registration failed. Please try again.",
         or: "OR",
         google: "Continue with Google",
         linkedin: "Continue with LinkedIn",
-        google_success: "Google authentication successful! 🎉",
+        google_success: "Google authentication successful!",
         error_google: "Google authentication failed. Please try again.",
         error_google_cancel: "Google Login was canceled or failed."
       },
@@ -244,7 +300,7 @@ const resources = {
         step3_desc: "Create a new, strong password.",
         new_password_placeholder: "New Password",
         reset_password: "Reset Password",
-        back_to_login: "← Back to Login",
+        back_to_login: "Back to Login",
         password_error: "Password must be at least 8 characters long, contain one uppercase letter, one number, and one special character.",
         error_send: "Failed to send OTP. Try again.",
         error_verify: "Invalid or expired OTP.",
@@ -252,7 +308,7 @@ const resources = {
       },
 
       studentDashboard: {
-        heading: "🎓 Student Dashboard",
+        heading: "Talent Dashboard",
         loading: "Loading Dashboard...",
         welcome_create: "Welcome! Please complete your profile to continue.",
         welcome_update: "Update your details below:",
@@ -316,7 +372,7 @@ const resources = {
       },
 
       hrDashboard: {
-        heading: "🏢 Company / HR Dashboard",
+        heading: "Company / HR Dashboard",
         loading: "Loading Dashboard...",
         status_label: "Status",
         industry_label: "Industry",
@@ -345,7 +401,7 @@ const resources = {
         delete: "Delete",
         no_applicants: "No applicants yet.",
         view_cv: "View CV",
-        phone_unverified_hint: "Provided by the student at signup; not independently verified.",
+        phone_unverified_hint: "Provided by the talent at signup; not independently verified.",
         error_load: "Failed to load profile.",
         error_save: "Failed to save profile.",
         error_delete: "Failed to delete job post.",
@@ -389,7 +445,7 @@ const resources = {
         success: "Job posted successfully! Scroll down to find matches.",
         error_default: "Failed to post job.",
         matching_heading: "Step 2: Find Top Candidates",
-        matching_desc: "Our algorithm will scan student profiles based on the required skills you selected above.",
+        matching_desc: "Our algorithm will scan talent profiles based on the required skills you selected above.",
         run_matching: "Run Matchmaking Engine",
         scanning: "Scanning Database...",
         top_recommendations: "Top Recommendations",
@@ -421,7 +477,7 @@ const resources = {
       },
 
       jobDetail: {
-        back: "← Back to Jobs",
+        back: "Back to Jobs",
         loading: "Loading job post...",
         not_found: "This job post could not be found.",
         section_summary: "About the Role",
@@ -448,17 +504,17 @@ const resources = {
         application_submitted: "Application submitted!",
         error_apply_default: "Failed to apply.",
         login_prompt: "to apply for this job.",
-        login_link: "Log in as a student"
+        login_link: "Log in to your talent account"
       },
 
 
       skillMatch: {
         heading: "Skill Match",
-        subtitle: "Discover students by field of study and skill. Find your closest peers, or the right candidate for the role.",
+        subtitle: "Discover talent by field of study and skill. Find your closest peers, or the right candidate for the role.",
         recommended_heading: "Recommended For You",
-        recommended_empty: "Add some skills to your profile to see students similar to you.",
+        recommended_empty: "Add some skills to your profile to see talent similar to you.",
         similarity_label: "Similarity",
-        browse_heading: "Browse & Filter Students",
+        browse_heading: "Browse & Filter Talent",
         search_placeholder: "Search by name, university, or a custom skill...",
         subject_area_label: "Subject Area",
         subject_area_all: "All Subject Areas",
@@ -468,19 +524,19 @@ const resources = {
         skills_label: "Skills",
         skills_prompt: "Select a field of study to choose specific skills",
         clear_filters: "Clear Filters",
-        no_results: "No students match these filters yet.",
+        no_results: "No talent matches these filters yet.",
         match_label: "Match",
         view_profile: "View Profile",
         message_button: "Message",
         shared_skills_label: "Shared skills",
-        loading: "Loading students...",
-        error_load: "Failed to load students."
+        loading: "Loading talent...",
+        error_load: "Failed to load talent."
       },
 
       studentProfile: {
         loading: "Loading profile...",
-        not_found: "This student profile could not be found.",
-        back: "← Back",
+        not_found: "This talent profile could not be found.",
+        back: "Back",
         skills_heading: "Skills & Expertise",
         no_skills: "No skills added yet.",
         custom_label: "(Custom)",
@@ -488,7 +544,7 @@ const resources = {
         message_placeholder: "Write a message...",
         send: "Send Message",
         sent: "Message sent!",
-        login_prompt: "to message this student.",
+        login_prompt: "to message this person.",
         login_link: "Log in",
         own_profile_note: "This is your own profile.",
         error_send: "Failed to send message."
@@ -496,7 +552,7 @@ const resources = {
 
       messages: {
         heading: "Messages",
-        no_conversations: "No conversations yet. Visit the Skill Match page to connect with other students.",
+        no_conversations: "No conversations yet. Visit the Skill Match page to connect with other talent.",
         select_conversation: "Select a conversation to start chatting.",
         back_to_list: "Back to conversations",
         unread_badge: "new",
@@ -533,13 +589,21 @@ const resources = {
         about: "من نحن",
         me: "أنا",
         login: "تسجيل الدخول",
-        student_signup: "تسجيل الطلاب",
+        explore: "استكشف",
+        contact: "اتصل بنا",
+        signup: "إنشاء حساب",
+        primary: "التنقل الرئيسي",
+        language: "اللغة",
+        open_menu: "فتح القائمة",
+        close_menu: "إغلاق القائمة",
+        student_signup: "تسجيل المواهب",
         company_signup: "تسجيل الشركات"
       },
 
       accountBlock: {
         banned: "تم حظر هذا الحساب.",
         deleted: "تم حذف هذا الحساب.",
+        password_changed: "تم تغيير كلمة المرور. يرجى تسجيل الدخول مرة أخرى.",
         suspended: "هذا الحساب موقوف.",
         suspended_until: "هذا الحساب موقوف حتى {{until}}.",
         reason: "السبب: {{reason}}"
@@ -566,11 +630,57 @@ const resources = {
         logout: "تسجيل الخروج"
       },
 
+      signup: {
+        heading: "انضم إلى لێهاتوو",
+        subtitle: "اختر المسار الذي يناسبك. يمكنك إضافة الآخر لاحقًا.",
+        talent_title: "أنا موهبة",
+        talent_body: "المواهب والخريجون الذين يبنون ملفًا يُظهر ما يستطيعون فعله.",
+        talent_point_1: "ملف قائم على المهارات يمكن لأصحاب العمل البحث فيه",
+        talent_point_2: "وظائف مرتّبة حسب عدد مهاراتها التي تملكها",
+        talent_point_3: "دورات تسدّ المهارات الناقصة لديك",
+        talent_cta: "التسجيل كموهبة",
+        company_title: "نحن نوظّف",
+        company_body: "شركات ومؤسسات تبحث عن المواهب في إقليم كوردستان والعراق.",
+        company_point_1: "انشر وظيفة واحصل على متقدمين مرتّبين حسب تطابق المهارات",
+        company_point_2: "ابحث في الملفات حسب مجال الدراسة والمهارة",
+        company_point_3: "ادعُ الأشخاص المناسبين للتقديم",
+        company_cta: "التسجيل كشركة",
+        instructor_prompt: "هل تقدّم دورة؟",
+        instructor_link: "قدّم كمدرّب",
+        have_account: "لديك حساب بالفعل؟"
+      },
+
+      cv: {
+        opening: "جاري الفتح...",
+        error_open: "تعذّر فتح هذه السيرة الذاتية. حاول مرة أخرى."
+      },
+
+      hero: {
+        carousel_label: "أبرز ما في لێهاتوو",
+        previous: "الشريحة السابقة",
+        next: "الشريحة التالية",
+        go_to_slide: "الانتقال إلى الشريحة {{number}}",
+        search_placeholder: "ابحث عن وظائف أو مهارات أو مواهب أو جامعات",
+        search_button: "بحث",
+        slide1: {
+          heading: "حيث يلتقي الموهوبون الأكاديميون بالفرص",
+          subtext: "نربط المواهب بأصحاب العمل في إقليم كوردستان والعراق."
+        },
+        slide2: {
+          heading: "أنشئ ملفك الشخصي. كن مرئيًا.",
+          subtext: "أنشئ ملفك الشخصي ودع الشركات تجدك بناءً على مهاراتك."
+        },
+        slide3: {
+          heading: "كل الفرص في مكان واحد",
+          subtext: "تصفّح الوظائف المرتّبة حسب مهاراتك ومجال دراستك."
+        }
+      },
+
       home: {
         title: "معرض مواهب لێهاتوو",
-        subtitle: "اكتشف أفضل الطلاب الموهوبين من مختلف التخصصات.",
-        no_students: "لم يتم العثور على ملفات تعريف للطلاب بعد. كن أول من يسجل!",
-        error_load: "فشل تحميل دليل الطلاب.",
+        subtitle: "اكتشف أفضل المواهب من مختلف التخصصات.",
+        no_students: "لم يتم العثور على ملفات تعريف للمواهب بعد. كن أول من يسجل!",
+        error_load: "فشل تحميل دليل المواهب.",
         loading: "جاري تحميل الملفات...",
         uni: "الجامعة",
         major: "التخصص",
@@ -578,24 +688,24 @@ const resources = {
         more: "أخرى",
         previous: "السابق",
         next: "التالي",
-        search_placeholder: "ابحث عن طلاب، جامعات، مهارات، أو وظائف...",
+        search_placeholder: "ابحث عن مواهب، جامعات، مهارات، أو وظائف...",
         searching: "جاري البحث...",
         results_for: "نتائج \"{{query}}\"",
         clear_search: "مسح البحث",
-        students_heading: "الطلاب",
+        students_heading: "المواهب",
         jobs_heading: "الوظائف",
-        no_results: "لا يوجد طلاب أو وظائف مطابقة لبحثك.",
-        recent_students_heading: "أحدث الطلاب المنضمين",
+        no_results: "لا يوجد مواهب أو وظائف مطابقة لبحثك.",
+        recent_students_heading: "أحدث المواهب المنضمين",
         recent_jobs_heading: "أحدث الوظائف",
         no_recent_jobs: "لا توجد وظائف نشطة حالياً.",
-        view_all_jobs: "عرض جميع الوظائف ←"
+        view_all_jobs: "عرض جميع الوظائف"
       },
 
       footer: {
-        desc: "ربط أفضل المواهب الطلابية من مختلف التخصصات بالشركات المبتكرة. ابنِ ملفك الشخصي، واعرض مهاراتك، واحصل على وظيفة.",
+        desc: "ربط أفضل المواهب المواهبية من مختلف التخصصات بالشركات المبتكرة. ابنِ ملفك الشخصي، واعرض مهاراتك، واحصل على وظيفة.",
         platform: "المنصة",
         browse_talent: "تصفح المواهب",
-        for_students: "للطلاب",
+        for_students: "للمواهب",
         for_companies: "للشركات",
         legal_support: "القانونية والدعم",
         privacy_policy: "سياسة الخصوصية",
@@ -606,18 +716,18 @@ const resources = {
 
       aboutUs: {
         title: "عن لێهاتوو",
-        subtitle: "نربط مواهب الطلاب في كوردستان، من مختلف التخصصات، بالشركات المستعدة لتوظيفهم.",
+        subtitle: "نربط مواهب المواهب في كوردستان، من مختلف التخصصات، بالشركات المستعدة لتوظيفهم.",
         mission_title: "مهمتنا",
-        mission_body: "تأسست لێهاتوو لسد الفجوة بين الخريجين وسوق العمل المحلي. نمنح الطلاب ملفاً شخصياً حقيقياً قائماً على المهارات بدلاً من سيرة ذاتية عادية، ونمنح الشركات طريقة سريعة للعثور على مرشحين يطابقون فعلياً متطلبات الوظيفة.",
+        mission_body: "تأسست لێهاتوو لسد الفجوة بين الخريجين وسوق العمل المحلي. نمنح المواهب ملفاً شخصياً حقيقياً قائماً على المهارات بدلاً من سيرة ذاتية عادية، ونمنح الشركات طريقة سريعة للعثور على مرشحين يطابقون فعلياً متطلبات الوظيفة.",
         what_title: "ماذا نقدم",
-        what_body: "لێهاتوو منصة مواهب ثلاثية اللغة (الإنجليزية والعربية والكردية السورانية). يبني الطلاب ملفهم الشخصي من كتالوج منظم للتخصصات الأكاديمية والمهارات، ويرفعون سيرتهم الذاتية، ويتقدمون للوظائف مباشرة عبر المنصة. تنشر الشركات الوظائف، وتبحث في دليل الطلاب، وتحصل على ترشيحات مرتبة حسب تطابق المهارات.",
-        students_title: "للطلاب",
+        what_body: "لێهاتوو منصة مواهب ثلاثية اللغة (الإنجليزية والعربية والكردية السورانية). يبني المواهب ملفهم الشخصي من كتالوج منظم للتخصصات الأكاديمية والمهارات، ويرفعون سيرتهم الذاتية، ويتقدمون للوظائف مباشرة عبر المنصة. تنشر الشركات الوظائف، وتبحث في دليل المواهب، وتحصل على ترشيحات مرتبة حسب تطابق المهارات.",
+        students_title: "للمواهب",
         students_body: "أنشئ ملفك الشخصي، واختر تخصصك ومهاراتك (أو أضف مهارات جديدة تخضع لمراجعة الإدارة)، وأرفق سيرتك الذاتية، وتقدم للوظائف بضغطات قليلة. يساعدك محرك تطابق المهارات أيضاً في إيجاد زملاء بمهارات مشابهة للتعلم أو التعاون معهم.",
         companies_title: "للشركات",
-        companies_body: "انشر وظيفة واحدة واحصل على متقدمين مرتبين تلقائياً حسب مدى تطابق مهاراتهم مع متطلباتك، أو ابحث في دليل الطلاب الكامل حسب التخصص أو الجامعة أو مهارات محددة. تتم مراجعة كل حساب شركة من قبل فريقنا قبل تفعيله.",
+        companies_body: "انشر وظيفة واحدة واحصل على متقدمين مرتبين تلقائياً حسب مدى تطابق مهاراتهم مع متطلباتك، أو ابحث في دليل المواهب الكامل حسب التخصص أو الجامعة أو مهارات محددة. تتم مراجعة كل حساب شركة من قبل فريقنا قبل تفعيله.",
         goal_title: "إلى أين نتجه",
         goal_body: "نعمل على بناء منصة تجعل توظيف خريجي الجامعات في كوردستان أسرع وأكثر عدالة، وقائماً على مهارات حقيقية وقابلة للتحقق - وليس فقط على المعارف الشخصية.",
-        stat_students: "طالب منضم",
+        stat_students: "موهبة منضم",
         stat_companies: "شركة",
         stat_jobs: "وظيفة نشطة"
       },
@@ -630,21 +740,21 @@ const resources = {
         privacy_intro: "توضح سياسة الخصوصية هذه المعلومات التي تجمعها لێهاتوو، وكيفية استخدامها، والخيارات المتاحة لك. باستخدامك لێهاتوو، فإنك توافق على الممارسات الموضحة هنا.",
         privacy_sections: [
           { title: "المعلومات التي نجمعها", body: "بيانات الحساب (البريد الإلكتروني، كلمة المرور، الدور)؛ معلومات الملف الشخصي (الاسم، الجامعة، التخصص، سنة التخرج، النبذة الشخصية، الروابط)؛ رقم الهاتف المستخدم فقط للتحقق من أنك مستخدم حقيقي ومخوّل؛ المهارات والسيرة الذاتية وصورة الملف الشخصي التي تختار رفعها؛ الرسائل التي ترسلها عبر المنصة؛ وبيانات الاستخدام الأساسية اللازمة لتشغيل الموقع." },
-          { title: "كيف نستخدم معلوماتك", body: "لإنشاء حسابك وإدارته؛ لمطابقة ملفات الطلاب مع الوظائف والشركات المناسبة؛ للتحقق من هويتك عبر رمز لمرة واحدة يُرسل بالبريد الإلكتروني أو الرسائل النصية؛ لإرسال إشعارات داخل التطبيق وعبر البريد الإلكتروني حول الطلبات والرسائل وتحديثات الحساب؛ وللرد على طلبات الدعم." },
+          { title: "كيف نستخدم معلوماتك", body: "لإنشاء حسابك وإدارته؛ لمطابقة ملفات المواهب مع الوظائف والشركات المناسبة؛ للتحقق من هويتك عبر رمز لمرة واحدة يُرسل بالبريد الإلكتروني أو الرسائل النصية؛ لإرسال إشعارات داخل التطبيق وعبر البريد الإلكتروني حول الطلبات والرسائل وتحديثات الحساب؛ وللرد على طلبات الدعم." },
           { title: "من يمكنه رؤية معلوماتك", body: "يمكن للشركات رؤية معلومات الملف الشخصي التي تختار إكمالها بمجرد تفعيل حسابك. نحن لا نبيع بياناتك الشخصية. عدد محدود من مزودي الخدمة الموثوقين - خدمة إرسال البريد الإلكتروني، ومزود الرسائل النصية/رمز التحقق، وتسجيل الدخول عبر جوجل/لينكدإن، ومزود استضافة قاعدة البيانات - يعالجون البيانات فقط لمساعدتنا في تشغيل المنصة، وبالقدر اللازم فقط." },
-          { title: "أمن البيانات", body: "يتم تخزين كلمات المرور مشفرة، ولا تُحفظ أبداً كنص عادي. الوصول إلى المنصة يخضع للتحكم عبر مصادقة قائمة على الرموز، والوصول الإداري لبيانات الطلاب والشركات مقتصر على فريق لێهاتوو." },
+          { title: "أمن البيانات", body: "يتم تخزين كلمات المرور مشفرة، ولا تُحفظ أبداً كنص عادي. الوصول إلى المنصة يخضع للتحكم عبر مصادقة قائمة على الرموز، والوصول الإداري لبيانات المواهب والشركات مقتصر على فريق لێهاتوو." },
           { title: "حقوقك", body: "يمكنك مراجعة وتحديث معظم معلومات ملفك الشخصي مباشرة من لوحة التحكم الخاصة بك في أي وقت. لطلب نسخة من بياناتك، أو تصحيحها، أو حذف حسابك بالكامل، تواصل معنا عبر التفاصيل الموجودة في صفحة اتصل بنا." },
-          { title: "لمن هذه الخدمة", body: "صُممت لێهاتوو لطلاب الجامعات والخريجين وأصحاب العمل. وهي غير موجهة للأطفال، ونحن لا نجمع عمداً بيانات من أي شخص دون سن 16 عاماً." },
+          { title: "لمن هذه الخدمة", body: "صُممت لێهاتوو لمواهب الجامعات والخريجين وأصحاب العمل. وهي غير موجهة للأطفال، ونحن لا نجمع عمداً بيانات من أي شخص دون سن 16 عاماً." },
           { title: "تغييرات على هذه السياسة", body: "قد نقوم بتحديث هذه السياسة مع تطور المنصة. استمرارك في استخدام لێهاتوو بعد أي تغيير يعني موافقتك على السياسة المحدثة." }
         ],
         terms_intro: "تحكم شروط الخدمة هذه استخدامك لمنصة لێهاتوو. يرجى قراءتها بعناية قبل إنشاء حساب.",
         terms_sections: [
           { title: "قبول الشروط", body: "بإنشائك حساباً أو استخدامك لێهاتوو، فإنك توافق على شروط الخدمة هذه وسياسة الخصوصية الخاصة بنا." },
-          { title: "من يمكنه استخدام لێهاتوو", body: "لێهاتوو مخصصة للطلاب والخريجين الباحثين عن فرص عمل، ولممثلي الشركات الراغبين في توظيف المواهب. يجب عليك تقديم معلومات دقيقة عند التسجيل." },
-          { title: "تسجيل الحساب والتحقق", body: "يتحقق الطلاب من حسابهم عبر رمز لمرة واحدة يُرسل إلى بريدهم الإلكتروني أو هاتفهم. تخضع حسابات الشركات (HR) لمراجعة وموافقة من قبل مسؤولينا قبل أن تتمكن من نشر الوظائف أو تصفح ملفات الطلاب، للحفاظ على موثوقية المنصة." },
+          { title: "من يمكنه استخدام لێهاتوو", body: "لێهاتوو مخصصة للمواهب والخريجين الباحثين عن فرص عمل، ولممثلي الشركات الراغبين في توظيف المواهب. يجب عليك تقديم معلومات دقيقة عند التسجيل." },
+          { title: "تسجيل الحساب والتحقق", body: "يتحقق المواهب من حسابهم عبر رمز لمرة واحدة يُرسل إلى بريدهم الإلكتروني أو هاتفهم. تخضع حسابات الشركات (HR) لمراجعة وموافقة من قبل مسؤولينا قبل أن تتمكن من نشر الوظائف أو تصفح ملفات المواهب، للحفاظ على موثوقية المنصة." },
           { title: "الاستخدام المقبول", body: "توافق على عدم إنشاء ملفات شخصية وهمية، أو انتحال شخصية شخص آخر، أو نشر إعلانات وظائف احتيالية أو مضللة، أو استخراج بيانات المنصة أو إساءة استخدامها، أو مضايقة المستخدمين الآخرين عبر الرسائل أو الطلبات." },
           { title: "محتواك", body: "تحتفظ بملكية المحتوى الذي ترفعه - سيرتك الذاتية وصورتك ونبذتك وروابط أعمالك. برفعك لهذا المحتوى، فإنك تمنح لێهاتوو ترخيصاً محدوداً لعرضه للمستخدمين الآخرين كجزء من التشغيل العادي للمنصة (مثل عرض ملفك الشخصي للشركات)." },
-          { title: "إعلانات الوظائف والطلبات", body: "لێهاتوو منصة تربط بين الطلاب وأصحاب العمل - نحن لا نضمن الحصول على وظيفة، أو نتائج المقابلات، أو دقة أي إعلان وظيفي. الشركات هي المسؤولة الوحيدة عن الإعلانات التي تنشرها وقراراتها التوظيفية." },
+          { title: "إعلانات الوظائف والطلبات", body: "لێهاتوو منصة تربط بين المواهب وأصحاب العمل - نحن لا نضمن الحصول على وظيفة، أو نتائج المقابلات، أو دقة أي إعلان وظيفي. الشركات هي المسؤولة الوحيدة عن الإعلانات التي تنشرها وقراراتها التوظيفية." },
           { title: "تعليق الحساب وإنهاؤه", body: "يجوز لنا تعليق أو إزالة أي حساب ينتهك هذه الشروط، بما في ذلك الحسابات الوهمية، أو إعلانات الوظائف الاحتيالية، أو السلوك المسيء." },
           { title: "حدود المسؤولية", body: "تُقدَّم لێهاتوو \"كما هي\". نحن غير مسؤولين عن قرارات التوظيف التي تتخذها الشركات، أو دقة المحتوى الذي ينشره مستخدمون آخرون، أو أي أضرار غير مباشرة ناتجة عن استخدامك للمنصة." },
           { title: "تغييرات على هذه الشروط", body: "قد نقوم بتحديث هذه الشروط من وقت لآخر. استمرارك في استخدام لێهاتوو بعد أي تغيير يعني موافقتك على الشروط المحدثة." }
@@ -660,6 +770,8 @@ const resources = {
         supervisor_specialization: "التخصص: الفسلجة الجزيئية",
         supervisor_contact_note: "يرجى التواصل عبر البريد الإلكتروني فقط.",
         team_heading: "فريق التطوير",
+        team_ahmed_degree: "ماجستير في علوم الحاسوب، تخصص دقيق في الذكاء الاصطناعي",
+        team_soran_degree: "ماجستير في علوم الحاسوب، تخصص دقيق في إنترنت الأشياء",
         email_label: "البريد الإلكتروني",
         phone_label: "الهاتف",
         scholar_label: "گوگل سکولار",
@@ -675,9 +787,9 @@ const resources = {
         or: "أو",
         google: "المتابعة باستخدام جوجل",
         linkedin: "المتابعة باستخدام لينكدإن",
-        success: "تم تسجيل الدخول بنجاح! 🎉",
-        google_success: "تم تسجيل الدخول عبر جوجل بنجاح! 🎉",
-        linkedin_success: "تم تسجيل الدخول عبر لينكدإن بنجاح! 🎉",
+        success: "تم تسجيل الدخول بنجاح!",
+        google_success: "تم تسجيل الدخول عبر جوجل بنجاح!",
+        linkedin_success: "تم تسجيل الدخول عبر لينكدإن بنجاح!",
         error_default: "فشل تسجيل الدخول. حاول مرة أخرى.",
         error_google: "فشلت المصادقة عبر جوجل. حاول مرة أخرى.",
         error_google_cancel: "تم إلغاء تسجيل الدخول عبر جوجل أو فشل.",
@@ -685,18 +797,18 @@ const resources = {
       },
 
       register: {
-        title: "تسجيل الطلاب",
+        title: "تسجيل المواهب",
         email_placeholder: "البريد الإلكتروني",
         phone_placeholder: "رقم الهاتف (مثال: 964 750 123 4567+)",
         password_placeholder: "كلمة المرور",
         submit: "تسجيل",
         password_error: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف كبير، ورقم، ورمز خاص.",
-        success: "تم التسجيل بنجاح! 🎉 الرجاء تسجيل الدخول.",
+        success: "تم التسجيل بنجاح! الرجاء تسجيل الدخول.",
         error_default: "فشل التسجيل. حاول مرة أخرى.",
         or: "أو",
         google: "المتابعة باستخدام جوجل",
         linkedin: "المتابعة باستخدام لينكدإن",
-        google_success: "تم التحقق عبر جوجل بنجاح! 🎉",
+        google_success: "تم التحقق عبر جوجل بنجاح!",
         error_google: "فشلت المصادقة عبر جوجل. حاول مرة أخرى.",
         error_google_cancel: "تم إلغاء تسجيل الدخول عبر جوجل أو فشل."
       },
@@ -743,7 +855,7 @@ const resources = {
         step3_desc: "أنشئ كلمة مرور جديدة وقوية.",
         new_password_placeholder: "كلمة المرور الجديدة",
         reset_password: "إعادة تعيين كلمة المرور",
-        back_to_login: "→ العودة لتسجيل الدخول",
+        back_to_login: "العودة لتسجيل الدخول",
         password_error: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف كبير، ورقم، ورمز خاص.",
         error_send: "فشل إرسال الرمز. حاول مرة أخرى.",
         error_verify: "الرمز غير صحيح أو منتهي الصلاحية.",
@@ -751,7 +863,7 @@ const resources = {
       },
 
       studentDashboard: {
-        heading: "🎓 لوحة تحكم الطالب",
+        heading: "لوحة تحكم الموهبة",
         loading: "جاري تحميل لوحة التحكم...",
         welcome_create: "مرحباً! الرجاء إكمال ملفك الشخصي للمتابعة.",
         welcome_update: "حدّث بياناتك أدناه:",
@@ -815,7 +927,7 @@ const resources = {
       },
 
       hrDashboard: {
-        heading: "🏢 لوحة تحكم الشركة",
+        heading: "لوحة تحكم الشركة",
         loading: "جاري تحميل لوحة التحكم...",
         status_label: "الحالة",
         industry_label: "المجال",
@@ -844,7 +956,7 @@ const resources = {
         delete: "حذف",
         no_applicants: "لا يوجد متقدمون بعد.",
         view_cv: "عرض السيرة الذاتية",
-        phone_unverified_hint: "قدّمه الطالب عند التسجيل، ولم يتم التحقق منه بشكل مستقل.",
+        phone_unverified_hint: "قدّمه الموهبة عند التسجيل، ولم يتم التحقق منه بشكل مستقل.",
         error_load: "فشل تحميل الملف الشخصي.",
         error_save: "فشل حفظ الملف الشخصي.",
         error_delete: "فشل حذف إعلان الوظيفة.",
@@ -888,7 +1000,7 @@ const resources = {
         success: "تم نشر الوظيفة بنجاح! مرر للأسفل لإيجاد المرشحين.",
         error_default: "فشل نشر الوظيفة.",
         matching_heading: "الخطوة 2: إيجاد أفضل المرشحين",
-        matching_desc: "سيقوم النظام بفحص ملفات الطلاب بناءً على المهارات المطلوبة التي حددتها أعلاه.",
+        matching_desc: "سيقوم النظام بفحص ملفات المواهب بناءً على المهارات المطلوبة التي حددتها أعلاه.",
         run_matching: "تشغيل محرك المطابقة",
         scanning: "جاري فحص قاعدة البيانات...",
         top_recommendations: "أفضل الترشيحات",
@@ -920,7 +1032,7 @@ const resources = {
       },
 
       jobDetail: {
-        back: "→ العودة إلى الوظائف",
+        back: "العودة إلى الوظائف",
         loading: "جاري تحميل الوظيفة...",
         not_found: "تعذر العثور على هذه الوظيفة.",
         section_summary: "عن الوظيفة",
@@ -947,17 +1059,17 @@ const resources = {
         application_submitted: "تم إرسال طلبك!",
         error_apply_default: "فشل التقديم.",
         login_prompt: "للتقدم لهذه الوظيفة.",
-        login_link: "سجّل الدخول كطالب"
+        login_link: "سجّل الدخول كموهبة"
       },
 
 
       skillMatch: {
         heading: "تطابق المهارات",
-        subtitle: "اكتشف الطلاب حسب التخصص والمهارة. اعثر على أقرب زملائك، أو المرشح المناسب للوظيفة.",
+        subtitle: "اكتشف المواهب حسب التخصص والمهارة. اعثر على أقرب زملائك، أو المرشح المناسب للوظيفة.",
         recommended_heading: "موصى به لك",
-        recommended_empty: "أضف بعض المهارات إلى ملفك الشخصي لرؤية طلاب مشابهين لك.",
+        recommended_empty: "أضف بعض المهارات إلى ملفك الشخصي لرؤية مواهب مشابهين لك.",
         similarity_label: "نسبة التشابه",
-        browse_heading: "تصفح وفرز الطلاب",
+        browse_heading: "تصفح وفرز المواهب",
         search_placeholder: "ابحث بالاسم، الجامعة، أو مهارة مخصصة...",
         subject_area_label: "المجال العام",
         subject_area_all: "جميع المجالات",
@@ -967,19 +1079,19 @@ const resources = {
         skills_label: "المهارات",
         skills_prompt: "اختر تخصصاً لاختيار مهارات محددة",
         clear_filters: "مسح الفلاتر",
-        no_results: "لا يوجد طلاب مطابقون لهذه الفلاتر بعد.",
+        no_results: "لا يوجد مواهب مطابقون لهذه الفلاتر بعد.",
         match_label: "التطابق",
         view_profile: "عرض الملف الشخصي",
         message_button: "رسالة",
         shared_skills_label: "المهارات المشتركة",
-        loading: "جاري تحميل الطلاب...",
-        error_load: "فشل تحميل الطلاب."
+        loading: "جاري تحميل المواهب...",
+        error_load: "فشل تحميل المواهب."
       },
 
       studentProfile: {
         loading: "جاري تحميل الملف الشخصي...",
         not_found: "تعذر العثور على هذا الملف الشخصي.",
-        back: "→ رجوع",
+        back: "رجوع",
         skills_heading: "المهارات والخبرات",
         no_skills: "لم تتم إضافة أي مهارات بعد.",
         custom_label: "(مخصصة)",
@@ -987,7 +1099,7 @@ const resources = {
         message_placeholder: "اكتب رسالة...",
         send: "إرسال الرسالة",
         sent: "تم إرسال الرسالة!",
-        login_prompt: "لمراسلة هذا الطالب.",
+        login_prompt: "لمراسلة هذا الموهبة.",
         login_link: "سجّل الدخول",
         own_profile_note: "هذا ملفك الشخصي.",
         error_send: "فشل إرسال الرسالة."
@@ -995,7 +1107,7 @@ const resources = {
 
       messages: {
         heading: "الرسائل",
-        no_conversations: "لا توجد محادثات بعد. قم بزيارة صفحة تطابق المهارات للتواصل مع طلاب آخرين.",
+        no_conversations: "لا توجد محادثات بعد. قم بزيارة صفحة تطابق المهارات للتواصل مع مواهب آخرين.",
         select_conversation: "اختر محادثة لبدء الدردشة.",
         back_to_list: "العودة إلى المحادثات",
         unread_badge: "جديد",
@@ -1032,13 +1144,21 @@ const resources = {
         about: "دەربارەمان",
         me: "من",
         login: "چوونە ژوورەوە",
-        student_signup: "خۆتۆمارکردنی قوتابی",
+        explore: "گەڕان",
+        contact: "پەیوەندیمان پێوە بکە",
+        signup: "خۆتۆمارکردن",
+        primary: "ڕێنیشاندەری سەرەکی",
+        language: "زمان",
+        open_menu: "کردنەوەی لیست",
+        close_menu: "داخستنی لیست",
+        student_signup: "خۆتۆمارکردنی بەهرەمەند",
         company_signup: "خۆتۆمارکردنی کۆمپانیا"
       },
 
       accountBlock: {
         banned: "ئەم هەژمارە قەدەغە کراوە.",
         deleted: "ئەم هەژمارە سڕاوەتەوە.",
+        password_changed: "وشەی نهێنیەکەت گۆڕدرا. تکایە دووبارە بچۆرە ژوورەوە.",
         suspended: "ئەم هەژمارە ڕاگیراوە.",
         suspended_until: "ئەم هەژمارە تا {{until}} ڕاگیراوە.",
         reason: "هۆکار: {{reason}}"
@@ -1065,11 +1185,57 @@ const resources = {
         logout: "چوونە دەرەوە"
       },
 
+      signup: {
+        heading: "بەشداربە لە لێهاتوو",
+        subtitle: "ئەو ڕێگایە هەڵبژێرە کە لەگەڵت دەگونجێت. دواتر دەتوانیت ئەوی تر زیاد بکەیت.",
+        talent_title: "من بەهرەمەندم",
+        talent_body: "بەهرەمەندان و دەرچووان کە پرۆفایلێک دروست دەکەن کە دەریدەخات چی دەتوانن.",
+        talent_point_1: "پرۆفایلێکی بنەما‌توانا کە خاوەنکاران دەتوانن بگەڕێن بەدوایدا",
+        talent_point_2: "کارەکان ڕیزدەکرێن بەپێی ئەوەی چەند لە تواناکانیانت هەیە",
+        talent_point_3: "خولەکانی ئەو تواناییانەی کە کەمتە",
+        talent_cta: "خۆتۆمارکردن وەک بەهرەمەند",
+        company_title: "ئێمە دامەزراندن دەکەین",
+        company_body: "کۆمپانیا و ڕێکخراوەکان کە بەدوای بەهرەمەنددا دەگەڕێن لە هەرێمی کوردستان و عێراق.",
+        company_point_1: "کارێک بڵاو بکەرەوە و داواکاران بەپێی گونجانی توانا ڕیزدەکرێن",
+        company_point_2: "بگەڕێ بەناو پرۆفایلەکاندا بەپێی بواری خوێندن و توانا",
+        company_point_3: "بانگهێشتی کەسە گونجاوەکان بکە بۆ داواکردن",
+        company_cta: "خۆتۆمارکردن وەک کۆمپانیا",
+        instructor_prompt: "خولێک فێر دەکەیت؟",
+        instructor_link: "وەک مامۆستا داوا بکە",
+        have_account: "پێشتر هەژمارت هەیە؟"
+      },
+
+      cv: {
+        opening: "دەکرێتەوە...",
+        error_open: "نەتوانرا ئەم ژیاننامەیە بکرێتەوە. تکایە دووبارە هەوڵ بدە."
+      },
+
+      hero: {
+        carousel_label: "دیارترینەکانی لێهاتوو",
+        previous: "سلایدی پێشوو",
+        next: "سلایدی دواتر",
+        go_to_slide: "بڕۆ بۆ سلایدی {{number}}",
+        search_placeholder: "بگەڕێ بەدوای کار، توانا، بەهرەمەند، یان زانکۆ",
+        search_button: "گەڕان",
+        slide1: {
+          heading: "لەکوێ بەهرەی ئەکادیمی دەگاتە دەرفەت",
+          subtext: "پەیوەندیکردنی بەهرەمەندان و خاوەنکاران لە هەرێمی کوردستان و عێراق."
+        },
+        slide2: {
+          heading: "پرۆفایلەکەت دروست بکە. با ببینرێیت.",
+          subtext: "پرۆفایلەکەت دروست بکە و با کۆمپانیاکان بەپێی تواناکانت بتدۆزنەوە."
+        },
+        slide3: {
+          heading: "هەموو دەرفەتێک، لە یەک شوێندا",
+          subtext: "بگەڕێ بەدوای ئەو پۆستانەی بەپێی توانا و بواری خوێندنت ڕیزکراون."
+        }
+      },
+
       home: {
         title: "پیشانگای بەهرەمەندانی لێهاتوو",
-        subtitle: "باشترین قوتابیانی بەهرەمەند لە هەموو بوارەکانی خوێندن بدۆزەرەوە.",
-        no_students: "هیچ پرۆفایلێکی قوتابی نەدۆزرایەوە. یەکەم کەس بە خۆت تۆمار بکە!",
-        error_load: "باردکردنی پێڕستی قوتابیان سەرنەکەوت.",
+        subtitle: "باشترین بەهرەمەندان لە هەموو بوارەکانی خوێندن بدۆزەرەوە.",
+        no_students: "هیچ پرۆفایلێکی بەهرەمەند نەدۆزرایەوە. یەکەم کەس بە خۆت تۆمار بکە!",
+        error_load: "باردکردنی پێڕستی بەهرەمەندان سەرنەکەوت.",
         loading: "پڕۆفایلەکان باردەکرێن...",
         uni: "زانکۆ",
         major: "پسپۆڕی",
@@ -1077,24 +1243,24 @@ const resources = {
         more: "زیاتر",
         previous: "پێشوو",
         next: "دواتر",
-        search_placeholder: "بگەڕێ بەدوای قوتابی، زانکۆ، توانا، یان کاردا...",
+        search_placeholder: "بگەڕێ بەدوای بەهرەمەند، زانکۆ، توانا، یان کاردا...",
         searching: "گەڕان...",
         results_for: "ئەنجامەکانی \"{{query}}\"",
         clear_search: "سڕینەوەی گەڕان",
-        students_heading: "قوتابیان",
+        students_heading: "بەهرەمەندان",
         jobs_heading: "کارەکان",
-        no_results: "هیچ قوتابی یان کارێک لەگەڵ گەڕانەکەت ناگونجێت.",
-        recent_students_heading: "دوایین قوتابیانی چوونەتە ئەندام",
+        no_results: "هیچ بەهرەمەند یان کارێک لەگەڵ گەڕانەکەت ناگونجێت.",
+        recent_students_heading: "دوایین بەهرەمەندانی بوونەتە ئەندام",
         recent_jobs_heading: "دوایین هەلی کار",
         no_recent_jobs: "هێشتا هیچ کارێکی چالاک نییە.",
-        view_all_jobs: "بینینی هەموو کارەکان ←"
+        view_all_jobs: "بینینی هەموو کارەکان"
       },
 
       footer: {
-        desc: "بەستنەوەی باشترین بەهرەمەندانی قوتابی لە هەموو بوارەکانی خوێندن بە کۆمپانیا داهێنەرەکان. پرۆفایلەکەت دروست بکە، تواناکانت نیشان بدە، و دابمەزرێ.",
+        desc: "بەستنەوەی باشترین بەهرەمەندان لە هەموو بوارەکانی خوێندن بە کۆمپانیا داهێنەرەکان. پرۆفایلەکەت دروست بکە، تواناکانت نیشان بدە، و دابمەزرێ.",
         platform: "پلاتفۆرم",
         browse_talent: "گەڕان بەدوای بەهرەمەندان",
-        for_students: "بۆ قوتابیان",
+        for_students: "بۆ بەهرەمەندان",
         for_companies: "بۆ کۆمپانیاکان",
         legal_support: "یاسایی و پاڵپشتی",
         privacy_policy: "سیاسەتی تایبەتێتی",
@@ -1105,18 +1271,18 @@ const resources = {
 
       aboutUs: {
         title: "دەربارەی لێهاتوو",
-        subtitle: "بەستنەوەی بەهرەمەندانی قوتابیانی کوردستان، لە هەموو بوارەکانی خوێندن، بەو کۆمپانیایانەی ئامادەن بۆ دامەزراندنیان.",
+        subtitle: "بەستنەوەی بەهرەمەندانانی کوردستان، لە هەموو بوارەکانی خوێندن، بەو کۆمپانیایانەی ئامادەن بۆ دامەزراندنیان.",
         mission_title: "ئەرکمان",
-        mission_body: "لێهاتوو دامەزراوە بۆ داخستنی بۆشایی نێوان دەرچووان و بازاڕی کاری ناوخۆیی. پرۆفایلێکی ڕاستەقینەی لەسەر بنەمای تواناکان بە قوتابیان دەدەین لە جیاتی سیڤییەکی ئاسایی، و ڕێگایەکی خێرا بە کۆمپانیاکان دەدەین بۆ دۆزینەوەی کاندیدە گونجاوەکان.",
+        mission_body: "لێهاتوو دامەزراوە بۆ داخستنی بۆشایی نێوان دەرچووان و بازاڕی کاری ناوخۆیی. پرۆفایلێکی ڕاستەقینەی لەسەر بنەمای تواناکان بە بەهرەمەندان دەدەین لە جیاتی سیڤییەکی ئاسایی، و ڕێگایەکی خێرا بە کۆمپانیاکان دەدەین بۆ دۆزینەوەی کاندیدە گونجاوەکان.",
         what_title: "ئەوەی ئێمە دەیکەین",
-        what_body: "لێهاتوو پلاتفۆرمێکی بەهرەمەندیی سێزمانییە (ئینگلیزی، عەرەبی، کوردیی سۆرانی). قوتابیان پرۆفایلی خۆیان لە کاتالۆگێکی ڕێکخراوی بواری خوێندن و تواناکان دروست دەکەن، سیڤییان بار دەکەن، و ڕاستەوخۆ بۆ کار داوا دەکەن. کۆمپانیاکانیش کار بڵاو دەکەنەوە، بەدوای ڕیزی قوتابیاندا دەگەڕێن، و کاندیدی ڕیزبەندیکراو بەپێی گونجانی تواناکان وەردەگرن.",
-        students_title: "بۆ قوتابیان",
+        what_body: "لێهاتوو پلاتفۆرمێکی بەهرەمەندیی سێزمانییە (ئینگلیزی، عەرەبی، کوردیی سۆرانی). بەهرەمەندان پرۆفایلی خۆیان لە کاتالۆگێکی ڕێکخراوی بواری خوێندن و تواناکان دروست دەکەن، سیڤییان بار دەکەن، و ڕاستەوخۆ بۆ کار داوا دەکەن. کۆمپانیاکانیش کار بڵاو دەکەنەوە، بەدوای ڕیزی بەهرەمەنداندا دەگەڕێن، و کاندیدی ڕیزبەندیکراو بەپێی گونجانی تواناکان وەردەگرن.",
+        students_title: "بۆ بەهرەمەندان",
         students_body: "پرۆفایلەکەت دروست بکە، بواری خوێندن و تواناکانت هەڵبژێرە (یان تواناتی خۆت زیاد بکە کە پێداچوونەوەی بەڕێوەبەرایەتی پێویستە)، سیڤییەکەت هەڵبواسە، و بە چەند کرتەیەک داوای کار بکە. ئەندامی گونجاندنی تواناش یارمەتیت دەدات هاوپۆلانی خۆت بدۆزیتەوە بۆ فێربوون یان هاوکاری.",
         companies_title: "بۆ کۆمپانیاکان",
-        companies_body: "یەک کار بڵاو بکەرەوە و داواکارەکان بەشێوەیەکی خۆکار بەپێی گونجانی تواناکانیان لەگەڵ پێداویستییەکانت ڕیزبەند وەربگرە، یان بەدوای هەموو ڕیزی قوتابیاندا بگەڕێ بەپێی بواری خوێندن، زانکۆ، یان تواناکانی دیاریکراو. هەموو هەژماری کۆمپانیایەک پێش چالاککردن لەلایەن تیمەکەمانەوە پێداچوونەوەی بۆ دەکرێت.",
+        companies_body: "یەک کار بڵاو بکەرەوە و داواکارەکان بەشێوەیەکی خۆکار بەپێی گونجانی تواناکانیان لەگەڵ پێداویستییەکانت ڕیزبەند وەربگرە، یان بەدوای هەموو ڕیزی بەهرەمەنداندا بگەڕێ بەپێی بواری خوێندن، زانکۆ، یان تواناکانی دیاریکراو. هەموو هەژماری کۆمپانیایەک پێش چالاککردن لەلایەن تیمەکەمانەوە پێداچوونەوەی بۆ دەکرێت.",
         goal_title: "بەرەو کوێ دەڕۆین",
         goal_body: "کاردەکەین بۆ دروستکردنی پلاتفۆرمێک کە دامەزراندنی دەرچووانی زانکۆ لە کوردستان خێراتر و دادپەروەرانەتر بکات، پشتبەستوو بە تواناکانی ڕاستەقینە و پشتڕاستکراوە - نەک تەنها بە ناسینی کەسانە.",
-        stat_students: "قوتابی تۆمارکراو",
+        stat_students: "بەهرەمەند تۆمارکراو",
         stat_companies: "کۆمپانیا",
         stat_jobs: "کاری چالاک"
       },
@@ -1129,21 +1295,21 @@ const resources = {
         privacy_intro: "ئەم سیاسەتی تایبەتێتییە ڕوون دەکاتەوە کە لێهاتوو چ زانیارییەک کۆدەکاتەوە، چۆن بەکاریان دەهێنێت، و چ هەڵبژاردنێکت هەیە. بەکارهێنانی لێهاتوو واتای ڕازیبوونە لەسەر ئەو ڕێوشوێنانەی لێرە باسکراون.",
         privacy_sections: [
           { title: "ئەو زانیاریانەی کۆیان دەکەینەوە", body: "زانیاری هەژمار (ئیمەیل، وشەی نهێنی، ڕۆڵ)؛ زانیاری پرۆفایل (ناو، زانکۆ، بواری خوێندن، ساڵی دەرچوون، بایۆگرافیا، بەستەرەکان)؛ ژمارەی مۆبایل کە تەنها بۆ پشتڕاستکردنەوەی ئەوە بەکاردێت کە تۆ بەکارهێنەرێکی ڕاستەقینە و مۆڵەتپێدراویت؛ توانا، سیڤی، و وێنەی پرۆفایل کە تۆ هەڵدەبژێریت بارییان بکەیت؛ پەیامەکانت لە ڕێگەی پلاتفۆرمەکەوە؛ و داتای بنەڕەتی بەکارهێنان کە بۆ کارپێکردنی ماڵپەڕ پێویستە." },
-          { title: "چۆن زانیارییەکانت بەکاردەهێنین", body: "بۆ دروستکردن و بەڕێوەبردنی هەژمارەکەت؛ بۆ گونجاندنی پرۆفایلی قوتابیان لەگەڵ کار و کۆمپانیای گونجاو؛ بۆ پشتڕاستکردنەوەی ناسنامەکەت بە کۆدێکی یەک جارە کە بە ئیمەیل یان نامەی نووسراو دەنێردرێت؛ بۆ ناردنی ئاگادارکردنەوە لەناو ئەپەکە و بە ئیمەیل دەربارەی داواکاری، پەیام، و نوێکردنەوەی هەژمار؛ و بۆ وەڵامدانەوەی داواکاری پشتگیری." },
+          { title: "چۆن زانیارییەکانت بەکاردەهێنین", body: "بۆ دروستکردن و بەڕێوەبردنی هەژمارەکەت؛ بۆ گونجاندنی پرۆفایلی بەهرەمەندان لەگەڵ کار و کۆمپانیای گونجاو؛ بۆ پشتڕاستکردنەوەی ناسنامەکەت بە کۆدێکی یەک جارە کە بە ئیمەیل یان نامەی نووسراو دەنێردرێت؛ بۆ ناردنی ئاگادارکردنەوە لەناو ئەپەکە و بە ئیمەیل دەربارەی داواکاری، پەیام، و نوێکردنەوەی هەژمار؛ و بۆ وەڵامدانەوەی داواکاری پشتگیری." },
           { title: "کێ دەتوانێت زانیارییەکانت ببینێت", body: "کۆمپانیاکان دەتوانن زانیاری پرۆفایلێک ببینن کە تۆ هەڵدەبژێریت تەواوی بکەیت کاتێک هەژمارەکەت چالاکە. ئێمە داتای تایبەتیت نافرۆشین. ژمارەیەکی کەم لە دابینکەری خزمەتگوزاری متمانەپێکراو - خزمەتگوزاری ناردنی ئیمەیل، دابینکەری نامەی نووسراو/کۆدی پشتڕاستکردنەوە، چوونەژوورەوە بە گووگڵ/لینکدئین، و دابینکەری هۆستکردنی بنکەدراوە - داتا پرۆسێس دەکەن تەنها بۆ یارمەتیدانمان لە کارپێکردنی پلاتفۆرمەکە." },
-          { title: "ئاسایشی داتا", body: "وشەی نهێنی بە شێوەی کۆدکراو هەڵدەگیرێت، هەرگیز وەک دەقی ئاسایی نا. دەستگەیشتن بۆ پلاتفۆرمەکە بە دڵنیاییەوە کۆنترۆڵ دەکرێت، و دەستگەیشتنی بەڕێوەبەرایەتی بۆ داتای قوتابیان و کۆمپانیاکان تەنها بۆ تیمی لێهاتوو سنووردارە." },
+          { title: "ئاسایشی داتا", body: "وشەی نهێنی بە شێوەی کۆدکراو هەڵدەگیرێت، هەرگیز وەک دەقی ئاسایی نا. دەستگەیشتن بۆ پلاتفۆرمەکە بە دڵنیاییەوە کۆنترۆڵ دەکرێت، و دەستگەیشتنی بەڕێوەبەرایەتی بۆ داتای بەهرەمەندان و کۆمپانیاکان تەنها بۆ تیمی لێهاتوو سنووردارە." },
           { title: "مافەکانت", body: "دەتوانیت زۆربەی زانیاری پرۆفایلەکەت ڕاستەوخۆ لە داشبۆردەکەتەوە لە هەر کاتێکدا پێداچوونەوەی بۆ بکەیت و نوێی بکەیتەوە. بۆ داواکردنی کۆپیایەک لە داتاکەت، ڕاستکردنەوەی، یان سڕینەوەی تەواوی هەژمارەکەت، پەیوەندیمان پێوە بکە لە ڕێگەی زانیارییەکانی لاپەڕەی پەیوەندی." },
-          { title: "ئەم خزمەتگوزارییە بۆ کێیە", body: "لێهاتوو بۆ قوتابیانی زانکۆ، دەرچووان، و کارفەرمووەکان دروستکراوە. ئاراستەی منداڵان نییە، و ئێمە بەئاگایانە داتا لە کەسێکی خوارەوەی ١٦ ساڵ کۆناکەینەوە." },
+          { title: "ئەم خزمەتگوزارییە بۆ کێیە", body: "لێهاتوو بۆ بەهرەمەندانی زانکۆ، دەرچووان، و کارفەرمووەکان دروستکراوە. ئاراستەی منداڵان نییە، و ئێمە بەئاگایانە داتا لە کەسێکی خوارەوەی ١٦ ساڵ کۆناکەینەوە." },
           { title: "گۆڕانکاری لەسەر ئەم سیاسەتە", body: "لەگەڵ گەشەکردنی پلاتفۆرمەکە لەوانەیە ئەم سیاسەتە نوێ بکەینەوە. بەردەوامبوون لە بەکارهێنانی لێهاتوو دوای گۆڕانکارییەک واتای ڕازیبوونە لەسەر سیاسەتی نوێکراوە." }
         ],
         terms_intro: "ئەم مەرجەکانی خزمەتگوزارییە بەکارهێنانی تۆ بۆ لێهاتوو ڕێکدەخات. تکایە پێش دروستکردنی هەژمار بە وردی بیانخوێنەرەوە.",
         terms_sections: [
           { title: "ڕازیبوون بە مەرجەکان", body: "بە دروستکردنی هەژمار یان بەکارهێنانی لێهاتوو، تۆ ڕازیت بەم مەرجەکانی خزمەتگوزاری و سیاسەتی تایبەتێتیمان." },
-          { title: "کێ دەتوانێت لێهاتوو بەکاربهێنێت", body: "لێهاتوو بۆ قوتابیان و دەرچووانی بەدوای هەلی کاردا گەڕان، و بۆ نوێنەرانی کۆمپانیا کە دەیانەوێت بەهرەمەند دامەزرێنن دروستکراوە. دەبێت لە کاتی تۆمارکردندا زانیاری ڕاست پێشکەش بکەیت." },
-          { title: "تۆمارکردنی هەژمار و پشتڕاستکردنەوە", body: "قوتابیان هەژمارەکەیان بە کۆدێکی یەک جارە کە بۆ ئیمەیل یان مۆبایلیان دەنێردرێت پشتڕاست دەکەنەوە. هەژماری کۆمپانیا (HR) پێش ئەوەی بتوانێت کار بڵاو بکاتەوە یان پرۆفایلی قوتابیان ببینێت، لەلایەن بەڕێوەبەرانمانەوە پێداچوونەوەی بۆ دەکرێت و پەسەند دەکرێت، بۆ پاراستنی متمانەپێکراوی پلاتفۆرمەکە." },
+          { title: "کێ دەتوانێت لێهاتوو بەکاربهێنێت", body: "لێهاتوو بۆ بەهرەمەندان و دەرچووانی بەدوای هەلی کاردا گەڕان، و بۆ نوێنەرانی کۆمپانیا کە دەیانەوێت بەهرەمەند دامەزرێنن دروستکراوە. دەبێت لە کاتی تۆمارکردندا زانیاری ڕاست پێشکەش بکەیت." },
+          { title: "تۆمارکردنی هەژمار و پشتڕاستکردنەوە", body: "بەهرەمەندان هەژمارەکەیان بە کۆدێکی یەک جارە کە بۆ ئیمەیل یان مۆبایلیان دەنێردرێت پشتڕاست دەکەنەوە. هەژماری کۆمپانیا (HR) پێش ئەوەی بتوانێت کار بڵاو بکاتەوە یان پرۆفایلی بەهرەمەندان ببینێت، لەلایەن بەڕێوەبەرانمانەوە پێداچوونەوەی بۆ دەکرێت و پەسەند دەکرێت، بۆ پاراستنی متمانەپێکراوی پلاتفۆرمەکە." },
           { title: "بەکارهێنانی قبوڵکراو", body: "تۆ ڕازیت لەوەی پرۆفایلی ساختە دروست نەکەیت، خۆت لەجیاتی کەسێکی تر دانەنێیت، ڕیکلامی کاری ساختە یان چەواشەکار بڵاو نەکەیتەوە، داتای پلاتفۆرمەکە نەڕفێنیت یان ئاوا بەکاری نەهێنیت، یان بەکارهێنەرانی تر لە ڕێگەی پەیام یان داواکاریەوە نەئازار بدەیت." },
           { title: "ناوەڕۆکی تۆ", body: "خاوەندارێتی ئەو ناوەڕۆکەت دەمێنێتەوە کە بارتی دەکەیت - سیڤی، وێنە، بایۆگرافیا، و بەستەرەکانی کارەکانت. بە بارکردنی، تۆ مۆڵەتێکی سنووردار بە لێهاتوو دەدەیت بۆ نیشاندانی بۆ بەکارهێنەرانی تر وەک بەشێک لە کارپێکردنی ئاسایی پلاتفۆرمەکە (بۆ نموونە، نیشاندانی پرۆفایلەکەت بۆ کۆمپانیاکان)." },
-          { title: "ڕیکلامی کار و داواکاری", body: "لێهاتوو پلاتفۆرمێکە کە قوتابیان و کارفەرمووەکان بەیەکەوە دەبەستێتەوە - ئێمە دڵنیایی وەرگرتنی کار، ئەنجامی چاوپێکەوتن، یان ڕاستی هیچ ڕیکلامێکی کار ناکەین. کۆمپانیاکان بە تەنها بەرپرسیارن لەو ڕیکلامانەی بڵاویان دەکەنەوە و بڕیارەکانی دامەزراندنیان." },
+          { title: "ڕیکلامی کار و داواکاری", body: "لێهاتوو پلاتفۆرمێکە کە بەهرەمەندان و کارفەرمووەکان بەیەکەوە دەبەستێتەوە - ئێمە دڵنیایی وەرگرتنی کار، ئەنجامی چاوپێکەوتن، یان ڕاستی هیچ ڕیکلامێکی کار ناکەین. کۆمپانیاکان بە تەنها بەرپرسیارن لەو ڕیکلامانەی بڵاویان دەکەنەوە و بڕیارەکانی دامەزراندنیان." },
           { title: "ڕاگرتن و کۆتاییهێنان بە هەژمار", body: "لەوانەیە هەر هەژمارێک ڕابگرین یان لاببەین کە ئەم مەرجانە بشکێنێت، لەوانە هەژماری ساختە، ڕیکلامی کاری ساختە، یان هەڵسوکەوتی ئازاردەر." },
           { title: "سنووری بەرپرسیارێتی", body: "لێهاتوو \"وەک خۆی\" پێشکەش دەکرێت. ئێمە بەرپرسیار نین لە بڕیاری دامەزراندنی کۆمپانیاکان، ڕاستی ناوەڕۆکی بەکارهێنەرانی تر، یان زیانی ناڕاستەوخۆ کە لە بەکارهێنانی پلاتفۆرمەکەوە سەرچاوەی دەگرێت." },
           { title: "گۆڕانکاری لەسەر ئەم مەرجانە", body: "لەوانەیە هەندێک جار ئەم مەرجانە نوێ بکەینەوە. بەردەوامبوون لە بەکارهێنانی لێهاتوو دوای گۆڕانکارییەک واتای ڕازیبوونە لەسەر مەرجی نوێکراو." }
@@ -1159,6 +1325,8 @@ const resources = {
         supervisor_specialization: "پسپۆڕی: فیزیۆلۆجیای مۆلیکیولی",
         supervisor_contact_note: "تکایە تەنها لە ڕێگەی ئیمەیلەوە پەیوەندی بکە.",
         team_heading: "تیمی گەشەپێدان",
+        team_ahmed_degree: "ماستەر لە زانستی کۆمپیوتەر، پسپۆڕی ورد لە ژیری دەستکرد",
+        team_soran_degree: "ماستەر لە زانستی کۆمپیوتەر، پسپۆڕی ورد لە ئینتەرنێتی شتەکان",
         email_label: "ئیمەیل",
         phone_label: "مۆبایل",
         scholar_label: "گووگڵ سکۆلەر",
@@ -1174,9 +1342,9 @@ const resources = {
         or: "یان",
         google: "بەردەوامبوون بە گووگڵ",
         linkedin: "بەردەوامبوون بە لینکدئین",
-        success: "چوونە ژوورەوە سەرکەوتوو بوو! 🎉",
-        google_success: "چوونە ژوورەوە بە گووگڵ سەرکەوتوو بوو! 🎉",
-        linkedin_success: "چوونە ژوورەوە بە لینکدئین سەرکەوتوو بوو! 🎉",
+        success: "چوونە ژوورەوە سەرکەوتوو بوو!",
+        google_success: "چوونە ژوورەوە بە گووگڵ سەرکەوتوو بوو!",
+        linkedin_success: "چوونە ژوورەوە بە لینکدئین سەرکەوتوو بوو!",
         error_default: "چوونە ژوورەوە سەرنەکەوت. دووبارە هەوڵبدەرەوە.",
         error_google: "پشتڕاستکردنەوەی گووگڵ سەرنەکەوت. دووبارە هەوڵبدەرەوە.",
         error_google_cancel: "چوونە ژوورەوە بە گووگڵ هەڵوەشێنرایەوە یان سەرنەکەوت.",
@@ -1184,18 +1352,18 @@ const resources = {
       },
 
       register: {
-        title: "خۆتۆمارکردنی قوتابی",
+        title: "خۆتۆمارکردنی بەهرەمەند",
         email_placeholder: "ئیمەیل",
         phone_placeholder: "ژمارەی مۆبایل (نموونە: 964 750 123 4567+)",
         password_placeholder: "وشەی نهێنی",
         submit: "تۆمارکردن",
         password_error: "وشەی نهێنی دەبێت لانیکەم ٨ پیت بێت، لەگەڵ یەک پیتی گەورە، یەک ژمارە، و یەک هێمای تایبەت.",
-        success: "تۆمارکردن سەرکەوتوو بوو! 🎉 تکایە بچۆرە ژوورەوە.",
+        success: "تۆمارکردن سەرکەوتوو بوو! تکایە بچۆرە ژوورەوە.",
         error_default: "تۆمارکردن سەرنەکەوت. دووبارە هەوڵبدەرەوە.",
         or: "یان",
         google: "بەردەوامبوون بە گووگڵ",
         linkedin: "بەردەوامبوون بە لینکدئین",
-        google_success: "پشتڕاستکردنەوە بە گووگڵ سەرکەوتوو بوو! 🎉",
+        google_success: "پشتڕاستکردنەوە بە گووگڵ سەرکەوتوو بوو!",
         error_google: "پشتڕاستکردنەوەی گووگڵ سەرنەکەوت. دووبارە هەوڵبدەرەوە.",
         error_google_cancel: "چوونە ژوورەوە بە گووگڵ هەڵوەشێنرایەوە یان سەرنەکەوت."
       },
@@ -1242,7 +1410,7 @@ const resources = {
         step3_desc: "وشەی نهێنی نوێ و بەهێز دروست بکە.",
         new_password_placeholder: "وشەی نهێنی نوێ",
         reset_password: "دانانەوەی وشەی نهێنی",
-        back_to_login: "← گەڕانەوە بۆ چوونە ژوورەوە",
+        back_to_login: "گەڕانەوە بۆ چوونە ژوورەوە",
         password_error: "وشەی نهێنی دەبێت لانیکەم ٨ پیت بێت، لەگەڵ یەک پیتی گەورە، یەک ژمارە، و یەک هێمای تایبەت.",
         error_send: "ناردنی کۆد سەرنەکەوت. دووبارە هەوڵبدەرەوە.",
         error_verify: "کۆدەکە هەڵەیە یان کاتی بەسەرچووە.",
@@ -1250,7 +1418,7 @@ const resources = {
       },
 
       studentDashboard: {
-        heading: "🎓 داشبۆردی قوتابی",
+        heading: "داشبۆردی بەهرەمەند",
         loading: "داشبۆرد باردەکرێت...",
         welcome_create: "بەخێربێیت! تکایە پرۆفایلەکەت تەواو بکە بۆ بەردەوامبوون.",
         welcome_update: "زانیارییەکانت لە خوارەوە نوێ بکەرەوە:",
@@ -1314,7 +1482,7 @@ const resources = {
       },
 
       hrDashboard: {
-        heading: "🏢 داشبۆردی کۆمپانیا",
+        heading: "داشبۆردی کۆمپانیا",
         loading: "داشبۆرد باردەکرێت...",
         status_label: "دۆخ",
         industry_label: "بواری کار",
@@ -1343,7 +1511,7 @@ const resources = {
         delete: "سڕینەوە",
         no_applicants: "هێشتا هیچ داواکارێک نییە.",
         view_cv: "بینینی CV",
-        phone_unverified_hint: "لەلایەن قوتابییەکەوە لە کاتی تۆمارکردندا دراوە؛ بە جیاواز پشتڕاست نەکراوەتەوە.",
+        phone_unverified_hint: "لەلایەن بەهرەمەندیەکەوە لە کاتی تۆمارکردندا دراوە؛ بە جیاواز پشتڕاست نەکراوەتەوە.",
         error_load: "باردکردنی پرۆفایل سەرنەکەوت.",
         error_save: "پاشەکەوتکردنی پرۆفایل سەرنەکەوت.",
         error_delete: "سڕینەوەی ڕیکلامی کار سەرنەکەوت.",
@@ -1387,7 +1555,7 @@ const resources = {
         success: "کارەکە بە سەرکەوتوویی بڵاوکرایەوە! بۆ دۆزینەوەی گونجاوان بڕۆ خوارەوە.",
         error_default: "بڵاوکردنەوەی کار سەرنەکەوت.",
         matching_heading: "هەنگاوی ٢: دۆزینەوەی باشترین کاندیدەکان",
-        matching_desc: "ئەلگۆریتمەکەمان پرۆفایلی قوتابیان دەپشکنێت لەسەر بنەمای تواناییە پێویستەکان کە لەسەرەوە هەڵتبژاردووە.",
+        matching_desc: "ئەلگۆریتمەکەمان پرۆفایلی بەهرەمەندان دەپشکنێت لەسەر بنەمای تواناییە پێویستەکان کە لەسەرەوە هەڵتبژاردووە.",
         run_matching: "کارپێکردنی گونجاندن",
         scanning: "بنکەدراوە دەپشکنرێت...",
         top_recommendations: "باشترین ڕاسپاردەکان",
@@ -1419,7 +1587,7 @@ const resources = {
       },
 
       jobDetail: {
-        back: "→ گەڕانەوە بۆ کارەکان",
+        back: "گەڕانەوە بۆ کارەکان",
         loading: "کارەکە باردەکرێت...",
         not_found: "ئەم کارە نەدۆزرایەوە.",
         section_summary: "دەربارەی پۆستەکە",
@@ -1446,17 +1614,17 @@ const resources = {
         application_submitted: "داواکارییەکەت نێردرا!",
         error_apply_default: "داواکاری سەرنەکەوت.",
         login_prompt: "بۆ داواکاریکردن بۆ ئەم کارە.",
-        login_link: "وەک قوتابی بچۆرە ژوورەوە"
+        login_link: "وەک بەهرەمەند بچۆرە ژوورەوە"
       },
 
 
       skillMatch: {
         heading: "گونجاندنی تواناکان",
-        subtitle: "قوتابیان بدۆزەرەوە بەپێی پسپۆڕی و تواناکان. نزیکترین هاوپۆلانت بدۆزەرەوە، یان کاندیدی گونجاو بۆ پۆستەکە.",
+        subtitle: "بەهرەمەندان بدۆزەرەوە بەپێی پسپۆڕی و تواناکان. نزیکترین هاوپۆلانت بدۆزەرەوە، یان کاندیدی گونجاو بۆ پۆستەکە.",
         recommended_heading: "ڕاسپاردراو بۆ تۆ",
-        recommended_empty: "هەندێک توانا زیاد بکە بۆ پرۆفایلەکەت بۆ بینینی قوتابیانی هاوشێوەی خۆت.",
+        recommended_empty: "هەندێک توانا زیاد بکە بۆ پرۆفایلەکەت بۆ بینینی بەهرەمەندانی هاوشێوەی خۆت.",
         similarity_label: "ڕێژەی گونجان",
-        browse_heading: "گەڕان و فلتەرکردنی قوتابیان",
+        browse_heading: "گەڕان و فلتەرکردنی بەهرەمەندان",
         search_placeholder: "بگەڕێ بەپێی ناو، زانکۆ، یان تواناییەکی تایبەت...",
         subject_area_label: "بواری گشتی",
         subject_area_all: "هەموو بوارەکان",
@@ -1466,19 +1634,19 @@ const resources = {
         skills_label: "تواناکان",
         skills_prompt: "پسپۆڕییەک هەڵبژێرە بۆ دیاریکردنی تواناکانی تایبەت",
         clear_filters: "سڕینەوەی فلتەرەکان",
-        no_results: "هێشتا هیچ قوتابیێک لەگەڵ ئەم فلتەرانە ناگونجێت.",
+        no_results: "هێشتا هیچ بەهرەمەندێک لەگەڵ ئەم فلتەرانە ناگونجێت.",
         match_label: "گونجاندن",
         view_profile: "بینینی پرۆفایل",
         message_button: "پەیام",
         shared_skills_label: "تواناییە هاوبەشەکان",
-        loading: "قوتابیان باردەکرێن...",
-        error_load: "باردکردنی قوتابیان سەرنەکەوت."
+        loading: "بەهرەمەندان باردەکرێن...",
+        error_load: "باردکردنی بەهرەمەندان سەرنەکەوت."
       },
 
       studentProfile: {
         loading: "پرۆفایل باردەکرێت...",
         not_found: "ئەم پرۆفایلە نەدۆزرایەوە.",
-        back: "← گەڕانەوە",
+        back: "گەڕانەوە",
         skills_heading: "تواناکان و شارەزاییەکان",
         no_skills: "هێشتا هیچ تواناییەک زیاد نەکراوە.",
         custom_label: "(تایبەت)",
@@ -1486,7 +1654,7 @@ const resources = {
         message_placeholder: "پەیامێک بنووسە...",
         send: "ناردنی پەیام",
         sent: "پەیامەکە نێردرا!",
-        login_prompt: "بۆ ناردنی پەیام بۆ ئەم قوتابییە.",
+        login_prompt: "بۆ ناردنی پەیام بۆ ئەم بەهرەمەندیە.",
         login_link: "بچۆرە ژوورەوە",
         own_profile_note: "ئەمە پرۆفایلی خۆتە.",
         error_send: "ناردنی پەیام سەرنەکەوت."
@@ -1494,7 +1662,7 @@ const resources = {
 
       messages: {
         heading: "پەیامەکان",
-        no_conversations: "هێشتا هیچ گفتوگۆیەک نییە. سەردانی پەڕەی گونجاندنی تواناکان بکە بۆ پەیوەندیکردن لەگەڵ قوتابیانی تر.",
+        no_conversations: "هێشتا هیچ گفتوگۆیەک نییە. سەردانی پەڕەی گونجاندنی تواناکان بکە بۆ پەیوەندیکردن لەگەڵ بەهرەمەندانی تر.",
         select_conversation: "گفتوگۆیەک هەڵبژێرە بۆ دەستپێکردنی چات.",
         back_to_list: "گەڕانەوە بۆ گفتوگۆکان",
         unread_badge: "نوێ",

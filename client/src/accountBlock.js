@@ -2,7 +2,7 @@ import axios from 'axios';
 import { logout } from './auth';
 import { formatDateTime } from './localizeDigits';
 
-const BLOCK_CODES = ['ACCOUNT_BANNED', 'ACCOUNT_SUSPENDED', 'ACCOUNT_DELETED'];
+const BLOCK_CODES = ['ACCOUNT_BANNED', 'ACCOUNT_SUSPENDED', 'ACCOUNT_DELETED', 'PASSWORD_CHANGED'];
 const STORAGE_KEY = 'lehatw_account_block';
 
 export function isAccountBlock(data) {
@@ -14,7 +14,9 @@ export function isAccountBlock(data) {
 export function describeAccountBlock(block, t, lang) {
   if (!block) return '';
   const parts = [];
-  if (block.code === 'ACCOUNT_DELETED') {
+  if (block.code === 'PASSWORD_CHANGED') {
+    parts.push(t('accountBlock.password_changed'));
+  } else if (block.code === 'ACCOUNT_DELETED') {
     parts.push(t('accountBlock.deleted'));
   } else if (block.code === 'ACCOUNT_BANNED') {
     parts.push(t('accountBlock.banned'));

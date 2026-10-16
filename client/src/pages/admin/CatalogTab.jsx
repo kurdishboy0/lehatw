@@ -7,6 +7,8 @@ import { Dialog, ConfirmDialog } from '../../components/Dialog';
 import { buttonStyle } from '../../components/buttonStyle';
 import { EmptyState } from './adminUi';
 import { cardStyle, mutedStyle, inputStyle } from './adminStyles';
+import { Plus } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 const LANGS = ['en', 'ar', 'ckb'];
 const smallButton = (variant) => ({ ...buttonStyle(variant), padding: '4px 10px', fontSize: '13px' });
@@ -243,7 +245,7 @@ function CatalogTab({ notify }) {
           aria-label={t('adminConsole.catalog.search_placeholder')}
           style={{ ...inputStyle, flex: '1 1 260px' }}
         />
-        <button type="button" onClick={() => setEditing({ kind: 'area' })} style={buttonStyle('primary')}>➕ {t('adminConsole.catalog.add_area')}</button>
+        <button type="button" onClick={() => setEditing({ kind: 'area' })} style={buttonStyle('primary')}><InlineIcon icon={Plus} /> {t('adminConsole.catalog.add_area')}</button>
       </div>
 
       {q && !anyVisible && <EmptyState>{t('adminConsole.catalog.no_results')}</EmptyState>}
@@ -268,7 +270,7 @@ function CatalogTab({ notify }) {
                     <button type="button" onClick={() => setDeleting({ kind: 'area', entry: area })} style={smallButton('danger')}>{t('adminConsole.catalog.delete')}</button>
                   </>
                 )}
-                <button type="button" onClick={() => setEditing({ kind: 'field', defaultParentId: area?.id ?? '' })} style={smallButton('primary')}>➕ {t('adminConsole.catalog.add_field')}</button>
+                <button type="button" onClick={() => setEditing({ kind: 'field', defaultParentId: area?.id ?? '' })} style={smallButton('primary')}><InlineIcon icon={Plus} /> {t('adminConsole.catalog.add_field')}</button>
               </div>
 
               {visibleFields.map((field) => {
@@ -282,7 +284,7 @@ function CatalogTab({ notify }) {
                     <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', margin: '8px 0' }}>
                       <button type="button" onClick={() => setEditing({ kind: 'field', entry: field })} style={smallButton('secondary')}>{t('adminConsole.catalog.edit')}</button>
                       <button type="button" onClick={() => setDeleting({ kind: 'field', entry: field })} style={smallButton('danger')}>{t('adminConsole.catalog.delete')}</button>
-                      <button type="button" onClick={() => setEditing({ kind: 'skill', defaultParentId: field.id })} style={smallButton('primary')}>➕ {t('adminConsole.catalog.add_skill')}</button>
+                      <button type="button" onClick={() => setEditing({ kind: 'skill', defaultParentId: field.id })} style={smallButton('primary')}><InlineIcon icon={Plus} /> {t('adminConsole.catalog.add_skill')}</button>
                     </div>
                     {skills.length === 0 ? (
                       <p style={{ ...mutedStyle, margin: 0 }}>{t('adminConsole.catalog.no_skills')}</p>

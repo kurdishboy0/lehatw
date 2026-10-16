@@ -10,6 +10,8 @@ import EventTypeBadge from '../../components/EventTypeBadge';
 import { eventText } from '../../eventText';
 import { Badge, EmptyState } from './adminUi';
 import { cardStyle, mutedStyle, inputStyle } from './adminStyles';
+import { Plus, Globe, CalendarDays, MapPin } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 const TYPES = ['ACADEMIC', 'COMPANY', 'CAREER_FAIR', 'WORKSHOP', 'OTHER'];
 const STATUS_TONE = { draft: 'gray', upcoming: 'green', past: 'gray' };
@@ -239,7 +241,7 @@ function EventsTab({ notify }) {
         <p style={{ margin: 0, color: '#4a5568', fontSize: '14px', flex: '1 1 300px' }}>{t('adminConsole.events.intro')}</p>
         <div style={{ display: 'flex', gap: '8px' }}>
           <Link to="/events" target="_blank" rel="noreferrer" style={{ ...buttonStyle('secondary'), textDecoration: 'none' }}>{t('adminConsole.events.view_page')}</Link>
-          <button type="button" onClick={() => setEditing({})} style={buttonStyle('primary')}>➕ {t('adminConsole.events.new')}</button>
+          <button type="button" onClick={() => setEditing({})} style={buttonStyle('primary')}><InlineIcon icon={Plus} /> {t('adminConsole.events.new')}</button>
         </div>
       </div>
 
@@ -255,12 +257,12 @@ function EventsTab({ notify }) {
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '4px' }}>
                     <EventTypeBadge type={event.type} />
                     <Badge tone={STATUS_TONE[status]}>{t(`adminConsole.events.status_${status}`)}</Badge>
-                    {event.isOnline && <span style={{ fontSize: '12px', color: '#276749', fontWeight: 600 }}>🌐 {t('events.online')}</span>}
+                    {event.isOnline && <span style={{ fontSize: '12px', color: '#276749', fontWeight: 600 }}><InlineIcon icon={Globe} /> {t('events.online')}</span>}
                   </div>
                   <strong style={{ fontSize: '16px', color: '#1a202c' }} dir="auto">{eventText(event, 'title', lang)}</strong>
                   <div style={{ ...mutedStyle, marginTop: '2px', lineHeight: 1.7 }}>
-                    <div>📅 {formatDateTime(event.startsAt, lang)}</div>
-                    {event.location && <div dir="auto">📍 {event.location}</div>}
+                    <div><InlineIcon icon={CalendarDays} tone="gold" /> {formatDateTime(event.startsAt, lang)}</div>
+                    {event.location && <div dir="auto"><InlineIcon icon={MapPin} tone="gold" /> {event.location}</div>}
                     <div>
                       {t('adminConsole.events.registrations', { count: num(event.registrationCount) })}
                       {event.capacity !== null && ` / ${num(event.capacity)}`}

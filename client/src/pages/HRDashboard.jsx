@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { authHeader } from '../auth';
+import { Target, Mail, Phone, Building2 } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
+import CvLink from '../components/CvLink';
 
 
 function HRDashboard() {
@@ -138,8 +141,8 @@ function HRDashboard() {
   if (loading) return <h3>{t('hrDashboard.loading')}</h3>;
 
   return (
-    <div style={{ maxWidth: '600px', margin: '40px auto', fontFamily: 'sans-serif' }}>
-      <h2>{t('hrDashboard.heading')}</h2>
+    <div style={{ maxWidth: '600px', margin: '40px auto' }}>
+      <h2><InlineIcon icon={Building2} size={22} tone="gold" /> {t('hrDashboard.heading')}</h2>
 
       {message && <p style={{ color: 'green', fontWeight: 'bold' }}>{message}</p>}
       {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{error}</p>}
@@ -246,7 +249,7 @@ function HRDashboard() {
                     <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                       {job.isActive && !job.removedByAdmin && (
                         <Link to={`/hr-dashboard/jobs/${job.id}/candidates`} style={{ padding: '8px 14px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '14px' }}>
-                          🎯 {t('hrDashboard.find_candidates')}
+                          <InlineIcon icon={Target} size={14} /> {t('hrDashboard.find_candidates')}
                         </Link>
                       )}
                       <button onClick={() => toggleApplicants(job.id)} style={{ padding: '8px 14px', backgroundColor: '#edf2f7', border: '1px solid #cbd5e0', borderRadius: '6px', cursor: 'pointer' }}>
@@ -270,13 +273,13 @@ function HRDashboard() {
                               {app.student.studentProfile?.university} · {app.student.studentProfile?.fieldOfStudy}
                             </div>
                             <div style={{ fontSize: '13px', color: '#4a5568', marginTop: '4px', display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-                              <span>✉️ {app.student.email}</span>
+                              <span><InlineIcon icon={Mail} size={13} tone="muted" /> {app.student.email}</span>
                               {app.student.phone && (
-                                <span title={t('hrDashboard.phone_unverified_hint')}>📞 {app.student.phone}</span>
+                                <span title={t('hrDashboard.phone_unverified_hint')}><InlineIcon icon={Phone} size={13} tone="muted" /> {app.student.phone}</span>
                               )}
                             </div>
                             {app.coverLetter && <p style={{ fontSize: '13px', marginTop: '5px' }}>{app.coverLetter}</p>}
-                            {app.cvUrl && <a href={app.cvUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px' }}>{t('hrDashboard.view_cv')}</a>}
+                            {app.hasCv && <CvLink endpoint={`/api/applications/${app.id}/cv`} label={t('hrDashboard.view_cv')} style={{ fontSize: '13px' }} iconSize={13} />}
                           </div>
                         ))
                       )}

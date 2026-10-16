@@ -63,7 +63,7 @@ function VerifyPhone() {
 
   if (!email) {
     return (
-      <div style={{ maxWidth: '440px', margin: '60px auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
+      <div style={{ maxWidth: '440px', margin: '60px auto', textAlign: 'center' }}>
         <p>{t('verifyPhone.missing_email')}</p>
         <Link to="/register" style={{ color: '#1B2A4A', fontWeight: '600' }}>{t('verifyPhone.back_to_register')}</Link>
       </div>
@@ -71,7 +71,7 @@ function VerifyPhone() {
   }
 
   return (
-    <div style={{ maxWidth: '440px', margin: '50px auto', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '440px', margin: '50px auto' }}>
       <h2 style={{ textAlign: 'center', color: '#2d3748' }}>{t('verifyPhone.title')}</h2>
       <p style={{ textAlign: 'center', color: '#718096', fontSize: '14px' }}>{t('verifyPhone.subtitle')}</p>
 

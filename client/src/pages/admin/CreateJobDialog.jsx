@@ -5,6 +5,8 @@ import { authHeader } from '../../auth';
 import { Dialog } from '../../components/Dialog';
 import { buttonStyle } from '../../components/buttonStyle';
 import { mutedStyle, inputStyle } from './adminStyles';
+import { X } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 const EMPLOYMENT_TYPES = ['Full-Time', 'Part-Time', 'Internship', 'Contract', 'Freelance'];
 const WORK_MODES = ['On-Site', 'Remote', 'Hybrid'];
@@ -130,7 +132,7 @@ function CreateJobDialog({ onCreated, onClose, notify }) {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
               {selected.map((s) => (
                 <button key={s.id} type="button" onClick={() => toggleSkill(s.id)} style={{ border: 'none', cursor: 'pointer', padding: '4px 10px', borderRadius: '12px', backgroundColor: '#1B2A4A', color: 'white', fontSize: '13px' }}>
-                  {skillName(s, i18n.language)} ✕
+                  {skillName(s, i18n.language)} <InlineIcon icon={X} size={13} />
                 </button>
               ))}
             </div>

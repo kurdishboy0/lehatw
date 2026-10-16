@@ -1,7 +1,9 @@
-import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Register from './pages/Register';
 import RegisterHR from './pages/RegisterHR';
 import ForgotPassword from './pages/ForgotPassword';
@@ -27,155 +29,28 @@ import VerifyPhone from './pages/VerifyPhone';
 import LegalPlaceholder from './pages/LegalPlaceholder';
 import ContactUs from './pages/ContactUs';
 import ProtectedRoute from './components/ProtectedRoute';
+import SiteHeader from './components/SiteHeader';
 import AnnouncementBanner from './components/AnnouncementBanner';
-import UserMenu from './components/UserMenu';
-import MessageBell from './components/MessageBell';
-import NotificationBell from './components/NotificationBell';
-import { useAuth } from './useAuth';
 import { isRtlLanguage } from './rtl';
 
 import logo from './assets/Logo.jpeg';
 
-// A LinkedIn-style nav item: an icon on top, a small label underneath, and a thin
-// underline that fills in when this is the active route.
-function NavItem({ to, icon, label }) {
-  const location = useLocation();
-  const isActive = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
-
-  return (
-    <Link
-      to={to}
-      className={`nav-item${isActive ? ' active' : ''}`}
-      style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
-        textDecoration: 'none', color: isActive ? '#1B2A4A' : '#4a5568',
-        padding: '6px 12px', fontSize: '11px', fontWeight: '600', minWidth: '56px'
-      }}
-    >
-      <span style={{ fontSize: '20px', lineHeight: 1 }}>{icon}</span>
-      <span className="nav-item-label">{label}</span>
-      <span
-        className="nav-item-underline"
-        style={{
-          display: 'block', width: '100%', height: '2px', backgroundColor: '#1B2A4A',
-          borderRadius: '2px', transform: isActive ? 'scaleX(1)' : 'scaleX(0)', transition: 'transform 0.15s ease'
-        }}
-      />
-    </Link>
-  );
-}
-
-function Header() {
-  const { t, i18n } = useTranslation();
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
-  return (
-    <header style={{
-      backgroundColor: '#ffffff',
-      borderBottom: '3px solid #C99A2E',
-      boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-      padding: '0 56px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      position: 'sticky',
-      top: 0,
-      zIndex: 1000,
-      flexWrap: 'wrap',
-      gap: '10px',
-      minHeight: '64px'
-    }}>
-
-      {/* Logo + Name */}
-      <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <img src={logo} alt="Lehatw" style={{ height: '42px', width: 'auto', borderRadius: '8px' }} />
-        <span style={{ fontWeight: '800', fontSize: '18px', color: '#1a202c', letterSpacing: '-0.02em' }}>{t('common.site_name')}</span>
-      </Link>
-
-      <nav style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
-        <NavItem to="/" icon="🏠" label={t('nav.home')} />
-        <NavItem to="/jobs" icon="💼" label={t('nav.jobs')} />
-        <NavItem to="/skill-match" icon="🧭" label={t('nav.skill_match')} />
-        <NavItem to="/courses" icon="📚" label={t('nav.courses')} />
-        <NavItem to="/events" icon="📅" label={t('nav.events')} />
-        <NavItem to="/about" icon="ℹ️" label={t('nav.about')} />
-
-        {user && (
-          <>
-            <MessageBell />
-            <NotificationBell />
-            <UserMenu user={user} onLogout={handleLogout} />
-          </>
-        )}
-      </nav>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        {!user && (
-          <>
-            <Link to="/login" className="nav-item" style={{ textDecoration: 'none', color: '#4a5568', fontWeight: '600', fontSize: '14px', padding: '8px 14px' }}>
-              {t('nav.login')}
-            </Link>
-            <Link to="/register" className="nav-item" style={{ textDecoration: 'none', color: '#1B2A4A', fontWeight: '700', fontSize: '14px', padding: '8px 14px' }}>
-              {t('nav.student_signup')}
-            </Link>
-            <Link to="/register-instructor" className="nav-item" style={{ textDecoration: 'none', color: '#4a5568', fontWeight: '600', fontSize: '14px', padding: '8px 14px' }}>
-              {t('nav.teach')}
-            </Link>
-            <Link to="/register-hr" className="btn-hover" style={{
-              textDecoration: 'none',
-              backgroundColor: '#1B2A4A',
-              color: '#ffffff',
-              padding: '9px 18px',
-              borderRadius: '20px',
-              fontWeight: '700',
-              fontSize: '14px'
-            }}>
-              {t('nav.company_signup')}
-            </Link>
-          </>
-        )}
-
-        <select
-          onChange={(e) => changeLanguage(e.target.value)}
-          value={i18n.language}
-          style={{
-            padding: '7px 10px',
-            borderRadius: '20px',
-            border: '1px solid #cbd5e0',
-            backgroundColor: '#f7fafc',
-            cursor: 'pointer',
-            fontWeight: '600',
-            fontSize: '13px',
-            color: '#4a5568'
-          }}
-        >
-          <option value="en">English</option>
-          <option value="ckb">کوردی</option>
-          <option value="ar">العربية</option>
-        </select>
-      </div>
-    </header>
-  );
-}
-
 function App() {
   const { t, i18n } = useTranslation();
+  const rtl = isRtlLanguage(i18n.language);
+
+  // The document itself carries the language and direction, for assistive
+  // technology and for anything that reads them outside React.
+  useEffect(() => {
+    document.documentElement.lang = i18n.language;
+    document.documentElement.dir = rtl ? 'rtl' : 'ltr';
+  }, [i18n.language, rtl]);
 
   return (
     <BrowserRouter>
-      <div dir={isRtlLanguage(i18n.language) ? 'rtl' : 'ltr'} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F7F6F1' }}>
+      <div className="app-shell" lang={i18n.language} dir={rtl ? 'rtl' : 'ltr'} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F7F6F1' }}>
 
-        <Header />
+        <SiteHeader />
         <AnnouncementBanner />
 
         {/* --- MAIN CONTENT AREA --- */}
@@ -183,6 +58,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/register" element={<Register />} />
             <Route path="/register-hr" element={<RegisterHR />} />
             <Route path="/register-instructor" element={<RegisterInstructor />} />

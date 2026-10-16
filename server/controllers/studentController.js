@@ -1,6 +1,7 @@
 const prisma = require('../db');
 const { storageKey } = require('../middleware/upload');
-const { uploadToStorage, deleteFromStorageUrl } = require('../utils/supabaseStorage');
+const { uploadToStorage, uploadPrivate, signedUrlFor, deleteFromStorageUrl, deleteStoredFile, isStoredPath, SIGNED_URL_TTL_SECONDS } = require('../utils/supabaseStorage');
+const { canViewTalentResume } = require('../utils/cvAccess');
 
 const createStudentProfile = async (req, res) => {
   try {
@@ -47,7 +48,7 @@ const getStudentProfile = async (req, res) => {
       return res.status(404).json({ message: "Profile not found." });
     }
 
-    res.status(200).json(profile);
+    res.status(200).json(withResumeFlag(profile));
   } catch (error) {
     console.error("Get Student Profile Error:", error);
     res.status(500).json({ message: "Server error fetching profile." });
@@ -121,16 +122,32 @@ const getAllStudentsPaginated = async (req, res) => {
 
     // 3. Send the data and pagination details back to the frontend
     res.status(200).json({
-      students,
+      students: students.map(withoutPrivateFiles),
       totalPages: Math.ceil(totalStudents / limit),
       currentPage: page,
       totalStudents
     });
   } catch (error) {
     console.error("Get All Students Error:", error);
-    res.status(500).json({ message: "Server error fetching students." });
+    res.status(500).json({ message: "Server error fetching talent." });
   }
 };
+
+// A CV carries a home address and a phone number, so the link to it never
+// goes out on an endpoint anyone can call. Companies reach it through the
+// candidate and application screens, which require signing in, and the owner
+// sees it on their own dashboard.
+function withoutPrivateFiles(profile) {
+  const { resumeUrl, ...rest } = profile;
+  return rest;
+}
+
+// Same idea for the owner's own view, except they are told a CV is on file so
+// the dashboard can offer the button that fetches a link for it.
+function withResumeFlag(profile) {
+  const { resumeUrl, ...rest } = profile;
+  return { ...rest, hasResume: Boolean(resumeUrl) };
+}
 
 // Fetch a single student's public profile by StudentProfile id (Public Route)
 const getStudentById = async (req, res) => {
@@ -145,15 +162,15 @@ const getStudentById = async (req, res) => {
     });
 
     if (!profile) {
-      return res.status(404).json({ message: "Student profile not found." });
+      return res.status(404).json({ message: "Talent profile not found." });
     }
 
     // Email is intentionally omitted — contact happens through the in-app messaging system.
     const { user, ...publicProfile } = profile;
-    res.status(200).json({ ...publicProfile, userId: user.id });
+    res.status(200).json({ ...withoutPrivateFiles(publicProfile), userId: user.id });
   } catch (error) {
     console.error("Get Student By Id Error:", error);
-    res.status(500).json({ message: "Server error fetching student profile." });
+    res.status(500).json({ message: "Server error fetching talent profile." });
   }
 };
 
@@ -210,7 +227,7 @@ const uploadResume = async (req, res) => {
     const key = storageKey('resumes', 'resume', req.user.id, req.file.mimetype, req.file.originalname);
     let resumeUrl;
     try {
-      resumeUrl = await uploadToStorage(req.file.buffer, key, req.file.mimetype);
+      resumeUrl = await uploadPrivate(req.file.buffer, key, req.file.mimetype);
     } catch (uploadError) {
       if (uploadError.message === 'STORAGE_NOT_CONFIGURED') {
         return res.status(503).json({ message: "File storage isn't set up on this server yet." });
@@ -223,9 +240,9 @@ const uploadResume = async (req, res) => {
       data: { resumeUrl }
     });
 
-    deleteFromStorageUrl(existingProfile.resumeUrl).catch(() => {});
+    deleteStoredFile(existingProfile.resumeUrl).catch(() => {});
 
-    res.status(200).json({ message: "Resume uploaded!", resumeUrl: updatedProfile.resumeUrl });
+    res.status(200).json({ message: "Resume uploaded!", hasResume: Boolean(updatedProfile.resumeUrl) });
   } catch (error) {
     console.error("Upload Resume Error:", error);
     res.status(500).json({ message: "Server error uploading resume." });
@@ -240,13 +257,49 @@ const removeResume = async (req, res) => {
       return res.status(404).json({ message: "Profile not found." });
     }
 
-    deleteFromStorageUrl(existingProfile.resumeUrl).catch(() => {});
+    deleteStoredFile(existingProfile.resumeUrl).catch(() => {});
 
     await prisma.studentProfile.update({ where: { userId: req.user.id }, data: { resumeUrl: null } });
     res.status(200).json({ message: "Resume removed." });
   } catch (error) {
     console.error("Remove Resume Error:", error);
     res.status(500).json({ message: "Server error removing resume." });
+  }
+};
+
+// Hands back a link to someone's CV that works for a quarter of an hour,
+// and only to a person allowed to read it. This is the only way a CV leaves
+// the server: the file itself sits in a bucket with no public access.
+const getResumeLink = async (req, res) => {
+  try {
+    const profile = await prisma.studentProfile.findUnique({
+      where: { id: Number(req.params.id) },
+      select: { resumeUrl: true, userId: true }
+    });
+    if (!profile || !profile.resumeUrl) {
+      return res.status(404).json({ message: "No CV on file." });
+    }
+
+    if (!(await canViewTalentResume(req.user, profile.userId))) {
+      // Deliberately the same answer as "no CV", so this can't be used to
+      // find out who has one.
+      return res.status(404).json({ message: "No CV on file." });
+    }
+
+    // Files uploaded before the private bucket existed are still full public
+    // URLs; they are handed back as they are until the migration moves them.
+    if (!isStoredPath(profile.resumeUrl)) {
+      return res.status(200).json({ url: profile.resumeUrl, legacy: true });
+    }
+
+    const url = await signedUrlFor(profile.resumeUrl);
+    res.status(200).json({ url, expiresIn: SIGNED_URL_TTL_SECONDS });
+  } catch (error) {
+    if (error.message === 'STORAGE_NOT_CONFIGURED') {
+      return res.status(503).json({ message: "File storage isn't set up on this server yet." });
+    }
+    console.error("Resume Link Error:", error);
+    res.status(500).json({ message: "Server error preparing the CV link." });
   }
 };
 
@@ -258,5 +311,6 @@ module.exports = {
   getAllStudentsPaginated,
   uploadProfilePhoto,
   uploadResume,
-  removeResume
+  removeResume,
+  getResumeLink
 };

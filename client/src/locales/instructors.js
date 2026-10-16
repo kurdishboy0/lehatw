@@ -30,7 +30,7 @@ const en = {
 
   registerInstructor: {
     title: "Teach on Lehatw",
-    subtitle: "Share what you know with students across Kurdistan. An admin reviews your details before your courses go live.",
+    subtitle: "Share what you know with talent across Kurdistan. An admin reviews your details before your courses go live.",
     full_name: "Your full name",
     email: "Email address",
     password: "Password",
@@ -109,7 +109,7 @@ const ar = {
 
   registerInstructor: {
     title: "علّم على لێهاتوو",
-    subtitle: "شارك خبرتك مع الطلاب في كردستان. يراجع أحد المشرفين بياناتك قبل نشر دوراتك.",
+    subtitle: "شارك خبرتك مع المواهب في كردستان. يراجع أحد المشرفين بياناتك قبل نشر دوراتك.",
     full_name: "اسمك الكامل",
     email: "البريد الإلكتروني",
     password: "كلمة المرور",
@@ -188,7 +188,7 @@ const ckb = {
 
   registerInstructor: {
     title: "لە لێهاتوو وانە بڵێوە",
-    subtitle: "زانیارییەکانت لەگەڵ خوێندکارانی کوردستان هاوبەش بکە. بەڕێوەبەرێک زانیارییەکانت پێداچوونەوەی بۆ دەکات پێش ئەوەی خولەکانت بڵاوببنەوە.",
+    subtitle: "زانیارییەکانت لەگەڵ بەهرەمەندانی کوردستان هاوبەش بکە. بەڕێوەبەرێک زانیارییەکانت پێداچوونەوەی بۆ دەکات پێش ئەوەی خولەکانت بڵاوببنەوە.",
     full_name: "ناوی تەواوت",
     email: "ئیمەیڵ",
     password: "وشەی نهێنی",

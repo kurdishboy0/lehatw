@@ -5,7 +5,7 @@ function LegalPlaceholder({ titleKey, introKey, sectionsKey }) {
   const sections = t(sectionsKey, { returnObjects: true });
 
   return (
-    <div style={{ maxWidth: '780px', margin: '20px auto 60px auto', padding: '0 20px', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '780px', margin: '20px auto 60px auto', padding: '0 20px' }}>
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         <h1 style={{ fontSize: '2.2rem', color: '#1a202c', margin: '0 0 8px 0' }}>{t(titleKey)}</h1>
         <p style={{ fontSize: '13px', color: '#a0aec0', margin: 0 }}>{t('legal.last_updated')}</p>

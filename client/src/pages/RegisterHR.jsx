@@ -54,7 +54,7 @@ function RegisterHR() {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', fontFamily: 'sans-serif' }}>
+    <div style={{ maxWidth: '400px', margin: '50px auto' }}>
       <h2>{t('registerHr.title')}</h2>
       <p style={{ fontSize: '14px', color: '#666' }}>{t('registerHr.subtitle')}</p>
 

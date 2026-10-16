@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { ANNOUNCEMENT_STYLES as STYLES } from './announcementStyles';
+import InlineIcon from './InlineIcon';
 
 const DISMISSED_KEY = 'lehatw_dismissed_announcements';
 const REFRESH_MS = 5 * 60 * 1000;
@@ -41,7 +42,7 @@ function AnnouncementBanner() {
   if (visible.length === 0) return null;
 
   return (
-    <div role="region" aria-label={t('announcementBanner.region')}>
+    <div className="announcement-banner" role="region" aria-label={t('announcementBanner.region')}>
       {visible.map((a) => {
         const style = STYLES[a.type] || STYLES.INFO;
         const message = a[`message_${lang}`] || a.message_en;
@@ -52,10 +53,10 @@ function AnnouncementBanner() {
             style={{
               display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 20px',
               backgroundColor: style.bg, borderBottom: `1px solid ${style.border}`, color: style.color,
-              fontSize: '14px', fontWeight: 600, fontFamily: 'sans-serif'
+              fontSize: '14px', fontWeight: 600
             }}
           >
-            <span aria-hidden="true">{style.icon}</span>
+            <InlineIcon icon={style.icon} size={18} />
             <span style={{ flex: 1 }} dir="auto">{message}</span>
             <button
               type="button"

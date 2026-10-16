@@ -4,6 +4,9 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { authHeader } from '../auth';
 import { toLocalizedDigits } from '../localizeDigits';
+import { GraduationCap, Camera, Pencil, School, BookOpen, Link2, FileText, Puzzle, Sparkles, Check, ArrowRight, Handshake, Mail, MessageSquare, Lock, ClipboardList } from 'lucide-react';
+import InlineIcon from '../components/InlineIcon';
+import CvLink from '../components/CvLink';
 
 const PROFICIENCY_LEVELS = ['Beginner', 'Intermediate', 'Expert'];
 // Mirrors server/utils/skillText.js's validation: letters (any language), numbers,
@@ -31,7 +34,7 @@ function MetaRow({ icon, label, value }) {
   if (!value) return null;
   return (
     <div style={{ display: 'flex', gap: '10px' }}>
-      <span style={{ fontSize: '18px' }}>{icon}</span>
+      <InlineIcon icon={icon} size={18} tone="gold" style={{ marginTop: '2px' }} />
       <div>
         <div style={{ fontSize: '13px', color: '#718096', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.03em' }}>{label}</div>
         <div style={{ fontSize: '15px', color: '#2d3748', fontWeight: '600', marginTop: '2px' }}>{value}</div>
@@ -333,7 +336,7 @@ function StudentDashboard() {
       const res = await axios.post('/api/student/profile/resume', form, {
         headers: { ...authHeader(), 'Content-Type': 'multipart/form-data' }
       });
-      setProfile((prev) => (prev ? { ...prev, resumeUrl: res.data.resumeUrl } : prev));
+      setProfile((prev) => (prev ? { ...prev, hasResume: res.data.hasResume } : prev));
       setPendingResumeFile(null);
     } catch (err) {
       setResumeError(err.response?.data?.message || t('studentDashboard.error_upload_resume'));
@@ -360,7 +363,7 @@ function StudentDashboard() {
     setResumeError('');
     try {
       await axios.delete('/api/student/profile/resume', { headers: authHeader() });
-      setProfile((prev) => (prev ? { ...prev, resumeUrl: null } : prev));
+      setProfile((prev) => (prev ? { ...prev, hasResume: false } : prev));
     } catch (err) {
       setResumeError(err.response?.data?.message || t('studentDashboard.error_remove_resume'));
     }
@@ -530,7 +533,7 @@ function StudentDashboard() {
           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size / 2.6, fontWeight: 'bold',
           border: '3px solid white', boxShadow: '0 0 0 1px #e2e8f0'
         }}>
-          {initials(formData.fullName) || '🎓'}
+          {initials(formData.fullName) || <InlineIcon icon={GraduationCap} size={34} />}
         </div>
       )}
       <button
@@ -544,7 +547,7 @@ function StudentDashboard() {
           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px'
         }}
       >
-        {uploadingPhoto ? '…' : '📷'}
+        {uploadingPhoto ? '…' : <InlineIcon icon={Camera} size={15} />}
       </button>
       <input ref={photoInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoSelect} style={{ display: 'none' }} />
     </div>
@@ -577,8 +580,8 @@ function StudentDashboard() {
   );
 
   return (
-    <div style={{ maxWidth: '760px', margin: '30px auto', padding: '0 20px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <h2 style={{ margin: 0 }}>{t('studentDashboard.heading')}</h2>
+    <div style={{ maxWidth: '760px', margin: '30px auto', padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <h2 style={{ margin: 0 }}><InlineIcon icon={GraduationCap} size={22} tone="gold" /> {t('studentDashboard.heading')}</h2>
 
       {message && <p style={{ color: 'green', fontWeight: 'bold', margin: 0 }}>{message}</p>}
       {error && <p style={{ color: 'red', fontWeight: 'bold', margin: 0 }}>{error}</p>}
@@ -597,33 +600,39 @@ function StudentDashboard() {
                 {uploadingPhoto && <div style={{ fontSize: '13px', color: '#a0aec0', marginTop: '4px' }}>{t('studentDashboard.uploading_photo')}</div>}
               </div>
               <button onClick={() => setIsEditing(true)} style={{ padding: '9px 18px', cursor: 'pointer', backgroundColor: '#edf2f7', color: '#2d3748', border: '1px solid #e2e8f0', borderRadius: '8px', fontWeight: '600', fontSize: '14px' }}>
-                ✏️ {t('studentDashboard.edit_profile')}
+                <InlineIcon icon={Pencil} size={14} /> {t('studentDashboard.edit_profile')}
               </button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '18px', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #edf2f7' }}>
-              <MetaRow icon="🏫" label={t('studentDashboard.university_label')} value={profile.university} />
-              <MetaRow icon="📚" label={t('studentDashboard.major_label')} value={profile.fieldOfStudy} />
-              <MetaRow icon="🎓" label={t('studentDashboard.class_of_label')} value={profile.graduationYear} />
+              <MetaRow icon={School} label={t('studentDashboard.university_label')} value={profile.university} />
+              <MetaRow icon={BookOpen} label={t('studentDashboard.major_label')} value={profile.fieldOfStudy} />
+              <MetaRow icon={GraduationCap} label={t('studentDashboard.class_of_label')} value={profile.graduationYear} />
             </div>
 
             {profile.bio && (
               <p style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #edf2f7', color: '#4a5568', fontSize: '15px', lineHeight: '1.7' }}>{profile.bio}</p>
             )}
 
-            {(profile.linkedinUrl || profile.githubUrl || profile.portfolioUrl || profile.resumeUrl) && (
+            {(profile.linkedinUrl || profile.githubUrl || profile.portfolioUrl || profile.hasResume) && (
               <div style={{ display: 'flex', gap: '10px', marginTop: '18px', flexWrap: 'wrap' }}>
-                {profile.linkedinUrl && <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 LinkedIn</a>}
-                {profile.githubUrl && <a href={profile.githubUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 GitHub</a>}
-                {profile.portfolioUrl && <a href={profile.portfolioUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}>🔗 Portfolio</a>}
-                {profile.resumeUrl && <a href={profile.resumeUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', fontWeight: '600', color: '#2f855a', textDecoration: 'none', backgroundColor: '#f0fff4', padding: '6px 14px', borderRadius: '20px' }}>📄 {t('studentDashboard.view_resume')}</a>}
+                {profile.linkedinUrl && <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}><InlineIcon icon={Link2} size={14} /> LinkedIn</a>}
+                {profile.githubUrl && <a href={profile.githubUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}><InlineIcon icon={Link2} size={14} /> GitHub</a>}
+                {profile.portfolioUrl && <a href={profile.portfolioUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none', backgroundColor: '#ebf8ff', padding: '6px 14px', borderRadius: '20px' }}><InlineIcon icon={Link2} size={14} /> Portfolio</a>}
+                {profile.hasResume && (
+                  <CvLink
+                    endpoint={`/api/student/${profile.id}/resume`}
+                    label={t('studentDashboard.view_resume')}
+                    style={{ fontSize: '14px', fontWeight: '600', color: '#2f855a', textDecoration: 'none', backgroundColor: '#f0fff4', padding: '6px 14px', borderRadius: '20px' }}
+                  />
+                )}
               </div>
             )}
           </div>
 
           {/* SKILLS */}
           <div style={cardStyle}>
-            <h3 style={sectionHeadingStyle} ref={skillsSectionRef}>🧩 {t('studentDashboard.my_skills_heading')}</h3>
+            <h3 style={sectionHeadingStyle} ref={skillsSectionRef}><InlineIcon icon={Puzzle} size={18} tone="gold" /> {t('studentDashboard.my_skills_heading')}</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {profile.skills && profile.skills.length > 0 ? (
                 profile.skills.map((item) => (
@@ -645,7 +654,7 @@ function StudentDashboard() {
 
           {/* APPLICATIONS */}
           <div style={cardStyle}>
-            <h3 style={sectionHeadingStyle} ref={applicationsSectionRef}>📄 {t('studentDashboard.my_applications_heading')}</h3>
+            <h3 style={sectionHeadingStyle} ref={applicationsSectionRef}><InlineIcon icon={FileText} size={18} tone="gold" /> {t('studentDashboard.my_applications_heading')}</h3>
             {applications.length === 0 ? (
               <p style={{ color: '#a0aec0', fontSize: '15px', margin: 0 }}>
                 {t('studentDashboard.no_applications')} <Link to="/jobs" style={{ color: '#3182ce' }}>{t('studentDashboard.browse_jobs_link')}</Link>.
@@ -669,7 +678,7 @@ function StudentDashboard() {
 
           {/* RECOMMENDED JOBS */}
           <div style={cardStyle} data-section="recommended-jobs">
-            <h3 style={sectionHeadingStyle}>✨ {t('studentDashboard.recommended_jobs_heading')}</h3>
+            <h3 style={sectionHeadingStyle}><InlineIcon icon={Sparkles} size={18} tone="gold" /> {t('studentDashboard.recommended_jobs_heading')}</h3>
             {recommendedJobs === null ? (
               <p style={{ color: '#a0aec0', margin: 0 }}>{t('common.loading')}</p>
             ) : recommendedJobs.length === 0 ? (
@@ -686,30 +695,30 @@ function StudentDashboard() {
                     </div>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: '13px', fontWeight: 700, padding: '4px 10px', borderRadius: '12px', backgroundColor: job.match.percent >= 50 ? '#e6f4ea' : '#fdf6e3', color: job.match.percent >= 50 ? '#276749' : '#8a6d1d' }}>
-                        ✓ {t('jobs.match_badge', { matched: toLocalizedDigits(String(job.match.matched), i18n.language), total: toLocalizedDigits(String(job.match.total), i18n.language) })}
+                        <InlineIcon icon={Check} size={13} /> {t('jobs.match_badge', { matched: toLocalizedDigits(String(job.match.matched), i18n.language), total: toLocalizedDigits(String(job.match.total), i18n.language) })}
                       </span>
                       {job.applied ? (
-                        <span style={{ fontSize: '13px', fontWeight: 700, color: '#276749' }}>✓ {t('jobs.applied')}</span>
+                        <span style={{ fontSize: '13px', fontWeight: 700, color: '#276749' }}><InlineIcon icon={Check} size={13} /> {t('jobs.applied')}</span>
                       ) : (
                         <Link to={`/jobs/${job.id}?apply=1`} style={{ padding: '6px 14px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '16px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>{t('jobs.apply')}</Link>
                       )}
                     </div>
                   </div>
                 ))}
-                <Link to="/jobs?tab=recommended" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_jobs')} →</Link>
+                <Link to="/jobs?tab=recommended" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_jobs')} <InlineIcon icon={ArrowRight} size={14} className="rtl:rotate-180" /></Link>
               </div>
             )}
           </div>
 
           {/* MY COURSES */}
           <div style={cardStyle} data-section="my-courses">
-            <h3 style={sectionHeadingStyle}>📚 {t('studentDashboard.my_courses_heading')}</h3>
+            <h3 style={sectionHeadingStyle}><InlineIcon icon={BookOpen} size={18} tone="gold" /> {t('studentDashboard.my_courses_heading')}</h3>
             {myCourses === null ? (
               <p style={{ color: '#a0aec0', margin: 0 }}>{t('common.loading')}</p>
             ) : myCourses.length === 0 ? (
               <div>
                 <p style={{ color: '#a0aec0', fontSize: '15px', margin: '0 0 8px 0' }}>{t('studentDashboard.no_courses')}</p>
-                <Link to="/courses" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.browse_courses')} →</Link>
+                <Link to="/courses" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.browse_courses')} <InlineIcon icon={ArrowRight} size={14} className="rtl:rotate-180" /></Link>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -726,7 +735,7 @@ function StudentDashboard() {
                         </div>
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                           {course.completedAt ? (
-                            <span style={{ fontSize: '13px', fontWeight: 700, color: '#276749' }}>✓ {t('studentDashboard.course_finished')}</span>
+                            <span style={{ fontSize: '13px', fontWeight: 700, color: '#276749' }}><InlineIcon icon={Check} size={13} /> {t('studentDashboard.course_finished')}</span>
                           ) : (
                             <span style={{ fontSize: '13px', color: '#4a5568' }}>
                               {t('studentDashboard.course_progress', { done: toLocalizedDigits(String(done), i18n.language), total: toLocalizedDigits(String(total), i18n.language) })}
@@ -743,14 +752,14 @@ function StudentDashboard() {
                     </div>
                   );
                 })}
-                <Link to="/courses" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.browse_courses')} →</Link>
+                <Link to="/courses" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.browse_courses')} <InlineIcon icon={ArrowRight} size={14} className="rtl:rotate-180" /></Link>
               </div>
             )}
           </div>
 
           {/* COURSES FOR THE SKILLS THEY ARE MISSING */}
           <div style={cardStyle} data-section="recommended-courses">
-            <h3 style={sectionHeadingStyle}>🎓 {t('studentDashboard.recommended_courses_heading')}</h3>
+            <h3 style={sectionHeadingStyle}><InlineIcon icon={GraduationCap} size={18} tone="gold" /> {t('studentDashboard.recommended_courses_heading')}</h3>
             {courseSuggestions === null ? (
               <p style={{ color: '#a0aec0', margin: 0 }}>{t('common.loading')}</p>
             ) : courseSuggestions.length === 0 ? (
@@ -767,7 +776,7 @@ function StudentDashboard() {
                       <Link to={`/courses/${course.id}`} style={{ padding: '6px 14px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '16px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>{t('courses.view')}</Link>
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', marginTop: '8px', fontSize: '13px' }}>
-                      <strong style={{ color: '#1B2A4A' }}>✨ {t('courses.recommended_gap')}</strong>
+                      <strong style={{ color: '#1B2A4A' }}><InlineIcon icon={Sparkles} tone="gold" /> {t('courses.recommended_gap')}</strong>
                       {course.reasonSkills.map((sk) => (
                         <span key={sk.id} style={{ padding: '2px 9px', borderRadius: '10px', backgroundColor: '#f0f6ff', border: '1px solid #cfe0f7', color: '#1B2A4A' }}>
                           {sk[`name_${(i18n.language || 'en').split('-')[0]}`] || sk.name_en}
@@ -776,14 +785,14 @@ function StudentDashboard() {
                     </div>
                   </div>
                 ))}
-                <Link to="/courses?tab=recommended" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_recommended_courses')} →</Link>
+                <Link to="/courses?tab=recommended" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_recommended_courses')} <InlineIcon icon={ArrowRight} size={14} className="rtl:rotate-180" /></Link>
               </div>
             )}
           </div>
 
           {/* PEERS LIKE YOU */}
           <div style={cardStyle} data-section="peers">
-            <h3 style={sectionHeadingStyle}>🤝 {t('studentDashboard.peers_heading')}</h3>
+            <h3 style={sectionHeadingStyle}><InlineIcon icon={Handshake} size={18} tone="gold" /> {t('studentDashboard.peers_heading')}</h3>
             {peers === null ? (
               <p style={{ color: '#a0aec0', margin: 0 }}>{t('common.loading')}</p>
             ) : peers.length === 0 ? (
@@ -795,21 +804,21 @@ function StudentDashboard() {
                     <div style={{ minWidth: 0 }}>
                       <Link to={`/students/${peer.id}`} style={{ color: '#1a202c', fontWeight: 700, textDecoration: 'none' }}>{peer.fullName}</Link>
                       <div style={{ fontSize: '13px', color: '#718096' }}>{peer.university} · {peer.fieldOfStudy}</div>
-                      {peer.email && <a href={`mailto:${peer.email}`} dir="ltr" style={{ fontSize: '13px', color: '#1B2A4A' }}>✉️ {peer.email}</a>}
+                      {peer.email && <a href={`mailto:${peer.email}`} dir="ltr" style={{ fontSize: '13px', color: '#1B2A4A' }}><InlineIcon icon={Mail} size={13} /> {peer.email}</a>}
                     </div>
                     <Link to={`/messages/${peer.userId}`} style={{ padding: '6px 14px', border: '1px solid #cbd5e0', color: '#1B2A4A', borderRadius: '16px', fontSize: '13px', fontWeight: 700, textDecoration: 'none' }}>
-                      💬 {t('skillMatch.message')}
+                      <InlineIcon icon={MessageSquare} size={13} /> {t('skillMatch.message')}
                     </Link>
                   </div>
                 ))}
-                <Link to="/skill-match" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_peers')} →</Link>
+                <Link to="/skill-match" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_peers')} <InlineIcon icon={ArrowRight} size={14} className="rtl:rotate-180" /></Link>
               </div>
             )}
           </div>
 
           {/* PRIVACY */}
           <div style={cardStyle} data-section="privacy">
-            <h3 style={sectionHeadingStyle}>🔒 {t('studentDashboard.privacy_heading')}</h3>
+            <h3 style={sectionHeadingStyle}><InlineIcon icon={Lock} size={18} tone="gold" /> {t('studentDashboard.privacy_heading')}</h3>
             <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '15px', fontWeight: 600, color: '#2d3748', cursor: 'pointer' }}>
               <input
                 type="checkbox"
@@ -847,7 +856,7 @@ function StudentDashboard() {
 
           {/* RESUME / CV (optional; auto-attaches to job applications) */}
           <div style={cardStyle}>
-            <h3 style={sectionHeadingStyle}>📄 {t('studentDashboard.section_resume')} <span style={{ fontWeight: 'normal', color: '#a0aec0', fontSize: '14px' }}>{t('common.optional')}</span></h3>
+            <h3 style={sectionHeadingStyle}><InlineIcon icon={FileText} size={18} tone="gold" /> {t('studentDashboard.section_resume')} <span style={{ fontWeight: 'normal', color: '#a0aec0', fontSize: '14px' }}>{t('common.optional')}</span></h3>
             {resumeError && <p style={{ color: 'red', fontSize: '14px', marginTop: 0 }}>{resumeError}</p>}
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
               <button
@@ -856,11 +865,11 @@ function StudentDashboard() {
                 disabled={uploadingResume}
                 style={{ padding: '10px 18px', backgroundColor: '#edf2f7', color: '#2d3748', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingResume ? 'wait' : 'pointer', fontWeight: '600', fontSize: '14px' }}
               >
-                {profile?.resumeUrl || pendingResumeFile ? t('studentDashboard.change_resume') : t('studentDashboard.upload_resume')}
+                {profile?.hasResume || pendingResumeFile ? t('studentDashboard.change_resume') : t('studentDashboard.upload_resume')}
               </button>
-              {profile?.resumeUrl && (
+              {profile?.hasResume && (
                 <>
-                  <a href={profile.resumeUrl} target="_blank" rel="noreferrer" style={{ fontSize: '14px', color: '#3182ce', fontWeight: '600' }}>{t('studentDashboard.view_resume')}</a>
+                  <CvLink endpoint={`/api/student/${profile.id}/resume`} label={t('studentDashboard.view_resume')} style={{ fontSize: '14px', color: '#3182ce', fontWeight: '600' }} />
                   <button type="button" onClick={handleRemoveResume} style={{ background: 'none', border: 'none', color: '#e53e3e', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>
                     {t('studentDashboard.remove_resume')}
                   </button>
@@ -873,13 +882,13 @@ function StudentDashboard() {
                 ? t('studentDashboard.uploading_resume')
                 : pendingResumeFile
                   ? t('studentDashboard.resume_pending', { filename: pendingResumeFile.name })
-                  : !profile?.resumeUrl ? t('studentDashboard.no_resume') : t('studentDashboard.resume_hint')}
+                  : !profile?.hasResume ? t('studentDashboard.no_resume') : t('studentDashboard.resume_hint')}
             </div>
           </div>
 
           {/* BASIC INFO */}
           <div style={cardStyle}>
-            <h3 style={sectionHeadingStyle}>📋 {t('studentDashboard.section_basic_info')}</h3>
+            <h3 style={sectionHeadingStyle}><InlineIcon icon={ClipboardList} size={18} tone="gold" /> {t('studentDashboard.section_basic_info')}</h3>
             <div className="grid-2col">
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelStyle}>{t('studentDashboard.full_name_placeholder')} <span style={{ color: '#e53e3e' }}>*</span></label>
@@ -902,13 +911,13 @@ function StudentDashboard() {
 
           {/* ABOUT */}
           <div style={cardStyle}>
-            <h3 style={sectionHeadingStyle}>📝 {t('studentDashboard.section_about')}</h3>
+            <h3 style={sectionHeadingStyle}><InlineIcon icon={FileText} size={18} tone="gold" /> {t('studentDashboard.section_about')}</h3>
             <textarea name="bio" placeholder={t('studentDashboard.bio_placeholder')} value={formData.bio || ''} onChange={handleChange} rows="4" style={{ ...inputStyle, resize: 'vertical' }} />
           </div>
 
           {/* LINKS */}
           <div style={cardStyle}>
-            <h3 style={sectionHeadingStyle}>🔗 {t('studentDashboard.section_links')}</h3>
+            <h3 style={sectionHeadingStyle}><InlineIcon icon={Link2} size={18} tone="gold" /> {t('studentDashboard.section_links')}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <input type="url" name="linkedinUrl" placeholder={t('studentDashboard.linkedin_placeholder')} value={formData.linkedinUrl || ''} onChange={handleChange} style={inputStyle} />
               <input type="url" name="githubUrl" placeholder={t('studentDashboard.github_placeholder')} value={formData.githubUrl || ''} onChange={handleChange} style={inputStyle} />
@@ -918,7 +927,7 @@ function StudentDashboard() {
 
           {/* PRIVACY */}
           <div style={cardStyle}>
-            <h3 style={sectionHeadingStyle}>🔒 {t('studentDashboard.privacy_heading')}</h3>
+            <h3 style={sectionHeadingStyle}><InlineIcon icon={Lock} size={18} tone="gold" /> {t('studentDashboard.privacy_heading')}</h3>
             <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '15px', fontWeight: 600, color: '#2d3748', cursor: 'pointer' }}>
               <input
                 type="checkbox"
@@ -934,7 +943,7 @@ function StudentDashboard() {
 
           {/* SKILLS SELECTION */}
           <div style={cardStyle} ref={skillsSectionRef}>
-            <h3 style={sectionHeadingStyle}>🧩 {t('studentDashboard.select_skills_heading')}</h3>
+            <h3 style={sectionHeadingStyle}><InlineIcon icon={Puzzle} size={18} tone="gold" /> {t('studentDashboard.select_skills_heading')}</h3>
 
             <input
               type="text"

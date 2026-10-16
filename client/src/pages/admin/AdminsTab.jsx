@@ -7,6 +7,8 @@ import { Dialog, ConfirmDialog } from '../../components/Dialog';
 import { buttonStyle } from '../../components/buttonStyle';
 import { Badge, SectionHeading } from './adminUi';
 import { cardStyle, mutedStyle, inputStyle, accountStatusTone } from './adminStyles';
+import { Plus, ShieldCheck } from 'lucide-react';
+import InlineIcon from '../../components/InlineIcon';
 
 function AdminsTab({ notify, me }) {
   const { t, i18n } = useTranslation();
@@ -78,7 +80,7 @@ function AdminsTab({ notify, me }) {
   return (
     <section>
       <div style={{ ...cardStyle, marginBottom: '28px' }}>
-        <h3 style={{ margin: '0 0 6px 0', fontSize: '17px', color: '#1a202c' }}>➕ {t('adminConsole.admins.add_heading')}</h3>
+        <h3 style={{ margin: '0 0 6px 0', fontSize: '17px', color: '#1a202c' }}><InlineIcon icon={Plus} /> {t('adminConsole.admins.add_heading')}</h3>
         <p style={{ ...mutedStyle, margin: '0 0 12px 0', lineHeight: 1.6 }}>{t('adminConsole.admins.add_hint')}</p>
         <form onSubmit={add} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <input
@@ -102,7 +104,7 @@ function AdminsTab({ notify, me }) {
         </form>
       </div>
 
-      <SectionHeading>🛡️ {t('adminConsole.admins.heading')}</SectionHeading>
+      <SectionHeading><InlineIcon icon={ShieldCheck} tone="gold" /> {t('adminConsole.admins.heading')}</SectionHeading>
       <p style={{ ...mutedStyle, margin: '-6px 0 12px 0' }}>{t('adminConsole.admins.super_explainer')}</p>
 
       {loading ? (

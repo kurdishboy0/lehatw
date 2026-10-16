@@ -1,13 +1,14 @@
 const prisma = require('../db');
 const { notifyUser } = require('../utils/notify');
 const { storageKey } = require('../middleware/upload');
-const { uploadToStorage } = require('../utils/supabaseStorage');
+const { uploadPrivate, signedUrlFor, isStoredPath, SIGNED_URL_TTL_SECONDS } = require('../utils/supabaseStorage');
+const { canViewApplicationCv } = require('../utils/cvAccess');
 
 // 1. Student applies to a job post
 const applyToJob = async (req, res) => {
   try {
     if (req.user.role !== 'STUDENT') {
-      return res.status(403).json({ message: "Only students can apply to jobs." });
+      return res.status(403).json({ message: "Only talent can apply to jobs." });
     }
 
     const { jobPostId, coverLetter } = req.body;
@@ -26,7 +27,7 @@ const applyToJob = async (req, res) => {
     if (req.file) {
       const key = storageKey('resumes', 'application', req.user.id, req.file.mimetype, req.file.originalname);
       try {
-        cvUrl = await uploadToStorage(req.file.buffer, key, req.file.mimetype);
+        cvUrl = await uploadPrivate(req.file.buffer, key, req.file.mimetype);
       } catch (uploadError) {
         if (uploadError.message === 'STORAGE_NOT_CONFIGURED') {
           return res.status(503).json({ message: "File storage isn't set up on this server yet." });
@@ -75,6 +76,12 @@ const applyToJob = async (req, res) => {
 };
 
 // 2. Student views their own applications
+// An application says whether a CV came with it, never where the file is.
+function withCvFlag(application) {
+  const { cvUrl, ...rest } = application;
+  return { ...rest, hasCv: Boolean(cvUrl) };
+}
+
 const getMyApplications = async (req, res) => {
   try {
     if (req.user.role !== 'STUDENT') {
@@ -91,7 +98,7 @@ const getMyApplications = async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    res.status(200).json(applications);
+    res.status(200).json(applications.map(withCvFlag));
   } catch (error) {
     console.error("Get My Applications Error:", error);
     res.status(500).json({ message: "Server error fetching applications." });
@@ -138,11 +145,45 @@ const getJobApplicants = async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    res.status(200).json({ jobTitle: job.title, applications });
+    res.status(200).json({ jobTitle: job.title, applications: applications.map(withCvFlag) });
   } catch (error) {
     console.error("Get Job Applicants Error:", error);
     res.status(500).json({ message: "Server error fetching applicants." });
   }
 };
 
-module.exports = { applyToJob, getMyApplications, getJobApplicants };
+// The CV attached to one application: for the person who sent it, the
+// company that received it, and admins.
+const getApplicationCvLink = async (req, res) => {
+  try {
+    const application = await prisma.application.findUnique({
+      where: { id: Number(req.params.id) },
+      select: {
+        cvUrl: true,
+        studentId: true,
+        jobPost: { select: { hrProfile: { select: { userId: true } } } }
+      }
+    });
+    if (!application || !application.cvUrl) {
+      return res.status(404).json({ message: "No CV on this application." });
+    }
+    if (!(await canViewApplicationCv(req.user, application))) {
+      return res.status(404).json({ message: "No CV on this application." });
+    }
+
+    if (!isStoredPath(application.cvUrl)) {
+      return res.status(200).json({ url: application.cvUrl, legacy: true });
+    }
+
+    const url = await signedUrlFor(application.cvUrl);
+    res.status(200).json({ url, expiresIn: SIGNED_URL_TTL_SECONDS });
+  } catch (error) {
+    if (error.message === 'STORAGE_NOT_CONFIGURED') {
+      return res.status(503).json({ message: "File storage isn't set up on this server yet." });
+    }
+    console.error("Application CV Link Error:", error);
+    res.status(500).json({ message: "Server error preparing the CV link." });
+  }
+};
+
+module.exports = { applyToJob, getMyApplications, getJobApplicants, getApplicationCvLink };
