@@ -39,6 +39,8 @@ a {
   margin: 40px auto 0;
   border-top: 1px solid #2d3748;
   padding-top: 20px;
+  /* Keep the credit above Netlify's floating badge at the bottom-right. */
+  padding-bottom: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
