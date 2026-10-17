@@ -137,8 +137,17 @@ function App() {
 
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: '40px', borderTop: '1px solid #2d3748', paddingTop: '20px', fontSize: '13px', color: '#718096' }}>
-            {t('footer.copyright')}
+          <div className="footer-bottom">
+            <span dir={rtl ? 'rtl' : 'ltr'}>{t('footer.copyright')}</span>
+            <a
+              className="footer-credit"
+              href="https://www.linkedin.com/in/ahmed-bradosty-190b7917a/"
+              target="_blank"
+              rel="noopener noreferrer"
+              dir={rtl ? 'rtl' : 'ltr'}
+            >
+              {t('footer.developed_by')}{' '}<bdi>AB</bdi>
+            </a>
           </div>
         </footer>
 

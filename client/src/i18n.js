@@ -156,6 +156,7 @@ const resources = {
         privacy_policy: "Privacy Policy",
         terms_of_service: "Terms of Service",
         contact_us: "Contact Us",
+        developed_by: "Developed by",
         copyright: "© 2026 Lehatw. All rights reserved."
       },
 
@@ -711,6 +712,7 @@ const resources = {
         privacy_policy: "سياسة الخصوصية",
         terms_of_service: "شروط الخدمة",
         contact_us: "اتصل بنا",
+        developed_by: "طُوّر بواسطة",
         copyright: "© 2026 لێهاتوو. جميع الحقوق محفوظة."
       },
 
@@ -1266,6 +1268,7 @@ const resources = {
         privacy_policy: "سیاسەتی تایبەتێتی",
         terms_of_service: "مەرجەکانی خزمەتگوزاری",
         contact_us: "پەیوەندیمان پێوە بکە",
+        developed_by: "گەشەپێدراوە لەلایەن",
         copyright: "© ٢٠٢٦ لێهاتوو. هەموو مافەکان پارێزراون."
       },
 
