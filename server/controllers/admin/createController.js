@@ -1,4 +1,5 @@
 const prisma = require('../../db');
+const { parseApplicationDeadline, deadlineError } = require('../../utils/jobDeadline');
 const { logAdminAction } = require('../../utils/audit');
 const { notifyUser } = require('../../utils/notify');
 const { createSetupLink, sendSetupEmail } = require('../../utils/accountSetup');
@@ -173,6 +174,7 @@ const createJobForCompany = async (req, res) => {
         experienceLevel: clean(req.body.experienceLevel, 120) || null,
         education: clean(req.body.education, 200) || null,
         requiresCv: req.body.requiresCv !== false,
+        applicationDeadline: parseApplicationDeadline(req.body.applicationDeadline),
         skills: { create: skillIds.map((id) => ({ skill: { connect: { id } } })) }
       },
       include: { skills: { include: { skill: true } } }
@@ -191,6 +193,7 @@ const createJobForCompany = async (req, res) => {
     });
     res.status(201).json({ message: 'Job posted.', job });
   } catch (error) {
+    if (deadlineError(res, error)) return;
     console.error('Admin Create Job Error:', error);
     res.status(500).json({ message: 'Server error posting the job.' });
   }

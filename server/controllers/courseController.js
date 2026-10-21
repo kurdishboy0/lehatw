@@ -1,4 +1,5 @@
 const prisma = require('../db');
+const { openJobWhere } = require('../utils/jobDeadline');
 const { notifyUser, notifyAdmins } = require('../utils/notify');
 const { logAdminAction } = require('../utils/audit');
 
@@ -232,7 +233,7 @@ const recommendedCourses = async (req, res) => {
 
     const known = new Set(profile.skills.map((s) => s.skillId));
     const jobs = await prisma.jobPost.findMany({
-      where: { isActive: true, removedByAdmin: false },
+      where: openJobWhere(),
       select: { id: true, skills: { select: { skillId: true } } }
     });
 

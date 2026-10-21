@@ -27,8 +27,8 @@ function emailQuietly(to, subject, text) {
 }
 
 // Signup verification is by email code, stored in the phone* fields for
-// historical reasons; accounts without a phone never needed it.
-const isVerified = (u) => !u.phone || u.phoneVerified;
+// historical reasons. A contact number is independent of email ownership.
+const isVerified = (u) => u.phoneVerified;
 
 function shape(u) {
   const { googleId, linkedinId, ...rest } = u;
@@ -78,8 +78,8 @@ const listUsers = handle('List Users', async (req, res) => {
   const where = { AND: [] };
   if (ROLES.includes(req.query.role)) where.AND.push({ role: req.query.role });
   if (STATUSES.includes(req.query.status)) where.AND.push({ accountStatus: req.query.status });
-  if (req.query.verified === 'no') where.AND.push({ phone: { not: null }, phoneVerified: false });
-  if (req.query.verified === 'yes') where.AND.push({ OR: [{ phone: null }, { phoneVerified: true }] });
+  if (req.query.verified === 'no') where.AND.push({ phoneVerified: false });
+  if (req.query.verified === 'yes') where.AND.push({ phoneVerified: true });
   if (q) {
     const contains = { contains: q, mode: 'insensitive' };
     where.AND.push({
@@ -344,7 +344,7 @@ const addAdmin = handle('Add Admin', async (req, res) => {
 
   const tempPassword = generateTempPassword();
   const created = await prisma.user.create({
-    data: { email, password: await bcrypt.hash(tempPassword, 10), role: 'ADMIN', isSuperAdmin: makeSuper },
+    data: { email, password: await bcrypt.hash(tempPassword, 10), role: 'ADMIN', isSuperAdmin: makeSuper, phoneVerified: true },
     select: USER_SELECT
   });
   emailQuietly(email, 'Your Lehatw admin account',

@@ -6,6 +6,7 @@ import { Dialog } from '../../components/Dialog';
 import { buttonStyle } from '../../components/buttonStyle';
 import { mutedStyle, inputStyle } from './adminStyles';
 import { X } from 'lucide-react';
+import { iraqToday } from '../../jobDeadline';
 import InlineIcon from '../../components/InlineIcon';
 
 const EMPLOYMENT_TYPES = ['Full-Time', 'Part-Time', 'Internship', 'Contract', 'Freelance'];
@@ -22,9 +23,10 @@ function CreateJobDialog({ onCreated, onClose, notify }) {
   const [skillQuery, setSkillQuery] = useState('');
   const [form, setForm] = useState({
     hrProfileId: '', title: '', description: '', responsibilities: '', requirements: '', benefits: '',
-    location: '', employmentType: '', workMode: '', experienceLevel: '', education: '', requiresCv: true, skillIds: []
+    location: '', employmentType: '', workMode: '', experienceLevel: '', education: '', applicationDeadline: '', requiresCv: true, skillIds: []
   });
   const [busy, setBusy] = useState(false);
+  const [today] = useState(iraqToday);
   const [error, setError] = useState('');
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
 
@@ -55,7 +57,7 @@ function CreateJobDialog({ onCreated, onClose, notify }) {
       const company = companies.find((c) => String(c.id) === String(form.hrProfileId));
       onCreated({ job: res.data.job, company: company?.companyName || '' });
     } catch (err) {
-      setError(err.response?.data?.message || t('adminConsole.error_action'));
+      setError(['INVALID_APPLICATION_DEADLINE', 'APPLICATION_DEADLINE_PAST'].includes(err.response?.data?.code) ? t('qa.deadline_invalid') : err.response?.data?.message || t('adminConsole.error_action'));
       setBusy(false);
     }
   };
@@ -91,6 +93,11 @@ function CreateJobDialog({ onCreated, onClose, notify }) {
           </label>
         ))}
 
+        <label style={label}>
+          {t('qa.deadline_label')}
+          <input type="date" min={today} value={form.applicationDeadline} onChange={set('applicationDeadline')} style={field} />
+          <span style={{ ...mutedStyle, fontWeight: 400 }}>{t('qa.deadline_hint')}</span>
+        </label>
         <div className="grid-2col">
           <label style={label}>
             {t('adminConsole.jobs.create_location')}

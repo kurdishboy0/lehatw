@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken'); 
 const prisma = require('../db');
 const sendEmail = require('../utils/sendEmail');
-const sendSms = require('../utils/sendSms');
+const { normalizeEmail, isValidEmail } = require('../utils/emailAddress');
 const { notifyAdmins } = require('../utils/notify');
 const { getAccountBlock, blockedResponse } = require('../utils/accountStatus');
 
@@ -18,9 +18,12 @@ const { getDisplayName } = require('../utils/displayName');
 
 const registerUser = async (req, res) => {
   try {
-    const { email, password, role, companyName, website, phone, address, taxId, personalPhone, fullName, headline, expertise, bio, linkedinUrl } = req.body;
+    const { password, role, companyName, website, phone, address, taxId, personalPhone, fullName, headline, expertise, bio, linkedinUrl } = req.body;
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const email = normalizeEmail(req.body.email);
+    if (!isValidEmail(email)) return res.status(400).json({ code: 'INVALID_EMAIL', message: 'Please enter a valid email address.' });
+    if (typeof password !== 'string' || password.length < MIN_PASSWORD || Buffer.byteLength(password, 'utf8') > 72) return res.status(400).json({ message: 'Use a password of at least 8 characters and at most 72 bytes.' });
+    const existingUser = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
     if (existingUser) {
       return res.status(400).json({ message: "Email is already in use!" });
     }
@@ -35,8 +38,7 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "Please enter your full name." });
     }
 
-    // The contact number used for verification: a student's or instructor's
-    // own phone, or the HR contact's number from the company form.
+    // Unverified contact information for recruiters; verification uses email.
     const verificationPhone = finalRole === 'HR' ? (phone || null) : (personalPhone || phone || null);
 
     let userData = {
@@ -109,9 +111,12 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const email = normalizeEmail(req.body.email);
+    if (!isValidEmail(email)) return res.status(400).json({ code: 'INVALID_EMAIL', message: 'Please enter a valid email address.' });
+    if (typeof password !== 'string') return res.status(401).json({ message: 'Invalid credentials!' });
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
     if (!user) {
       // Deliberately the same status and wording as a wrong password: a
       // different answer here would let anyone test which addresses have
@@ -134,9 +139,9 @@ const loginUser = async (req, res) => {
     const block = getAccountBlock(user);
     if (block) return blockedResponse(res, block);
 
-    if (user.phone && !user.phoneVerified) {
+    if (!user.phoneVerified) {
       return res.status(403).json({
-        message: "Please verify your phone number to activate your account.",
+        message: "Please verify your email to activate your account.",
         code: "PHONE_NOT_VERIFIED",
         email: user.email
       });
@@ -207,13 +212,13 @@ const googleLogin = async (req, res) => {
       return res.status(401).json({ message: 'Google sign-in failed. Please try again.' });
     }
 
-    let user = await prisma.user.findUnique({ where: { email } });
+    let user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
 
     if (user) {
-      if (!user.googleId) {
+      if (!user.googleId || !user.phoneVerified) {
         user = await prisma.user.update({
-          where: { email },
-          data: { googleId }
+          where: { id: user.id },
+          data: { googleId, phoneVerified: true }
         });
       }
     } else {
@@ -221,6 +226,7 @@ const googleLogin = async (req, res) => {
         data: {
           email,
           googleId,
+          phoneVerified: true,
           role: 'STUDENT',
         }
       });
@@ -293,18 +299,18 @@ const linkedinLogin = async (req, res) => {
     const { email, sub: linkedinId } = profileData;
 
     // 3. Check or create the user in your database
-    let user = await prisma.user.findUnique({ where: { email } });
+    let user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
 
     if (user) {
-      if (!user.linkedinId) {
+      if (!user.linkedinId || (!user.phoneVerified && profileData.email_verified === true)) {
         user = await prisma.user.update({
-          where: { email },
-          data: { linkedinId },
+          where: { id: user.id },
+          data: { linkedinId, ...(profileData.email_verified === true && { phoneVerified: true }) },
         });
       }
     } else {
       user = await prisma.user.create({
-        data: { email, linkedinId, role: 'STUDENT' },
+        data: { email, linkedinId, role: 'STUDENT', phoneVerified: profileData.email_verified === true },
       });
     }
 
@@ -338,8 +344,12 @@ const linkedinLogin = async (req, res) => {
 // ==========================================
 const forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
+    // A global configuration check gives the same answer for every address,
+    // while avoiding a false "code sent" when mail is not configured at all.
+    if (!sendEmail.isConfigured()) return res.status(503).json({ code: 'EMAIL_DELIVERY_UNAVAILABLE', message: 'Email delivery is temporarily unavailable.' });
+    const email = normalizeEmail(req.body.email);
+    if (!isValidEmail(email)) return res.status(400).json({ code: 'INVALID_EMAIL', message: 'Please enter a valid email address.' });
+    const user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
 
     if (!user) {
       // Answer as though a code went out. Saying "no such account" here
@@ -350,7 +360,7 @@ const forgotPassword = async (req, res) => {
     const otp = generateOtp();
 
     await prisma.user.update({
-      where: { email },
+      where: { id: user.id },
       data: {
         resetOtp: hashOtp(otp),
         resetOtpExpires: otpExpiry(),
@@ -374,8 +384,10 @@ const forgotPassword = async (req, res) => {
 
 const verifyOTP = async (req, res) => {
   try {
-    const { email, otp } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
+    const { otp } = req.body;
+    const email = normalizeEmail(req.body.email);
+    if (!isValidEmail(email)) return res.status(400).json({ code: 'INVALID_EMAIL', message: 'Please enter a valid email address.' });
+    const user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
 
     if (!user || !otpMatches(otp, user.resetOtp) || !notExpired(user.resetOtpExpires)) {
       return res.status(400).json({ message: "Invalid or expired code. Please request a new one." });
@@ -395,13 +407,15 @@ const verifyOTP = async (req, res) => {
 // happens to call first.
 const resetPassword = async (req, res) => {
   try {
-    const { email, otp, newPassword } = req.body;
+    const { otp, newPassword } = req.body;
+    const email = normalizeEmail(req.body.email);
+    if (!isValidEmail(email)) return res.status(400).json({ code: 'INVALID_EMAIL', message: 'Please enter a valid email address.' });
 
     if (typeof newPassword !== 'string' || newPassword.length < MIN_PASSWORD) {
       return res.status(400).json({ message: `Your password must be at least ${MIN_PASSWORD} characters.` });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
     // One answer for a wrong code, an unknown address or an expired code, so
     // this can't be used to find out which addresses have accounts.
     if (!user || !otpMatches(otp, user.resetOtp) || !notExpired(user.resetOtpExpires)) {
@@ -411,7 +425,7 @@ const resetPassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await prisma.user.update({
-      where: { email },
+      where: { id: user.id },
       data: {
         password: hashedPassword,
         passwordChangedAt: new Date(),
@@ -448,47 +462,31 @@ async function sendVerificationEmail(user) {
   await sendEmail(user.email, "Verify your email - Lehatw", `Your verification code is: ${otp}\n\nIt will expire in 15 minutes.`);
 }
 
-// Sends (or resends) a 6-digit code to verify the account, via email or SMS.
-// Channel defaults to email since it needs no extra setup; SMS requires Twilio
-// credentials to be configured on the server.
+// Sends or resends a 6-digit email verification code. The legacy route name
+// is retained so existing clients continue to work.
 const sendPhoneOtp = async (req, res) => {
   try {
-    const { email, channel } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
-
-    if (!user || !user.phone) {
-      return res.status(404).json({ message: "No phone number on file for this account." });
-    }
-    if (user.phoneVerified) {
-      return res.status(400).json({ message: "This phone number is already verified." });
-    }
-
-    if (channel !== 'sms') {
-      await sendVerificationEmail(user);
-      return res.status(200).json({ message: "Verification code sent via email." });
-    }
-
-    const otp = await issueVerificationCode(user);
-    try {
-      await sendSms(user.phone, `Your Lehatw verification code is: ${otp}. It expires in 15 minutes.`);
-    } catch (smsError) {
-      if (smsError.message === 'SMS_NOT_CONFIGURED') {
-        return res.status(503).json({ message: "SMS delivery isn't set up on this server yet. Please use email instead." });
-      }
-      throw smsError;
-    }
-
-    res.status(200).json({ message: "Verification code sent via SMS." });
+    const email = normalizeEmail(req.body.email);
+    if (!isValidEmail(email)) return res.status(400).json({ code: 'INVALID_EMAIL', message: 'Please enter a valid email address.' });
+    const user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
+    if (!user) return res.status(400).json({ message: 'Unable to send a verification code. Please check your registration.' });
+    if (user.phoneVerified) return res.status(400).json({ message: 'This email is already verified.' });
+    // Account verification is email-only. A contact phone is never proof of
+    // ownership of the account's email, including when a caller requests SMS.
+    await sendVerificationEmail(user);
+    res.status(200).json({ message: 'Verification code sent via email.' });
   } catch (error) {
     console.error("Send Phone OTP Error:", error);
-    res.status(500).json({ message: "Server error. Could not send verification code." });
+    res.status(503).json({ code: 'EMAIL_DELIVERY_UNAVAILABLE', message: 'Email delivery is temporarily unavailable. Please try again later or contact support.' });
   }
 };
 
 const verifyPhoneOtp = async (req, res) => {
   try {
-    const { email, otp } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
+    const { otp } = req.body;
+    const email = normalizeEmail(req.body.email);
+    if (!isValidEmail(email)) return res.status(400).json({ code: 'INVALID_EMAIL', message: 'Please enter a valid email address.' });
+    const user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
 
     if (!user || !otpMatches(otp, user.phoneOtp) || !notExpired(user.phoneOtpExpires)) {
       return res.status(400).json({ message: "Invalid or expired code. Please request a new one." });
@@ -498,7 +496,7 @@ const verifyPhoneOtp = async (req, res) => {
     if (block) return blockedResponse(res, block);
 
     const verifiedUser = await prisma.user.update({
-      where: { email },
+      where: { id: user.id },
       data: { phoneVerified: true, phoneOtp: null, phoneOtpExpires: null }
     });
 
@@ -510,7 +508,7 @@ const verifyPhoneOtp = async (req, res) => {
     const name = await getDisplayName(verifiedUser);
 
     res.status(200).json({
-      message: "Phone verified! You're all set.",
+      message: "Email verified! You're all set.",
       token,
       user: { id: verifiedUser.id, email: verifiedUser.email, role: verifiedUser.role, name }
     });

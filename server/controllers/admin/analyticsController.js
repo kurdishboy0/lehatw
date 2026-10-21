@@ -14,11 +14,12 @@ function startOfLocalDay(date) {
   return new Date(shifted.getTime() - TZ_OFFSET_MS);
 }
 
-const liveJobWhere = { isActive: true, removedByAdmin: false };
+const { openJobWhere } = require('../../utils/jobDeadline');
 
 const getAnalytics = async (req, res) => {
   try {
     const now = new Date();
+    const liveJobWhere = openJobWhere(now);
     const trendStart = new Date(startOfLocalDay(now).getTime() - (TREND_DAYS - 1) * DAY_MS);
     const weekAgo = new Date(now.getTime() - 7 * DAY_MS);
     const twoWeeksAgo = new Date(now.getTime() - 14 * DAY_MS);
@@ -34,9 +35,9 @@ const getAnalytics = async (req, res) => {
       prisma.jobPost.count({ where: liveJobWhere }),
       prisma.jobPost.count(),
       prisma.application.count(),
-      // Accounts that signed up with a contact number must confirm their email.
-      prisma.user.count({ where: { phone: { not: null }, role: { not: 'ADMIN' } } }),
-      prisma.user.count({ where: { phone: { not: null }, phoneVerified: true, role: { not: 'ADMIN' } } }),
+      // Contact numbers do not determine whether email verification is needed.
+      prisma.user.count({ where: { role: { not: 'ADMIN' } } }),
+      prisma.user.count({ where: { phoneVerified: true, role: { not: 'ADMIN' } } }),
       prisma.user.findMany({ where: { createdAt: { gte: trendStart }, role: { in: ['STUDENT', 'HR'] } }, select: { createdAt: true, role: true } }),
       prisma.application.count({ where: { createdAt: { gte: weekAgo } } }),
       prisma.application.count({ where: { createdAt: { gte: twoWeeksAgo, lt: weekAgo } } }),

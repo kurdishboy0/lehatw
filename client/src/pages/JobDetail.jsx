@@ -6,6 +6,9 @@ import { getUser, authHeader } from '../auth';
 import ReportButton from '../components/ReportButton';
 import { MapPin, Clock, Building2, Briefcase, GraduationCap, FileText, Target, CircleCheck, Gift, ArrowLeft } from 'lucide-react';
 import InlineIcon from '../components/InlineIcon';
+import JobDeadline from '../components/JobDeadline';
+import { applicationsClosed } from '../jobDeadline';
+import CvLink from '../components/CvLink';
 
 function bulletsFrom(text) {
   return (text || '').split('\n').map(line => line.trim()).filter(Boolean);
@@ -54,6 +57,11 @@ function JobDetail() {
   const { t } = useTranslation();
   const { jobId } = useParams();
   const [job, setJob] = useState(null);
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(timer);
+  }, []);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -86,13 +94,14 @@ function JobDetail() {
   useEffect(() => {
     if (user?.role !== 'STUDENT') return;
     axios.get('/api/student/profile', { headers: authHeader() })
-      .then(res => setProfileResumeUrl(res.data.hasResume ? 'on-file' : null))
+      .then(res => setProfileResumeUrl(res.data.hasResume ? res.data.id : null))
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount, `user` is stable for the page's lifetime
   }, []);
 
   const submitApplication = async () => {
     setApplyStatus('');
+    if (applicationsClosed(job)) { setApplyStatus(t('qa.deadline_closed')); return; }
     try {
       const form = new FormData();
       form.append('jobPostId', job.id);
@@ -105,7 +114,7 @@ function JobDetail() {
       setApplyStatus(t('jobDetail.application_submitted'));
       setApplying(false);
     } catch (err) {
-      setApplyStatus(err.response?.data?.message || t('jobDetail.error_apply_default'));
+      setApplyStatus(err.response?.data?.code === 'APPLICATIONS_CLOSED' ? t('qa.deadline_closed') : err.response?.data?.message || t('jobDetail.error_apply_default'));
     }
   };
 
@@ -175,7 +184,8 @@ function JobDetail() {
               <p style={{ color: applyStatus === t('jobDetail.application_submitted') ? 'green' : 'red', fontWeight: 'bold' }}>{applyStatus}</p>
             )}
 
-            {!user ? (
+            <JobDeadline job={job} />
+            {applicationsClosed(job, now) ? <p role="status">{t('qa.deadline_closed')}</p> : !user ? (
               <p style={{ color: '#718096', fontSize: '14px' }}>
                 <Link to="/login" style={{ color: '#1B2A4A', fontWeight: '600', textDecoration: 'none' }}>{t('jobDetail.login_link')}</Link> {t('jobDetail.login_prompt')}
               </p>
@@ -191,7 +201,7 @@ function JobDetail() {
 
                 {profileResumeUrl && !useDifferentCv ? (
                   <div style={{ fontSize: '13px', color: '#2d3748', backgroundColor: '#f0fff4', border: '1px solid #c6f6d5', borderRadius: '6px', padding: '10px 12px' }}>
-                    <InlineIcon icon={FileText} /> {t('jobDetail.cv_using_profile')} <a href={profileResumeUrl} target="_blank" rel="noreferrer" style={{ color: '#2f855a', fontWeight: '600' }}>{t('jobDetail.cv_view')}</a>
+                    <InlineIcon icon={FileText} /> {t('jobDetail.cv_using_profile')} <CvLink endpoint={`/api/student/${profileResumeUrl}/resume`} label={t('jobDetail.cv_view')} style={{ color: '#2f855a', fontWeight: '600' }} />
                     {' · '}
                     <button type="button" onClick={() => setUseDifferentCv(true)} style={{ background: 'none', border: 'none', color: '#1B2A4A', fontWeight: '600', cursor: 'pointer', padding: 0, fontSize: '13px' }}>
                       {t('jobDetail.cv_upload_different')}

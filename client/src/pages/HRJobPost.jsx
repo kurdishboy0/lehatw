@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { authHeader } from '../auth';
 import { ClipboardList, MapPin, Clock, Building2, Briefcase, GraduationCap, FileText, Target, CircleCheck, Gift, Puzzle } from 'lucide-react';
 import InlineIcon from '../components/InlineIcon';
+import { iraqToday } from '../jobDeadline';
 
 const EMPLOYMENT_TYPES = ['Full-Time', 'Part-Time', 'Internship', 'Contract', 'Freelance'];
 const WORK_MODES = ['On-Site', 'Remote', 'Hybrid'];
@@ -42,6 +43,8 @@ function HRJobPost() {
   const [requirements, setRequirements] = useState('');
   const [benefits, setBenefits] = useState('');
   const [requiresCv, setRequiresCv] = useState(true);
+  const [applicationDeadline, setApplicationDeadline] = useState('');
+  const [today] = useState(iraqToday);
 
   // Skills State
   const [availableSkills, setAvailableSkills] = useState([]);
@@ -89,6 +92,7 @@ function HRJobPost() {
         requirements,
         benefits,
         requiresCv,
+        applicationDeadline,
         skillIds: selectedSkills
       }, { headers: authHeader() });
 
@@ -96,7 +100,7 @@ function HRJobPost() {
       setPostedJobId(response.data.job.id);
     } catch (error) {
       console.error(error);
-      setMessage(error.response?.data?.message || t('jobPost.error_default'));
+      setMessage(['INVALID_APPLICATION_DEADLINE', 'APPLICATION_DEADLINE_PAST'].includes(error.response?.data?.code) ? t('qa.deadline_invalid') : error.response?.data?.message || t('jobPost.error_default'));
     }
   };
 
@@ -157,6 +161,12 @@ function HRJobPost() {
               <input type="text" placeholder={t('jobPost.education_placeholder')} value={education} onChange={(e) => setEducation(e.target.value)} style={inputStyle} />
             </div>
           </div>
+        </div>
+
+        <div style={cardStyle}>
+          <label style={labelStyle} htmlFor="job-deadline">{t('qa.deadline_label')}</label>
+          <input id="job-deadline" type="date" min={today} value={applicationDeadline} onChange={(e) => setApplicationDeadline(e.target.value)} style={inputStyle} />
+          <p style={{ fontSize: '13px', color: '#718096' }}>{t('qa.deadline_hint')}</p>
         </div>
 
         {/* SUMMARY */}

@@ -3,7 +3,7 @@ const { matchJob, byMatch } = require('../utils/jobMatch');
 const { notifyUser } = require('../utils/notify');
 const sendEmail = require('../utils/sendEmail');
 
-const liveJobWhere = { isActive: true, removedByAdmin: false };
+const { openJobWhere, isJobOpen } = require('../utils/jobDeadline');
 const MAX_INVITE_MESSAGE = 2000;
 
 // ============ Students: how well each live job fits me ============
@@ -18,7 +18,7 @@ const getMyJobMatches = async (req, res) => {
     if (!profile) return res.status(404).json({ message: 'Please complete your profile first.' });
 
     const [jobs, applications, invitations] = await Promise.all([
-      prisma.jobPost.findMany({ where: liveJobWhere, select: { id: true, skills: { select: { skillId: true } } } }),
+      prisma.jobPost.findMany({ where: openJobWhere(), select: { id: true, skills: { select: { skillId: true } } } }),
       prisma.application.findMany({ where: { studentId: req.user.id }, select: { jobPostId: true } }),
       prisma.jobInvitation.findMany({ where: { studentProfileId: profile.id }, select: { jobPostId: true } })
     ]);
@@ -69,7 +69,7 @@ const getJobCandidates = async (req, res) => {
     if (!job) return;
     const jobSkillIds = job.skills.map((s) => s.skillId);
     const summary = {
-      id: job.id, title: job.title, company: job.hrProfile.companyName, live: job.isActive && !job.removedByAdmin,
+      id: job.id, title: job.title, company: job.hrProfile.companyName, live: isJobOpen(job),
       skills: job.skills.map((s) => ({ id: s.skill.id, name_en: s.skill.name_en, name_ar: s.skill.name_ar, name_ckb: s.skill.name_ckb }))
     };
     if (jobSkillIds.length === 0) return res.status(200).json({ job: summary, candidates: [] });
@@ -123,7 +123,7 @@ const inviteCandidate = async (req, res) => {
     if (req.user.role !== 'HR') return res.status(403).json({ message: 'Only companies can invite candidates.' });
     const job = await loadOwnJob(req, res);
     if (!job) return;
-    if (!job.isActive || job.removedByAdmin) {
+    if (!isJobOpen(job)) {
       return res.status(400).json({ message: 'This job post is not live, so talent can\'t apply to it.' });
     }
 

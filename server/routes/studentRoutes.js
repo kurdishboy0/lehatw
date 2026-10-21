@@ -14,6 +14,9 @@ const { protect } = require('../middleware/authMiddleware'); // Bring in the Bou
 const { handlePhotoUpload, handleResumeUpload } = require('../middleware/upload');
 
 const router = express.Router();
+const { getContact, updateContact } = require('../controllers/studentContactController');
+router.get('/contact', protect, getContact);
+router.put('/contact', protect, updateContact);
 
 // --- PUBLIC ROUTE ---
 // GET /api/student/all -> Anyone can view the talent directory for the homepage

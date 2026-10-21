@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { authHeader } from '../auth';
 import { Target, Mail, Phone, Building2 } from 'lucide-react';
 import InlineIcon from '../components/InlineIcon';
+import JobDeadline from '../components/JobDeadline';
+import { deadlineDate, iraqToday } from '../jobDeadline';
 import CvLink from '../components/CvLink';
 
 
@@ -23,6 +25,20 @@ function HRDashboard() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [today] = useState(iraqToday);
+  const [deadlineBusy, setDeadlineBusy] = useState(null);
+  const saveDeadline = async (e, job) => {
+    e.preventDefault();
+    setDeadlineBusy(job.id); setError(''); setMessage('');
+    const applicationDeadline = new FormData(e.currentTarget).get('applicationDeadline');
+    try {
+      const res = await axios.put(`/api/jobs/${job.id}`, { applicationDeadline }, { headers: authHeader() });
+      setMyJobs((prev) => prev.map((item) => item.id === job.id ? { ...item, ...res.data.job } : item));
+      setMessage(t('qa.deadline_saved'));
+    } catch (err) {
+      setError(['INVALID_APPLICATION_DEADLINE', 'APPLICATION_DEADLINE_PAST'].includes(err.response?.data?.code) ? t('qa.deadline_invalid') : err.response?.data?.message || t('hrDashboard.error_save'));
+    } finally { setDeadlineBusy(null); }
+  };
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -260,6 +276,14 @@ function HRDashboard() {
                       </button>
                     </div>
                   </div>
+
+                  <JobDeadline job={job} />
+                  {!job.removedByAdmin && <form onSubmit={(e) => saveDeadline(e, job)} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '12px', alignItems: 'end' }}>
+                    <label style={{ fontSize: '14px' }}>{t('qa.deadline_label')}
+                      <input key={job.applicationDeadline || 'none'} type="date" name="applicationDeadline" min={today} defaultValue={deadlineDate(job.applicationDeadline)} style={{ display: 'block', padding: '8px', border: '1px solid #cbd5e0', borderRadius: '6px' }} />
+                    </label>
+                    <button type="submit" disabled={deadlineBusy === job.id} style={{ padding: '8px 12px', backgroundColor: '#1B2A4A', color: 'white', borderRadius: '6px' }}>{t('qa.deadline_save')}</button>
+                  </form>}
 
                   {openApplicantsFor === job.id && (
                     <div style={{ marginTop: '15px', borderTop: '1px solid #eee', paddingTop: '15px' }}>

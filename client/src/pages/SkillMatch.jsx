@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
 import { GraduationCap, Mail, MessageSquare, Compass, Handshake } from 'lucide-react';
 import InlineIcon from '../components/InlineIcon';
+import useListFilters from '../useListFilters';
 
 const cardStyle = {
   border: '1px solid #e2e8f0', borderRadius: '10px', padding: '20px',
@@ -98,6 +99,7 @@ function StudentCard({ student, t, scoreLabel, showMessage = false }) {
           </Link>
         )}
       </div>
+
     </div>
   );
 }
@@ -108,11 +110,14 @@ function SkillMatch() {
   const user = getUser();
 
   const [taxonomy, setTaxonomy] = useState([]);
-  const [subjectAreaId, setSubjectAreaId] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [selectedSkillIds, setSelectedSkillIds] = useState([]);
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
+  const { params, page, update } = useListFilters();
+  const subjectAreaId = params.get('subjectAreaId') || '';
+  const categoryId = params.get('categoryId') || '';
+  const search = params.get('q') || '';
+  const fieldOfStudy = params.get('fieldOfStudy') || '';
+  const skillIdsText = params.get('skillIds') || '';
+  const selectedSkillIds = useMemo(() => skillIdsText.split(',').map(Number).filter(id => Number.isSafeInteger(id) && id > 0), [skillIdsText]);
+  const setPage = (value) => update({ page: typeof value === 'function' ? value(page) : value });
 
   const [students, setStudents] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -135,6 +140,7 @@ function SkillMatch() {
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchStudents = async () => {
       setLoading(true);
       setError('');
@@ -142,53 +148,47 @@ function SkillMatch() {
         const params = new URLSearchParams();
         params.set('page', page);
         if (subjectAreaId) params.set('subjectAreaId', subjectAreaId);
-        if (categoryId) params.set('categoryId', categoryId);
+        if (categoryId && categoryId !== 'other') params.set('categoryId', categoryId);
+        if (categoryId === 'other' && fieldOfStudy.trim()) params.set('fieldOfStudy', fieldOfStudy.trim());
         if (selectedSkillIds.length > 0) params.set('skillIds', selectedSkillIds.join(','));
         if (search.trim()) params.set('q', search.trim());
 
-        const res = await axios.get(`/api/match/search?${params.toString()}`);
+        const res = await axios.get(`/api/match/search?${params.toString()}`, { signal: controller.signal });
         setStudents(res.data.students);
         setTotalPages(res.data.totalPages);
       } catch (err) {
+        if (controller.signal.aborted) return;
         console.error(err);
         setError(t('skillMatch.error_load'));
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
-    fetchStudents();
+    const timer = setTimeout(fetchStudents, 250);
+    return () => { clearTimeout(timer); controller.abort(); };
     // `t` is intentionally excluded: the student data doesn't depend on the UI language,
     // so switching languages shouldn't trigger a refetch (and loading flash).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, subjectAreaId, categoryId, selectedSkillIds, search]);
+  }, [page, subjectAreaId, categoryId, selectedSkillIds, search, fieldOfStudy]);
 
   const selectedSubjectArea = useMemo(() => taxonomy.find(sa => String(sa.id) === subjectAreaId), [taxonomy, subjectAreaId]);
   const selectedCategory = useMemo(() => selectedSubjectArea?.categories.find(c => String(c.id) === categoryId), [selectedSubjectArea, categoryId]);
 
   const handleSubjectAreaChange = (id) => {
-    setSubjectAreaId(id);
-    setCategoryId('');
-    setSelectedSkillIds([]);
-    setPage(1);
+    update({ subjectAreaId: id, categoryId: '', skillIds: '', fieldOfStudy: '', page: 1 });
   };
 
   const handleCategoryChange = (id) => {
-    setCategoryId(id);
-    setSelectedSkillIds([]);
-    setPage(1);
+    update({ categoryId: id, skillIds: '', fieldOfStudy: '', page: 1 });
   };
 
   const toggleSkillFilter = (skillId) => {
-    setSelectedSkillIds(prev => prev.includes(skillId) ? prev.filter(id => id !== skillId) : [...prev, skillId]);
-    setPage(1);
+    const ids = selectedSkillIds.includes(skillId) ? selectedSkillIds.filter(id => id !== skillId) : [...selectedSkillIds, skillId];
+    update({ skillIds: ids.join(','), page: 1 });
   };
 
   const clearFilters = () => {
-    setSubjectAreaId('');
-    setCategoryId('');
-    setSelectedSkillIds([]);
-    setSearch('');
-    setPage(1);
+    update({ subjectAreaId: '', categoryId: '', skillIds: '', q: '', fieldOfStudy: '', page: 1 });
   };
 
   return (
@@ -197,23 +197,6 @@ function SkillMatch() {
         <h1 style={{ fontSize: '2rem', color: '#1a202c', margin: '0 0 8px 0' }}><InlineIcon icon={Compass} size={26} tone="gold" /> {t('skillMatch.heading')}</h1>
         <p style={{ color: '#718096', margin: 0 }}>{t('skillMatch.subtitle')}</p>
       </div>
-
-      {/* RECOMMENDED FOR YOU */}
-      {recommended !== null && (
-        <div style={{ marginBottom: '36px' }}>
-          <h2 style={{ fontSize: '19px', color: '#1a202c', margin: '0 0 4px 0' }}><InlineIcon icon={Handshake} size={20} tone="gold" /> {t('skillMatch.peers_heading')}</h2>
-          <p style={{ color: '#718096', margin: '0 0 14px 0', fontSize: '14px' }}>{t('skillMatch.peers_intro')}</p>
-          {recommended.length === 0 ? (
-            <p style={{ color: '#718096' }}>{t('skillMatch.recommended_empty')}</p>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
-              {recommended.map(s => (
-                <StudentCard key={s.id} student={s} t={t} scoreLabel={t('skillMatch.similarity_label')} showMessage />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       <div className="sidebar-layout">
         {/* FILTER SIDEBAR */}
@@ -224,7 +207,7 @@ function SkillMatch() {
             type="text"
             placeholder={t('skillMatch.search_placeholder')}
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => update({ q: e.target.value, page: 1 })}
             style={{ width: '100%', padding: '9px 10px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '13px', boxSizing: 'border-box', marginBottom: '16px' }}
           />
 
@@ -235,14 +218,14 @@ function SkillMatch() {
           </select>
 
           <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#4a5568', marginBottom: '6px' }}>{t('skillMatch.field_of_study_label')}</label>
-          {selectedSubjectArea ? (
-            <select value={categoryId} onChange={(e) => handleCategoryChange(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '13px', marginBottom: '14px' }}>
+          <select value={categoryId} onChange={(e) => handleCategoryChange(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '13px', marginBottom: '14px' }}>
               <option value="">{t('skillMatch.field_of_study_all')}</option>
-              {selectedSubjectArea.categories.map(c => <option key={c.id} value={c.id}>{localizedName(c, lang)}</option>)}
+              {(selectedSubjectArea?.categories || []).map(c => <option key={c.id} value={c.id}>{localizedName(c, lang)}</option>)}
+              <option value="other">{t('qa.other_field')}</option>
             </select>
-          ) : (
-            <p style={{ fontSize: '12px', color: '#a0aec0', marginTop: 0 }}>{t('skillMatch.field_of_study_prompt')}</p>
-          )}
+          {categoryId === 'other' && <input type="text" value={fieldOfStudy} aria-label={t('qa.field_placeholder')} placeholder={t('qa.field_placeholder')}
+            onChange={(e) => update({ fieldOfStudy: e.target.value, page: 1 })}
+            style={{ width: '100%', padding: '9px', border: '1px solid #cbd5e0', borderRadius: '6px', marginBottom: '14px' }} />}
 
           <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#4a5568', marginBottom: '6px' }}>{t('skillMatch.skills_label')}</label>
           {selectedCategory ? (
@@ -258,7 +241,7 @@ function SkillMatch() {
             <p style={{ fontSize: '12px', color: '#a0aec0', marginTop: 0 }}>{t('skillMatch.skills_prompt')}</p>
           )}
 
-          {(subjectAreaId || search) && (
+          {(subjectAreaId || categoryId || search || selectedSkillIds.length > 0) && (
             <button onClick={clearFilters} style={{ marginTop: '16px', width: '100%', padding: '8px', backgroundColor: '#f7fafc', border: '1px solid #e2e8f0', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#4a5568' }}>
               {t('skillMatch.clear_filters')}
             </button>
@@ -295,6 +278,23 @@ function SkillMatch() {
           )}
         </div>
       </div>
+      {/* RECOMMENDED FOR YOU */}
+      {recommended !== null && (
+        <div style={{ marginTop: '36px' }}>
+          <h2 style={{ fontSize: '19px', color: '#1a202c', margin: '0 0 4px 0' }}><InlineIcon icon={Handshake} size={20} tone="gold" /> {t('skillMatch.peers_heading')}</h2>
+          <p style={{ color: '#718096', margin: '0 0 14px 0', fontSize: '14px' }}>{t('skillMatch.peers_intro')}</p>
+          {recommended.length === 0 ? (
+            <p style={{ color: '#718096' }}>{t('skillMatch.recommended_empty')}</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
+              {recommended.map(s => (
+                <StudentCard key={s.id} student={s} t={t} scoreLabel={t('skillMatch.similarity_label')} showMessage />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   );
 }

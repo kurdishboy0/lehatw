@@ -76,7 +76,7 @@ const getSimilarStudents = async (req, res) => {
 // by subject area, field of study, specific skills, and free-text search.
 const searchStudents = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = 12;
     const skip = (page - 1) * limit;
 
@@ -88,13 +88,15 @@ const searchStudents = async (req, res) => {
     const categoryId = parseInt(req.query.categoryId) || null;
     const q = (req.query.q || '').trim();
 
-    const where = { AND: [] };
+    const where = { user: { accountStatus: 'ACTIVE' }, AND: [] };
+    const fieldOfStudy = typeof req.query.fieldOfStudy === 'string' ? req.query.fieldOfStudy.trim().slice(0, 200) : '';
+    if (fieldOfStudy) where.AND.push({ fieldOfStudy: { contains: fieldOfStudy, mode: 'insensitive' } });
     if (skillIds.length > 0) {
       where.AND.push({ skills: { some: { skillId: { in: skillIds } } } });
     }
     if (categoryId) {
       where.AND.push({ skills: { some: { skill: { categoryId } } } });
-    } else if (subjectAreaId) {
+    } else if (subjectAreaId && !fieldOfStudy) {
       where.AND.push({ skills: { some: { skill: { category: { subjectAreaId } } } } });
     }
     if (q) {

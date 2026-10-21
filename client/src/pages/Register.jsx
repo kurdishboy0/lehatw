@@ -5,11 +5,14 @@ import GoogleSignInButton from '../components/GoogleSignInButton';
 import { GOOGLE_CLIENT_ID, LINKEDIN_CLIENT_ID } from '../oauthConfig';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../useAuth';
+import { validEmail } from '../emailAddress';
 
 function Register() {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [busy, setBusy] = useState(false);
   const [phone, setPhone] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -22,25 +25,29 @@ function Register() {
     e.preventDefault();
     setError('');
 
+    if (!validEmail(email)) { setError(t('qa.invalid_email')); return; }
+    if (password !== confirmPassword) { setError(t('qa.passwords_mismatch')); return; }
+
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
       setError(t('register.password_error'));
       return;
     }
 
+    setBusy(true);
     try {
       await axios.post('/api/auth/register', {
-        email: email,
+        email: email.trim().toLowerCase(),
         password: password,
         role: 'STUDENT',
         personalPhone: phone
       });
 
-      navigate(`/verify-phone?email=${encodeURIComponent(email)}`);
+      navigate(`/verify-phone?email=${encodeURIComponent(email.trim().toLowerCase())}`);
     } catch (err) {
       console.error("Registration Error:", err);
-      setError(err.response?.data?.message || t('register.error_default'));
-    }
+      setError(err.response?.data?.code === 'INVALID_EMAIL' ? t('qa.invalid_email') : err.response?.data?.message || t('register.error_default'));
+    } finally { setBusy(false); }
   };
 
   // --- GOOGLE LOGIN/REGISTRATION LOGIC ---
@@ -81,6 +88,10 @@ function Register() {
         <div className="field-wrap">
           <input
             type="email"
+            onInvalid={(e) => e.target.setCustomValidity(t('qa.invalid_email'))}
+            onInput={(e) => e.target.setCustomValidity('')}
+            aria-label={t('register.email_placeholder')}
+            autoComplete="email"
             placeholder={t('register.email_placeholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -94,6 +105,7 @@ function Register() {
           <input
             type="tel"
             placeholder={t('register.phone_placeholder')}
+            aria-label={t('register.phone_placeholder')}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             required
@@ -107,6 +119,8 @@ function Register() {
             <input
               type={showPassword ? "text" : "password"}
               placeholder={t('register.password_placeholder')}
+              aria-label={t('register.password_placeholder')}
+              autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -151,7 +165,12 @@ function Register() {
           </span>
         </div>
 
-        <button type="submit" style={{ padding: '12px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#48bb78', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', marginTop: '10px', transition: 'background-color 0.2s' }}>
+        <label style={{ fontSize: '14px', color: '#4a5568' }}>
+          {t('qa.confirm_password')} <span style={{ color: '#e53e3e' }}>*</span>
+          <input type={showPassword ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" required
+            style={{ padding: '12px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%', boxSizing: 'border-box', marginTop: '5px' }} />
+        </label>
+        <button type="submit" disabled={busy} style={{ padding: '12px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#48bb78', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', marginTop: '10px', transition: 'background-color 0.2s' }}>
           {t('register.submit')}
         </button>
       </form>

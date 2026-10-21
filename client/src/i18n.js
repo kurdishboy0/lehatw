@@ -1,4 +1,5 @@
 import i18n from 'i18next';
+import qaStrings from './locales/qa';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import adminStrings from './locales/admin';
@@ -1693,7 +1694,7 @@ function mergeStrings(target, additions) {
   return target;
 }
 
-for (const bundle of [adminStrings, matchingStrings, accountStrings, eventStrings, instructorStrings, courseStrings]) {
+for (const bundle of [adminStrings, matchingStrings, accountStrings, eventStrings, instructorStrings, courseStrings, qaStrings]) {
   for (const [lang, sections] of Object.entries(bundle)) {
     mergeStrings(resources[lang].translation, sections);
   }

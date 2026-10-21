@@ -6,6 +6,7 @@ import { getUser, authHeader } from '../auth';
 import { toLocalizedDigits } from '../localizeDigits';
 import { Sparkles, Check, MapPin, Clock, Building2, Briefcase, Mail, Search } from 'lucide-react';
 import InlineIcon from '../components/InlineIcon';
+import JobDeadline from '../components/JobDeadline';
 
 const EMPLOYMENT_TYPES = ['Full-Time', 'Part-Time', 'Internship', 'Contract', 'Freelance'];
 const WORK_MODES = ['On-Site', 'Remote', 'Hybrid'];
@@ -292,6 +293,7 @@ function Jobs() {
                         </div>
 
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '14px' }}>
+                          <JobDeadline job={job} />
                           {job.location && <span style={tagStyle}><InlineIcon icon={MapPin} tone="gold" size={13} /> {job.location}</span>}
                           {job.employmentType && <span style={tagStyle}><InlineIcon icon={Clock} tone="gold" size={13} /> {job.employmentType}</span>}
                           {job.workMode && <span style={tagStyle}><InlineIcon icon={Building2} tone="gold" size={13} /> {job.workMode}</span>}

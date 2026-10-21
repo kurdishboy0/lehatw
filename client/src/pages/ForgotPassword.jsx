@@ -30,7 +30,7 @@ function ForgotPassword() {
       setMessage(res.data.message);
       setStep(2);
     } catch (err) {
-      setError(err.response?.data?.message || t('forgotPassword.error_send'));
+      setError(err.response?.data?.code === 'EMAIL_DELIVERY_UNAVAILABLE' ? t('qa.mail_unavailable') : err.response?.data?.code === 'INVALID_EMAIL' ? t('qa.invalid_email') : err.response?.data?.message || t('forgotPassword.error_send'));
     }
   };
 

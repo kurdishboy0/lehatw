@@ -1,4 +1,5 @@
 const prisma = require('../db');
+const { isJobOpen } = require('../utils/jobDeadline');
 const { notifyUser } = require('../utils/notify');
 const { storageKey } = require('../middleware/upload');
 const { uploadPrivate, signedUrlFor, isStoredPath, SIGNED_URL_TTL_SECONDS } = require('../utils/supabaseStorage');
@@ -19,6 +20,10 @@ const applyToJob = async (req, res) => {
     });
     if (!job || !job.isActive) {
       return res.status(404).json({ message: "Job post not found or no longer active." });
+    }
+
+    if (!isJobOpen(job)) {
+      return res.status(400).json({ code: 'APPLICATIONS_CLOSED', message: 'Applications for this job are closed.' });
     }
 
     // A file uploaded with this application wins; otherwise fall back to the CV
@@ -65,7 +70,7 @@ const applyToJob = async (req, res) => {
       link: `/student-dashboard`
     });
 
-    res.status(201).json({ message: "Application submitted!", application });
+    res.status(201).json({ message: "Application submitted!", application: withCvFlag(application) });
   } catch (error) {
     if (error.code === 'P2002') {
       return res.status(400).json({ message: "You have already applied to this job." });

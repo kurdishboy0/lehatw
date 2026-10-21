@@ -90,6 +90,14 @@ function findNearestSkill(input, allSkillNames) {
 function StudentDashboard() {
   const { t, i18n } = useTranslation();
   const [profile, setProfile] = useState(null);
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactLoaded, setContactLoaded] = useState(false);
+  const [contactChanged, setContactChanged] = useState(false);
+  useEffect(() => {
+    axios.get('/api/student/contact', { headers: authHeader() }).then(({ data }) => {
+      setContactPhone(data.phone); setContactLoaded(true);
+    }).catch(console.error);
+  }, []);
   const [searchParams] = useSearchParams();
   // Deep-link support from the user menu: ?edit=1 or ?section=skills opens the edit form on load.
   const [isEditing, setIsEditing] = useState(() => {
@@ -127,6 +135,7 @@ function StudentDashboard() {
   const [courseSuggestions, setCourseSuggestions] = useState(null);
   const [privacySaving, setPrivacySaving] = useState(false);
 
+  const [savingProfile, setSavingProfile] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoError, setPhotoError] = useState('');
   const photoInputRef = useRef(null);
@@ -301,8 +310,11 @@ function StudentDashboard() {
       if (pendingPhotoPreview) URL.revokeObjectURL(pendingPhotoPreview);
       setPendingPhotoFile(null);
       setPendingPhotoPreview(null);
+      return true;
     } catch (err) {
       setPhotoError(err.response?.data?.message || t('studentDashboard.error_upload_photo'));
+      setPendingPhotoFile(file);
+      return false;
     } finally {
       setUploadingPhoto(false);
     }
@@ -312,6 +324,10 @@ function StudentDashboard() {
     const file = e.target.files?.[0];
     e.target.value = ''; // allow re-selecting the same file later
     if (!file) return;
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      setPhotoError(t('qa.photo_invalid')); return;
+    }
 
     // No profile row exists yet — hold the file and upload it once the
     // profile is created in handleSubmit, instead of letting the server 404.
@@ -338,8 +354,11 @@ function StudentDashboard() {
       });
       setProfile((prev) => (prev ? { ...prev, hasResume: res.data.hasResume } : prev));
       setPendingResumeFile(null);
+      return true;
     } catch (err) {
       setResumeError(err.response?.data?.message || t('studentDashboard.error_upload_resume'));
+      setPendingResumeFile(file);
+      return false;
     } finally {
       setUploadingResume(false);
     }
@@ -349,6 +368,8 @@ function StudentDashboard() {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
+    const types = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!types.includes(file.type) || file.size > 10 * 1024 * 1024) { setResumeError(t('qa.resume_invalid')); return; }
 
     if (!profile) {
       setResumeError('');
@@ -477,6 +498,8 @@ function StudentDashboard() {
   // 3. Submit the form (Profile + Skills)
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (savingProfile || uploadingPhoto || uploadingResume) return;
+    setSavingProfile(true);
     setMessage('');
     setError('');
 
@@ -484,6 +507,10 @@ function StudentDashboard() {
     const config = { headers: { Authorization: `Bearer ${token}` } };
 
     try {
+      if (contactChanged) {
+        const result = await axios.put('/api/student/contact', { phone: contactPhone }, config);
+        setContactPhone(result.data.phone); setContactChanged(false);
+      }
       // Step 1: Save the Profile Details
       if (profile) {
         // UPDATE (PUT)
@@ -491,7 +518,9 @@ function StudentDashboard() {
       } else {
         // CREATE (POST)
         const dataToSubmit = { ...formData, graduationYear: parseInt(formData.graduationYear) };
-        await axios.post('/api/student/profile', dataToSubmit, config);
+        const created = await axios.post('/api/student/profile', dataToSubmit, config);
+        // Retain the new row even if saving skills or a later upload fails.
+        setProfile(created.data.profile);
       }
 
       // Step 2: Save the Skills (Only works if they have a profile now)
@@ -503,8 +532,9 @@ function StudentDashboard() {
 
       // Step 3: A photo/resume picked before the profile existed can only be
       // uploaded now that it does.
-      if (pendingPhotoFile) await uploadPhotoFile(pendingPhotoFile);
-      if (pendingResumeFile) await uploadResumeFile(pendingResumeFile);
+      const photoSaved = !pendingPhotoFile || await uploadPhotoFile(pendingPhotoFile);
+      const resumeSaved = !pendingResumeFile || await uploadResumeFile(pendingResumeFile);
+      if (!photoSaved || !resumeSaved) { setError(t('qa.partial_upload')); return; }
 
       // Step 4: Refresh local data to show the updates
       const refreshedProfile = await axios.get('/api/student/profile', config);
@@ -513,8 +543,8 @@ function StudentDashboard() {
       setMessage(t('studentDashboard.success_save'));
       setIsEditing(false);
     } catch (err) {
-      setError(err.response?.data?.message || t('studentDashboard.error_save'));
-    }
+      setError(err.response?.data?.code === 'INVALID_PHONE' ? t('qa.phone_invalid') : err.response?.data?.message || t('studentDashboard.error_save'));
+    } finally { setSavingProfile(false); }
   };
 
   if (loading) return <h3 style={{ textAlign: 'center' }}>{t('studentDashboard.loading')}</h3>;
@@ -888,6 +918,12 @@ function StudentDashboard() {
 
           {/* BASIC INFO */}
           <div style={cardStyle}>
+            <label style={labelStyle} htmlFor="talent-contact-phone">{t('qa.phone_label')}</label>
+            <input id="talent-contact-phone" type="tel" autoComplete="tel" dir="ltr" value={contactPhone} disabled={!contactLoaded}
+              onChange={(e) => { setContactPhone(e.target.value); setContactChanged(true); }} style={inputStyle} />
+            <p style={{ color: '#718096', fontSize: '13px' }}>{t('qa.phone_hint')}</p>
+          </div>
+          <div style={cardStyle}>
             <h3 style={sectionHeadingStyle}><InlineIcon icon={ClipboardList} size={18} tone="gold" /> {t('studentDashboard.section_basic_info')}</h3>
             <div className="grid-2col">
               <div style={{ gridColumn: '1 / -1' }}>
@@ -1022,7 +1058,7 @@ function StudentDashboard() {
           </div>
 
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button type="submit" style={{ padding: '12px 20px', backgroundColor: '#3182ce', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', flex: 1, fontWeight: 'bold', fontSize: '15px' }}>
+            <button type="submit" disabled={savingProfile || uploadingPhoto || uploadingResume} style={{ padding: '12px 20px', backgroundColor: '#3182ce', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', flex: 1, fontWeight: 'bold', fontSize: '15px' }}>
               {profile ? t('studentDashboard.save_changes') : t('studentDashboard.create_profile')}
             </button>
             {profile && (

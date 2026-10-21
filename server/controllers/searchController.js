@@ -1,4 +1,5 @@
 const prisma = require('../db');
+const { openJobWhere } = require('../utils/jobDeadline');
 
 const RESULT_LIMIT = 20;
 
@@ -32,7 +33,7 @@ const search = async (req, res) => {
       }),
       prisma.jobPost.findMany({
         where: {
-          isActive: true,
+          AND: [openJobWhere()],
           OR: [
             { title: { contains: q, mode: 'insensitive' } },
             { description: { contains: q, mode: 'insensitive' } },

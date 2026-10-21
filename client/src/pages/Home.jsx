@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { GraduationCap, BookOpen, CalendarDays, MapPin, Clock, Briefcase, Search, X, ArrowRight } from 'lucide-react';
 import InlineIcon from '../components/InlineIcon';
 import HeroSlider from '../components/HeroSlider';
+import useListFilters from '../useListFilters';
+import JobDeadline from '../components/JobDeadline';
 
 const SEARCH_DEBOUNCE_MS = 400;
 
@@ -25,12 +27,12 @@ function Avatar({ photoUrl, fullName, size }) {
 function StudentCard({ student, t }) {
   return (
     <div className="hover-lift" style={{
-      border: '1px solid #e2e8f0', borderRadius: '14px', padding: '24px',
+      border: '1px solid #e2e8f0', borderRadius: '12px', padding: '18px',
       backgroundColor: '#ffffff', boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '14px' }}>
-        <Avatar photoUrl={student.photoUrl} fullName={student.fullName} size={56} />
-        <h3 style={{ margin: 0, color: '#1a202c', fontSize: '19px' }}>{student.fullName}</h3>
+        <Avatar photoUrl={student.photoUrl} fullName={student.fullName} size={44} />
+        <h3 style={{ margin: 0, color: '#1a202c', fontSize: '17px' }}>{student.fullName}</h3>
       </div>
       <p style={{ margin: '6px 0', color: '#4a5568', fontSize: '15px' }}><strong><InlineIcon icon={GraduationCap} tone="gold" /> {t('home.uni')}:</strong> {student.university}</p>
       <p style={{ margin: '6px 0', color: '#4a5568', fontSize: '15px' }}><strong><InlineIcon icon={BookOpen} tone="gold" /> {t('home.major')}:</strong> {student.fieldOfStudy}</p>
@@ -65,6 +67,7 @@ function JobCard({ job }) {
       }}>
         <h3 style={{ margin: '0 0 4px 0', color: '#1a202c', fontSize: '17px' }}>{job.title}</h3>
         <div style={{ fontSize: '14px', color: '#718096' }}>{job.hrProfile?.companyName} · {job.hrProfile?.industry}</div>
+        <JobDeadline job={job} />
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
           {job.location && <span style={{ fontSize: '12px', color: '#4a5568', backgroundColor: '#f7fafc', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '20px' }}><InlineIcon icon={MapPin} tone="gold" size={13} /> {job.location}</span>}
           {job.employmentType && <span style={{ fontSize: '12px', color: '#4a5568', backgroundColor: '#f7fafc', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '20px' }}><InlineIcon icon={Clock} tone="gold" size={13} /> {job.employmentType}</span>}
@@ -83,32 +86,39 @@ function Home() {
 
   const [recentJobs, setRecentJobs] = useState([]);
 
-  const [query, setQuery] = useState('');
+  const { params, page: currentPage, update } = useListFilters();
+  const query = params.get('q') || '';
+  const setQuery = (value) => update({ q: value, page: 1 });
+  const setCurrentPage = (value) => update({ page: value });
   const [searchResults, setSearchResults] = useState(null); // null = no active search
   const [searching, setSearching] = useState(false);
   const debounceRef = useRef(null);
+  const searchController = useRef(null);
 
   // Pagination State (only used for the default "recent students" view)
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchStudents = async () => {
       setLoading(true);
+      setError('');
       try {
-        const res = await axios.get(`/api/student/all?page=${currentPage}`);
+        const res = await axios.get(`/api/student/all?page=${currentPage}`, { signal: controller.signal });
         if (!Array.isArray(res.data?.students)) throw new Error('Invalid talent directory response');
         setStudents(res.data.students);
         setTotalPages(res.data.totalPages);
       } catch (err) {
+        if (controller.signal.aborted) return;
         console.error(err);
         setError(t('home.error_load'));
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     fetchStudents();
+    return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `t` excluded: don't refetch on language switch
   }, [currentPage]);
 
@@ -122,21 +132,26 @@ function Home() {
   // One place that runs a search: the typing debounce and the Search button
   // both come through here.
   const runSearch = useCallback(async (term) => {
+    searchController.current?.abort();
+    const controller = new AbortController();
+    searchController.current = controller;
     setSearching(true);
     try {
-      const res = await axios.get(`/api/search?q=${encodeURIComponent(term)}`);
+      const res = await axios.get(`/api/search?q=${encodeURIComponent(term)}`, { signal: controller.signal });
       if (!Array.isArray(res.data?.students) || !Array.isArray(res.data?.jobs)) {
         throw new Error('Invalid search response');
       }
       setSearchResults(res.data);
     } catch (err) {
+      if (controller.signal.aborted) return;
       console.error(err);
     } finally {
-      setSearching(false);
+      if (!controller.signal.aborted) setSearching(false);
     }
   }, []);
 
   useEffect(() => {
+    searchController.current?.abort();
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (!query.trim()) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- clearing derived results when the query is cleared
@@ -144,7 +159,7 @@ function Home() {
       return;
     }
     debounceRef.current = setTimeout(() => runSearch(query.trim()), SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(debounceRef.current);
+    return () => { clearTimeout(debounceRef.current); searchController.current?.abort(); };
   }, [query, runSearch]);
 
   const handleNextPage = () => {

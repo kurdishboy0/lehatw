@@ -86,9 +86,10 @@ async function main() {
   // someone able to create and manage other admin accounts.
   await prisma.user.upsert({
     where: { email: 'admin@lehatw.test' },
-    update: { isSuperAdmin: true },
+    update: { isSuperAdmin: true, phoneVerified: true },
     create: {
       email: 'admin@lehatw.test',
+      phoneVerified: true,
       password: hashedPassword,
       role: 'ADMIN',
       isSuperAdmin: true
@@ -97,9 +98,10 @@ async function main() {
 
   const hrUser = await prisma.user.upsert({
     where: { email: 'hr@lehatw.test' },
-    update: {},
+    update: { phoneVerified: true },
     create: {
       email: 'hr@lehatw.test',
+      phoneVerified: true,
       password: hashedPassword,
       role: 'HR'
     }
@@ -120,9 +122,10 @@ async function main() {
 
   const studentUser = await prisma.user.upsert({
     where: { email: 'student@lehatw.test' },
-    update: {},
+    update: { phoneVerified: true },
     create: {
       email: 'student@lehatw.test',
+      phoneVerified: true,
       password: hashedPassword,
       role: 'STUDENT'
     }

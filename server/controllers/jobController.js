@@ -1,4 +1,5 @@
 const prisma = require('../db');
+const { parseApplicationDeadline, openJobWhere, deadlineError } = require('../utils/jobDeadline');
 const { buildSkillVector, requiredSkillsCoverage } = require('../utils/similarity');
 
 // 1. Create a Job Post with Required Skills
@@ -41,6 +42,7 @@ const createJobPost = async (req, res) => {
         experienceLevel,
         education,
         requiresCv: requiresCv ?? true,
+        applicationDeadline: parseApplicationDeadline(req.body.applicationDeadline),
         hrProfileId: hrProfile.id,
         skills: {
           create: (skillIds || []).map((id) => ({
@@ -55,6 +57,7 @@ const createJobPost = async (req, res) => {
 
     res.status(201).json({ message: "Job posted successfully!", job: newJob });
   } catch (error) {
+    if (deadlineError(res, error)) return;
     console.error("Job Creation Error:", error);
     res.status(500).json({ message: "Server error creating job post." });
   }
@@ -170,7 +173,7 @@ const getJobById = async (req, res) => {
 const getActiveJobs = async (req, res) => {
   try {
     const jobs = await prisma.jobPost.findMany({
-      where: { isActive: true },
+      where: openJobWhere(),
       include: {
         hrProfile: { select: { companyName: true, industry: true } },
         skills: { include: { skill: true } }
@@ -258,6 +261,7 @@ const updateJobPost = async (req, res) => {
         experienceLevel: experienceLevel ?? job.experienceLevel,
         education: education ?? job.education,
         requiresCv: requiresCv ?? job.requiresCv,
+        applicationDeadline: parseApplicationDeadline(req.body.applicationDeadline),
         isActive: isActive ?? job.isActive,
         ...(skillIds && {
           skills: {
@@ -271,6 +275,7 @@ const updateJobPost = async (req, res) => {
 
     res.status(200).json({ message: "Job post updated!", job: updatedJob });
   } catch (error) {
+    if (deadlineError(res, error)) return;
     console.error("Update Job Error:", error);
     res.status(500).json({ message: "Server error updating job post." });
   }

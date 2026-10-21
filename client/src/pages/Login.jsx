@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 import { GOOGLE_CLIENT_ID, LINKEDIN_CLIENT_ID } from '../oauthConfig';
 import { useTranslation } from 'react-i18next';
+import { validEmail } from '../emailAddress';
 import { useAuth } from '../useAuth';
 import { isAccountBlock, describeAccountBlock, readStoredAccountBlock, clearStoredAccountBlock } from '../accountBlock';
 
@@ -86,10 +87,11 @@ function Login() {
     e.preventDefault();
     setError('');
     setAccountBlock(null);
+    if (!validEmail(email)) { setError(t('qa.invalid_email')); return; }
 
     try {
       const response = await axios.post('/api/auth/login', {
-        email: email,
+        email: email.trim().toLowerCase(),
         password: password
       });
 
@@ -150,6 +152,8 @@ function Login() {
         <div className="field-wrap">
           <input
             type="email"
+            onInvalid={(e) => e.target.setCustomValidity(t('qa.invalid_email'))}
+            onInput={(e) => e.target.setCustomValidity('')}
             placeholder={t('login.email_placeholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}

@@ -371,6 +371,7 @@ model JobPost {
   experienceLevel  String? // e.g. "1-3 years of experience"
   education        String? // e.g. "Bachelor's degree in Computer Science"
   requiresCv       Boolean   @default(true)
+  applicationDeadline DateTime?
   isActive         Boolean   @default(true)
   createdAt        DateTime  @default(now())
 

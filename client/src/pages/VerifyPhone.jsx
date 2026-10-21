@@ -29,9 +29,9 @@ function VerifyPhone() {
     setInfo('');
     try {
       const res = await axios.post('/api/auth/send-phone-otp', { email, channel: 'email' });
-      setInfo(res.data.message);
+      if (res.status === 200) setInfo(t('qa.code_sent'));
     } catch (err) {
-      setError(err.response?.data?.message || t('verifyPhone.error_send'));
+      setError(err.response?.data?.code === 'EMAIL_DELIVERY_UNAVAILABLE' ? t('qa.mail_unavailable') : err.response?.data?.code === 'INVALID_EMAIL' ? t('qa.invalid_email') : t('verifyPhone.error_send'));
     } finally {
       setSending(false);
     }
@@ -75,6 +75,7 @@ function VerifyPhone() {
       <h2 style={{ textAlign: 'center', color: '#2d3748' }}>{t('verifyPhone.title')}</h2>
       <p style={{ textAlign: 'center', color: '#718096', fontSize: '14px' }}>{t('verifyPhone.subtitle')}</p>
 
+      {sending && <p role="status" style={{ textAlign: 'center' }}>{t('qa.sending_code')}</p>}
       {error && <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'center', fontSize: '14px' }}>{error}</p>}
       {info && !error && <p style={{ color: '#2f855a', textAlign: 'center', fontSize: '14px' }}>{info}</p>}
 
@@ -85,7 +86,7 @@ function VerifyPhone() {
           maxLength={6}
           placeholder={t('verifyPhone.code_placeholder')}
           value={otp}
-          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+          onChange={(e) => setOtp(e.target.value.replace(/[\u0660-\u0669]/g, (digit) => String(digit.charCodeAt(0) - 0x660)).replace(/[\u06f0-\u06f9]/g, (digit) => String(digit.charCodeAt(0) - 0x6f0)).replace(/\D/g, ''))}
           required
           style={{ padding: '14px', fontSize: '20px', letterSpacing: '6px', textAlign: 'center', borderRadius: '6px', border: '1px solid #cbd5e0' }}
         />
