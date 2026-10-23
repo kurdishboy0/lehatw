@@ -1,4 +1,5 @@
 const prisma = require('../db');
+const { notifyAdmins } = require('../utils/notify');
 
 const MAX = { title: 200, content: 20000, url: 500 };
 const clean = (value, max) => {
@@ -10,13 +11,26 @@ const clean = (value, max) => {
 async function ownCourse(req, res, courseId) {
   const profile = await prisma.instructorProfile.findUnique({ where: { userId: req.user.id }, select: { id: true } });
   const course = profile
-    ? await prisma.course.findUnique({ where: { id: Number(courseId) }, select: { id: true, instructorProfileId: true, status: true } })
+    ? await prisma.course.findUnique({ where: { id: Number(courseId) }, select: { id: true, instructorProfileId: true, status: true, title: true } })
     : null;
   if (!course || course.instructorProfileId !== profile.id) {
     res.status(404).json({ message: 'Course not found.' });
     return null;
   }
   return course;
+}
+
+// Content and its review status must commit together. Owners may still edit
+// a draft/pending course; changing approved or rejected content needs review.
+async function changeLessons(course, write) {
+  const review = ['APPROVED', 'REJECTED'].includes(course.status);
+  const result = await prisma.$transaction(async tx => {
+    if (review) await tx.course.update({ where: { id: course.id }, data: { status: 'PENDING', rejectionReason: null } });
+    return write(tx);
+  });
+  if (review) notifyAdmins({ type: 'COURSE_PENDING', title: 'A course was edited and needs review',
+    body: course.title || 'An instructor updated course lessons.', link: '/admin-dashboard?tab=courses' });
+  return result;
 }
 
 const listLessons = async (req, res) => {
@@ -57,8 +71,10 @@ const createLesson = async (req, res) => {
     const { data, error } = readLesson(req.body);
     if (error) return res.status(400).json({ message: error });
 
-    const last = await prisma.courseLesson.findFirst({ where: { courseId: course.id }, orderBy: { position: 'desc' }, select: { position: true } });
-    const lesson = await prisma.courseLesson.create({ data: { ...data, courseId: course.id, position: (last?.position ?? 0) + 1 } });
+    const lesson = await changeLessons(course, async tx => {
+      const last = await tx.courseLesson.findFirst({ where: { courseId: course.id }, orderBy: { position: 'desc' }, select: { position: true } });
+      return tx.courseLesson.create({ data: { ...data, courseId: course.id, position: (last?.position ?? 0) + 1 } });
+    });
     res.status(201).json(lesson);
   } catch (error) {
     console.error('Create Lesson Error:', error);
@@ -75,7 +91,7 @@ const updateLesson = async (req, res) => {
     const existing = await prisma.courseLesson.findFirst({ where: { id: Number(req.params.lessonId), courseId: course.id }, select: { id: true } });
     if (!existing) return res.status(404).json({ message: 'Lesson not found.' });
 
-    const lesson = await prisma.courseLesson.update({ where: { id: existing.id }, data });
+    const lesson = await changeLessons(course, tx => tx.courseLesson.update({ where: { id: existing.id }, data }));
     res.status(200).json(lesson);
   } catch (error) {
     console.error('Update Lesson Error:', error);
@@ -89,7 +105,7 @@ const deleteLesson = async (req, res) => {
     if (!course) return;
     const existing = await prisma.courseLesson.findFirst({ where: { id: Number(req.params.lessonId), courseId: course.id }, select: { id: true } });
     if (!existing) return res.status(404).json({ message: 'Lesson not found.' });
-    await prisma.courseLesson.delete({ where: { id: existing.id } });
+    await changeLessons(course, tx => tx.courseLesson.delete({ where: { id: existing.id } }));
     res.status(200).json({ message: 'Lesson deleted.' });
   } catch (error) {
     console.error('Delete Lesson Error:', error);
@@ -106,16 +122,17 @@ const reorderLessons = async (req, res) => {
     const ids = (Array.isArray(req.body.lessonIds) ? req.body.lessonIds : []).map(Number).filter(Number.isInteger);
     const lessons = await prisma.courseLesson.findMany({ where: { courseId: course.id }, select: { id: true } });
     const known = new Set(lessons.map((l) => l.id));
-    if (ids.length !== lessons.length || ids.some((id) => !known.has(id))) {
+    if (ids.length !== lessons.length || new Set(ids).size !== ids.length || ids.some((id) => !known.has(id))) {
       return res.status(400).json({ message: 'Send every lesson of this course, in the new order.' });
     }
     // Always write the rows in the same order (by id), so two reorders sent
     // in quick succession can't deadlock by locking them in opposite orders.
     const updates = ids
       .map((id, index) => ({ id, position: index + 1 }))
-      .sort((a, b) => a.id - b.id)
-      .map(({ id, position }) => prisma.courseLesson.update({ where: { id }, data: { position } }));
-    await prisma.$transaction(updates);
+      .sort((a, b) => a.id - b.id);
+    await changeLessons(course, async tx => {
+      for (const { id, position } of updates) await tx.courseLesson.update({ where: { id }, data: { position } });
+    });
     res.status(200).json({ message: 'Order saved.' });
   } catch (error) {
     console.error('Reorder Lessons Error:', error);

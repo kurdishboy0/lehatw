@@ -1,14 +1,15 @@
 const prisma = require('../db');
 const { parseApplicationDeadline, openJobWhere, deadlineError } = require('../utils/jobDeadline');
 const { buildSkillVector, requiredSkillsCoverage } = require('../utils/similarity');
+const { readJobInput, jobInputError } = require('../utils/jobInput');
 
 // 1. Create a Job Post with Required Skills
 const createJobPost = async (req, res) => {
   try {
     const {
-      title, description, responsibilities, requirements, benefits,
+      description, responsibilities, requirements, benefits,
       location, employmentType, workMode, experienceLevel, education,
-      requiresCv, skillIds
+      requiresCv
     } = req.body;
     const userId = req.user.id;
 
@@ -28,6 +29,7 @@ const createJobPost = async (req, res) => {
       return res.status(403).json({ message: "Your company profile must be approved by an admin before you can post jobs." });
     }
 
+    const { title, skillIds } = readJobInput(req.body);
     // Create job and link selected skills via JobPostSkill
     const newJob = await prisma.jobPost.create({
       data: {
@@ -57,7 +59,7 @@ const createJobPost = async (req, res) => {
 
     res.status(201).json({ message: "Job posted successfully!", job: newJob });
   } catch (error) {
-    if (deadlineError(res, error)) return;
+    if (deadlineError(res, error) || jobInputError(res, error)) return;
     console.error("Job Creation Error:", error);
     res.status(500).json({ message: "Server error creating job post." });
   }
@@ -103,10 +105,11 @@ const getMatchingStudents = async (req, res) => {
 
     // Fetch student profiles containing relevant skills
     const students = await prisma.studentProfile.findMany({
+      where: { user: { accountStatus: 'ACTIVE' } },
       include: {
         user: { select: { email: true } },
         skills: { include: { skill: true } },
-        customSkills: true
+        customSkills: { where: { isApproved: true } }
       }
     });
 
@@ -238,15 +241,16 @@ const updateJobPost = async (req, res) => {
     if (error) return res.status(error).json({ message });
 
     const {
-      title, description, responsibilities, requirements, benefits,
+      description, responsibilities, requirements, benefits,
       location, employmentType, workMode, experienceLevel, education,
-      requiresCv, isActive, skillIds
+      requiresCv, isActive
     } = req.body;
 
     if (job.removedByAdmin && isActive === true) {
       return res.status(403).json({ message: "This post was taken down by an admin and can't be re-activated. Contact us if you think this is a mistake." });
     }
 
+    const { title, skillIds } = readJobInput(req.body, { partial: true });
     const updatedJob = await prisma.jobPost.update({
       where: { id: job.id },
       data: {
@@ -275,7 +279,7 @@ const updateJobPost = async (req, res) => {
 
     res.status(200).json({ message: "Job post updated!", job: updatedJob });
   } catch (error) {
-    if (deadlineError(res, error)) return;
+    if (deadlineError(res, error) || jobInputError(res, error)) return;
     console.error("Update Job Error:", error);
     res.status(500).json({ message: "Server error updating job post." });
   }

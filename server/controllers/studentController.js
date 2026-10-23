@@ -2,6 +2,7 @@ const prisma = require('../db');
 const { storageKey } = require('../middleware/upload');
 const { uploadToStorage, uploadPrivate, signedUrlFor, deleteFromStorageUrl, deleteStoredFile, isStoredPath, SIGNED_URL_TTL_SECONDS } = require('../utils/supabaseStorage');
 const { canViewTalentResume } = require('../utils/cvAccess');
+const { publicTalentProfile } = require('../utils/talentPrivacy');
 
 const createStudentProfile = async (req, res) => {
   try {
@@ -101,15 +102,17 @@ const updateStudentProfile = async (req, res) => {
 const getAllStudentsPaginated = async (req, res) => {
   try {
     // Get the page number from the URL (default to page 1)
-    const page = parseInt(req.query.page) || 1;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = 9; // Number of students per page
     const skip = (page - 1) * limit; // Calculate how many records to skip
 
     // 1. Count total students to calculate how many pages we have
-    const totalStudents = await prisma.studentProfile.count();
+    const where = { user: { accountStatus: 'ACTIVE' } };
+    const totalStudents = await prisma.studentProfile.count({ where });
 
     // 2. Fetch the chunk of 9 students for the current page
     const students = await prisma.studentProfile.findMany({
+      where,
       skip: skip,
       take: limit,
       include: {
@@ -122,7 +125,7 @@ const getAllStudentsPaginated = async (req, res) => {
 
     // 3. Send the data and pagination details back to the frontend
     res.status(200).json({
-      students: students.map(withoutPrivateFiles),
+      students: students.map(publicTalentProfile),
       totalPages: Math.ceil(totalStudents / limit),
       currentPage: page,
       totalStudents
@@ -137,11 +140,6 @@ const getAllStudentsPaginated = async (req, res) => {
 // goes out on an endpoint anyone can call. Companies reach it through the
 // candidate and application screens, which require signing in, and the owner
 // sees it on their own dashboard.
-function withoutPrivateFiles(profile) {
-  const { resumeUrl, ...rest } = profile;
-  return rest;
-}
-
 // Same idea for the owner's own view, except they are told a CV is on file so
 // the dashboard can offer the button that fetches a link for it.
 function withResumeFlag(profile) {
@@ -153,21 +151,21 @@ function withResumeFlag(profile) {
 const getStudentById = async (req, res) => {
   try {
     const profile = await prisma.studentProfile.findUnique({
-      where: { id: Number(req.params.id) },
+      where: { id: Number(req.params.id), user: { accountStatus: 'ACTIVE' } },
       include: {
         skills: { include: { skill: true } },
-        customSkills: true,
-        user: { select: { id: true } }
+        customSkills: { where: { isApproved: true } },
+        user: { select: { id: true, accountStatus: true } }
       }
     });
 
-    if (!profile) {
+    if (!profile || (profile.user?.accountStatus && profile.user.accountStatus !== 'ACTIVE')) {
       return res.status(404).json({ message: "Talent profile not found." });
     }
 
     // Email is intentionally omitted — contact happens through the in-app messaging system.
     const { user, ...publicProfile } = profile;
-    res.status(200).json({ ...withoutPrivateFiles(publicProfile), userId: user.id });
+    res.status(200).json({ ...publicTalentProfile(publicProfile), userId: user.id });
   } catch (error) {
     console.error("Get Student By Id Error:", error);
     res.status(500).json({ message: "Server error fetching talent profile." });

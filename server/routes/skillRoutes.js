@@ -1,6 +1,6 @@
 const express = require('express');
 const { getAllSkills, getTaxonomy, saveStudentSkills } = require('../controllers/skillController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, studentOnly } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -12,6 +12,6 @@ router.get('/', protect, getAllSkills);
 router.get('/taxonomy', getTaxonomy);
 
 // POST /api/skills/save -> Saves standard and custom skills in bulk
-router.post('/save', protect, saveStudentSkills);
+router.post('/save', protect, studentOnly, saveStudentSkills);
 
 module.exports = router;

@@ -10,9 +10,9 @@ const { getAccountBlock, blockedResponse } = require('../utils/accountStatus');
 const { OAuth2Client } = require('google-auth-library');
 const { generateOtp, hashOtp, otpExpiry, otpMatches, notExpired } = require('../utils/otpCodes');
 const { invalidateUserCache } = require('../middleware/authMiddleware');
+const { isValidPassword, PASSWORD_RULE_MESSAGE } = require('../utils/passwordPolicy');
 
 // Matches the rule the set-password page already enforces.
-const MIN_PASSWORD = 8;
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { getDisplayName } = require('../utils/displayName');
 
@@ -22,7 +22,7 @@ const registerUser = async (req, res) => {
 
     const email = normalizeEmail(req.body.email);
     if (!isValidEmail(email)) return res.status(400).json({ code: 'INVALID_EMAIL', message: 'Please enter a valid email address.' });
-    if (typeof password !== 'string' || password.length < MIN_PASSWORD || Buffer.byteLength(password, 'utf8') > 72) return res.status(400).json({ message: 'Use a password of at least 8 characters and at most 72 bytes.' });
+    if (!isValidPassword(password)) return res.status(400).json({ message: PASSWORD_RULE_MESSAGE });
     const existingUser = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
     if (existingUser) {
       return res.status(400).json({ message: "Email is already in use!" });
@@ -296,12 +296,21 @@ const linkedinLogin = async (req, res) => {
     const profileData = await profileResponse.json();
     if (!profileResponse.ok) throw new Error('Failed to fetch user data');
 
-    const { email, sub: linkedinId } = profileData;
+    const email = normalizeEmail(profileData.email);
+    const linkedinId = typeof profileData.sub === 'string' ? profileData.sub.trim() : '';
+    if (!isValidEmail(email) || !linkedinId || profileData.email_verified !== true) {
+      return res.status(401).json({ message: 'LinkedIn authentication failed' });
+    }
 
     // 3. Check or create the user in your database
     let user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
 
     if (user) {
+      if (user.linkedinId && user.linkedinId !== linkedinId) {
+        return res.status(401).json({ message: 'LinkedIn authentication failed' });
+      }
+      const block = getAccountBlock(user);
+      if (block) return blockedResponse(res, block);
       if (!user.linkedinId || (!user.phoneVerified && profileData.email_verified === true)) {
         user = await prisma.user.update({
           where: { id: user.id },
@@ -411,8 +420,8 @@ const resetPassword = async (req, res) => {
     const email = normalizeEmail(req.body.email);
     if (!isValidEmail(email)) return res.status(400).json({ code: 'INVALID_EMAIL', message: 'Please enter a valid email address.' });
 
-    if (typeof newPassword !== 'string' || newPassword.length < MIN_PASSWORD) {
-      return res.status(400).json({ message: `Your password must be at least ${MIN_PASSWORD} characters.` });
+    if (!isValidPassword(newPassword)) {
+      return res.status(400).json({ message: PASSWORD_RULE_MESSAGE });
     }
 
     const user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });

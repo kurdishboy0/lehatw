@@ -98,4 +98,14 @@ const superAdminOnly = (req, res, next) => {
   res.status(403).json({ message: "Access denied. Super-admins only." });
 };
 
-module.exports = { protect, optionalAuth, adminOnly, superAdminOnly, invalidateUserCache };
+const studentOnly = (req, res, next) => {
+  if (req.user?.role === 'STUDENT') return next();
+  return res.status(403).json({ message: 'Access denied. Talent accounts only.' });
+};
+
+const hrOnly = (req, res, next) => {
+  if (req.user?.role === 'HR') return next();
+  return res.status(403).json({ message: 'Access denied. Company accounts only.' });
+};
+
+module.exports = { protect, optionalAuth, adminOnly, superAdminOnly, studentOnly, hrOnly, invalidateUserCache };

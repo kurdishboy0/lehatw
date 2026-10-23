@@ -73,6 +73,7 @@ function LessonsDialog({ course, notify, onClose, onChanged }) {
     setLessons(next);
     await axios.put(`/api/instructor/courses/${course.id}/lesson-order`, { lessonIds: next.map((l) => l.id) }, { headers: authHeader() });
     await load();
+    onChanged();
   };
 
   return (

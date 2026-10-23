@@ -1,5 +1,6 @@
 const prisma = require('../../db');
 const { parseApplicationDeadline, deadlineError } = require('../../utils/jobDeadline');
+const { readJobInput, jobInputError } = require('../../utils/jobInput');
 const { logAdminAction } = require('../../utils/audit');
 const { notifyUser } = require('../../utils/notify');
 const { createSetupLink, sendSetupEmail } = require('../../utils/accountSetup');
@@ -156,10 +157,7 @@ const createJobForCompany = async (req, res) => {
     if (!hrProfile) return res.status(400).json({ message: 'Choose the company this job belongs to.' });
     if (hrProfile.status !== 'APPROVED') return res.status(400).json({ message: 'That company is not approved yet.' });
 
-    const title = clean(req.body.title, 200);
-    if (!title) return res.status(400).json({ message: 'Please enter a job title.' });
-
-    const skillIds = (Array.isArray(req.body.skillIds) ? req.body.skillIds : []).map(Number).filter(Number.isInteger);
+    const { title, skillIds = [] } = readJobInput(req.body);
     const job = await prisma.jobPost.create({
       data: {
         hrProfileId: hrProfile.id,
@@ -193,7 +191,7 @@ const createJobForCompany = async (req, res) => {
     });
     res.status(201).json({ message: 'Job posted.', job });
   } catch (error) {
-    if (deadlineError(res, error)) return;
+    if (deadlineError(res, error) || jobInputError(res, error)) return;
     console.error('Admin Create Job Error:', error);
     res.status(500).json({ message: 'Server error posting the job.' });
   }

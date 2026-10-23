@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 import { GOOGLE_CLIENT_ID, LINKEDIN_CLIENT_ID } from '../oauthConfig';
+import { startLinkedInSignIn } from '../linkedinAuth';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../useAuth';
 import { validEmail } from '../emailAddress';
@@ -71,11 +72,7 @@ function Register() {
 
   // --- LINKEDIN REDIRECT LOGIC ---
   const loginWithLinkedIn = () => {
-    const clientId = LINKEDIN_CLIENT_ID;
-    // We intentionally route them back to /login so the Login.jsx useEffect handles the account creation!
-    const redirectUri = `${window.location.origin}/login`;
-    const scope = 'openid profile email';
-    window.location.href = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+    startLinkedInSignIn(LINKEDIN_CLIENT_ID);
   };
 
   return (

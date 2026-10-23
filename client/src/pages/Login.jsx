@@ -3,12 +3,11 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom'; 
 import GoogleSignInButton from '../components/GoogleSignInButton';
 import { GOOGLE_CLIENT_ID, LINKEDIN_CLIENT_ID } from '../oauthConfig';
+import { LINKEDIN_STATE_KEY, startLinkedInSignIn } from '../linkedinAuth';
 import { useTranslation } from 'react-i18next';
 import { validEmail } from '../emailAddress';
 import { useAuth } from '../useAuth';
 import { isAccountBlock, describeAccountBlock, readStoredAccountBlock, clearStoredAccountBlock } from '../accountBlock';
-
-const LINKEDIN_STATE_KEY = 'lehatw_linkedin_state';
 
 // Where LinkedIn sends the user back: this site's own login page, so it works
 // on localhost and in production alike (each must be registered on the app).
@@ -125,16 +124,7 @@ function Login() {
 
   // --- LINKEDIN REDIRECT LOGIC ---
   const loginWithLinkedIn = () => {
-    const state = crypto.randomUUID();
-    sessionStorage.setItem(LINKEDIN_STATE_KEY, state);
-    const params = new URLSearchParams({
-      response_type: 'code',
-      client_id: LINKEDIN_CLIENT_ID,
-      redirect_uri: linkedinRedirectUri(),
-      scope: 'openid profile email',
-      state
-    });
-    window.location.href = `https://www.linkedin.com/oauth/v2/authorization?${params}`;
+    startLinkedInSignIn(LINKEDIN_CLIENT_ID);
   };
 
   return (

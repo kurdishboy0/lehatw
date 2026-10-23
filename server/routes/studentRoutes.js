@@ -10,7 +10,7 @@ const {
   removeResume,
   getResumeLink
 } = require('../controllers/studentController');
-const { protect } = require('../middleware/authMiddleware'); // Bring in the Bouncer!
+const { protect, studentOnly } = require('../middleware/authMiddleware');
 const { handlePhotoUpload, handleResumeUpload } = require('../middleware/upload');
 
 const router = express.Router();
@@ -24,12 +24,12 @@ router.get('/all', getAllStudentsPaginated);
 
 // --- PROTECTED ROUTES (Requires Bouncer) ---
 // The user MUST pass the Bouncer (protect) to reach these functions
-router.post('/profile', protect, createStudentProfile);
-router.get('/profile', protect, getStudentProfile);
-router.put('/profile', protect, updateStudentProfile);
-router.post('/profile/photo', protect, handlePhotoUpload, uploadProfilePhoto);
-router.post('/profile/resume', protect, handleResumeUpload, uploadResume);
-router.delete('/profile/resume', protect, removeResume);
+router.post('/profile', protect, studentOnly, createStudentProfile);
+router.get('/profile', protect, studentOnly, getStudentProfile);
+router.put('/profile', protect, studentOnly, updateStudentProfile);
+router.post('/profile/photo', protect, studentOnly, handlePhotoUpload, uploadProfilePhoto);
+router.post('/profile/resume', protect, studentOnly, handleResumeUpload, uploadResume);
+router.delete('/profile/resume', protect, studentOnly, removeResume);
 
 // --- PUBLIC: single student profile by id (kept below the literal routes above) ---
 // Before '/:id' would also match, and behind protect: a CV link is never

@@ -7,6 +7,7 @@
 # Public OAuth client identifier; never put client secrets in frontend settings.
 [build.environment]
   VITE_GOOGLE_CLIENT_ID = "868804339083-pdfhjanimo8sk7e8r3i9p36tvr3gngep.apps.googleusercontent.com"
+  VITE_LINKEDIN_CLIENT_ID = "77khnmb4rlxjy5"
 
 
 # Send API requests to the Express service, before the React page fallback.

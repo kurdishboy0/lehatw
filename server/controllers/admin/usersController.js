@@ -292,6 +292,7 @@ const deleteUser = handle('Delete User', async (req, res) => {
   await prisma.$transaction([
     prisma.studentProfile.deleteMany({ where: { userId: target.id } }),
     prisma.hRProfile.deleteMany({ where: { userId: target.id } }),
+    ...(target.instructorProfile ? [prisma.instructorProfile.deleteMany({ where: { userId: target.id } })] : []),
     prisma.user.delete({ where: { id: target.id } })
   ]);
   invalidateUserCache(target.id);

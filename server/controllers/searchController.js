@@ -1,5 +1,6 @@
 const prisma = require('../db');
 const { openJobWhere } = require('../utils/jobDeadline');
+const { publicTalentProfile } = require('../utils/talentPrivacy');
 
 const RESULT_LIMIT = 20;
 
@@ -17,12 +18,13 @@ const search = async (req, res) => {
     const [students, jobs] = await Promise.all([
       prisma.studentProfile.findMany({
         where: {
+          user: { accountStatus: 'ACTIVE' },
           OR: [
             { fullName: { contains: q, mode: 'insensitive' } },
             { university: { contains: q, mode: 'insensitive' } },
             { fieldOfStudy: { contains: q, mode: 'insensitive' } },
             { skills: { some: { skill: { name_en: { contains: q, mode: 'insensitive' } } } } },
-            { customSkills: { some: { name: { contains: q, mode: 'insensitive' } } } }
+            { customSkills: { some: { isApproved: true, name: { contains: q, mode: 'insensitive' } } } }
           ]
         },
         include: {
@@ -55,7 +57,8 @@ const search = async (req, res) => {
 
     const rankedStudents = students
       .sort((a, b) => Number(startsWith(b.fullName)) - Number(startsWith(a.fullName)))
-      .slice(0, RESULT_LIMIT);
+      .slice(0, RESULT_LIMIT)
+      .map(publicTalentProfile);
 
     const rankedJobs = jobs
       .sort((a, b) => Number(startsWith(b.title)) - Number(startsWith(a.title)))

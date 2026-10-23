@@ -3,7 +3,7 @@ const { buildSkillVector, weightedJaccard, requiredSkillsCoverage, sharedCustomS
 
 const PROFILE_INCLUDE = {
   skills: { include: { skill: true } },
-  customSkills: true
+  customSkills: { where: { isApproved: true } }
 };
 
 // Fields of study are free text, so compare them loosely ("Computer science " = "computer Science").
@@ -105,7 +105,7 @@ const searchStudents = async (req, res) => {
           { fullName: { contains: q, mode: 'insensitive' } },
           { university: { contains: q, mode: 'insensitive' } },
           { fieldOfStudy: { contains: q, mode: 'insensitive' } },
-          { customSkills: { some: { name: { contains: q, mode: 'insensitive' } } } }
+          { customSkills: { some: { isApproved: true, name: { contains: q, mode: 'insensitive' } } } }
         ]
       });
     }

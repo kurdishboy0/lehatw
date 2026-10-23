@@ -3,8 +3,7 @@ const jwt = require('jsonwebtoken');
 const prisma = require('../db');
 const { findUsableToken, hash } = require('../utils/accountSetup');
 const { getDisplayName } = require('../utils/displayName');
-
-const MIN_PASSWORD = 8;
+const { isValidPassword, PASSWORD_RULE_MESSAGE } = require('../utils/passwordPolicy');
 
 // Public: what the set-password page shows before anyone types a password.
 const checkSetupToken = async (req, res) => {
@@ -28,8 +27,8 @@ const completeSetup = async (req, res) => {
     const { token, password } = req.body;
     const { row, error } = await findUsableToken(token);
     if (error) return res.status(400).json({ message: error });
-    if (typeof password !== 'string' || password.length < MIN_PASSWORD) {
-      return res.status(400).json({ message: `Your password must be at least ${MIN_PASSWORD} characters.` });
+    if (!isValidPassword(password)) {
+      return res.status(400).json({ message: PASSWORD_RULE_MESSAGE });
     }
 
     const user = await prisma.user.update({

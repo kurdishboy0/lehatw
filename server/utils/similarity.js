@@ -23,6 +23,7 @@ function buildSkillVector(studentProfile) {
     vector[`skill:${s.skillId}`] = PROFICIENCY_WEIGHT[s.proficiency] || 1;
   }
   for (const cs of studentProfile.customSkills || []) {
+    if (cs.isApproved !== true) continue;
     const key = customSkillKey(cs.name);
     vector[key] = Math.max(vector[key] || 0, CUSTOM_SKILL_WEIGHT);
   }
@@ -69,8 +70,9 @@ function sharedSkillIds(vectorA, vectorB) {
 }
 
 function sharedCustomSkillNames(studentA, studentB) {
-  const namesB = new Set((studentB.customSkills || []).map(cs => cs.name.trim().toLowerCase()));
+  const namesB = new Set((studentB.customSkills || []).filter(cs => cs.isApproved === true).map(cs => cs.name.trim().toLowerCase()));
   return (studentA.customSkills || [])
+    .filter(cs => cs.isApproved === true)
     .map(cs => cs.name.trim())
     .filter(name => namesB.has(name.toLowerCase()));
 }
