@@ -31,8 +31,8 @@ const en = {
   },
 
   skillMatch: {
-    tab_all: "All Talents",
-    tab_peers: "Peers Like You",
+    tab_all: "All talents",
+    tab_peers: "Peers like you",
     peers_error: "Couldn't load your peers. Please try refreshing the page.",
     peers_heading: "Peers like you",
     peers_intro: "Talent with skills and a field of study like yours.",
