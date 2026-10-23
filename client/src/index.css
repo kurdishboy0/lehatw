@@ -106,13 +106,13 @@ a {
 /* --- Responsive grid used for student/job card listings (3 columns on desktop) --- */
 .card-grid-3col {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
 
 @media (max-width: 980px) {
   .card-grid-3col {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -124,14 +124,14 @@ a {
 
 /* --- Global responsive breakpoints (tablet & phone) --- */
 @media (max-width: 900px) {
-  header {
-    padding: 0 20px !important;
+  .site-header {
+    padding: 0 !important;
   }
 }
 
 @media (max-width: 640px) {
-  header {
-    padding: 0 12px !important;
+  .site-header {
+    padding: 0 !important;
     min-height: 56px !important;
   }
   .nav-item-label {
@@ -162,7 +162,7 @@ a {
 /* --- Sidebar + content layouts (Skill Match filters, etc.) collapse to one column on mobile --- */
 .sidebar-layout {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 260px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
 }
@@ -248,4 +248,80 @@ a {
   .grid-2col {
     gap: 14px;
   }
+}
+
+/* Account access stays available when the main navigation becomes a menu. */
+.site-account-tools, .site-guest-actions { display: flex; align-items: center; gap: 8px; }
+.site-header-inner { min-width: 0; }
+.site-mobile { max-height: calc(100dvh - 64px); overflow-y: auto; overscroll-behavior: contain; }
+.site-mobile-account { border-top: 1px solid #ffffff26; margin-top: 12px; padding-top: 8px; }
+.site-mobile-account .site-mobile-link { font-size: 14px; }
+.site-mobile-account .site-mobile-link:focus-visible { outline: 2px solid var(--color-gold-400); outline-offset: -2px; }
+
+.home-directory { max-width: 1200px; margin: 0 auto 40px; padding: 0 16px; }
+.home-job-grid, .talent-results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 20px; }
+.talent-card { min-width: 0; position: relative; display: flex; flex-direction: column; padding: 24px; border: 1px solid #dfe4eb; border-radius: 16px; background: #fff; box-shadow: 0 3px 12px #15223806; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.talent-card:hover, .talent-card:focus-within { border-color: #d8bc80; box-shadow: 0 12px 28px #15223812; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) { .talent-card:hover { transform: translateY(-3px); } }
+.talent-card-heading { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; min-width: 0; }
+.talent-card-photo { display: block; width: 80px; height: 80px; flex: 0 0 80px; border-radius: 20px; object-fit: cover; border: 3px solid #fff; outline: 1px solid #e6d8b6; background: #f6ecd4; }
+.talent-card-initials { display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; color: #152238; }
+.talent-card-heading h3 { margin: 0; min-width: 0; font-size: 20px; line-height: 1.4; overflow-wrap: anywhere; }
+.talent-card-heading h3 a { color: #152238; text-decoration: none; }
+.talent-card-heading a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.talent-card-details { display: flex; flex-direction: column; gap: 12px; padding: 0; margin: 0 0 18px; }
+.talent-card-details > div { min-width: 0; }
+.talent-card-details dt { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #68758a; margin-bottom: 3px; }
+.talent-card-details dd { margin: 0; padding-inline-start: 25px; color: #28384f; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.talent-card-skills, .talent-card-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+.talent-skill-chip { border: 1px solid #eee2c4; background: #faf6eb; color: #624b1e; padding: 4px 9px; border-radius: 7px; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.talent-skills-more { color: #64748b; padding: 4px; font-size: 12px; }
+.talent-match-badge { padding: 4px 9px; border-radius: 7px; color: #155b43; background: #e9f5ef; font-weight: 700; font-size: 13px; }
+.talent-match-badge span { font-size: 11px; font-weight: 500; }
+.talent-card-email { display: flex; align-items: center; gap: 7px; margin-bottom: 14px; font-size: 13px; color: #24365c; overflow-wrap: anywhere; }
+.talent-card-email svg { flex-shrink: 0; }
+.talent-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 4px; }
+.talent-card-profile, .talent-card-message { display: flex; flex: 1 1 130px; min-height: 44px; justify-content: center; align-items: center; gap: 9px; border-radius: 9px; padding: 10px 12px; text-align: center; text-decoration: none; font-size: 13px; font-weight: 600; }
+.talent-card-profile { background: #152238; color: white; }
+.talent-card-profile:hover { background: #24365c; }
+.talent-card-message { border: 1px solid #d4dce7; color: #152238; }
+.talent-card a:focus-visible { outline: 2px solid #a87d24; outline-offset: 3px; }
+.skillmatch-page { max-width: 1200px; margin: 30px auto; padding: 0 16px; }
+.skillmatch-filters { position: sticky; top: 90px; max-height: calc(100dvh - 110px); overflow-y: auto; }
+.skillmatch-filter-toggle { display: none; }
+#instructor-courses { scroll-margin-top: 90px; }
+
+@media (max-width: 1120px) {
+  .site-header-inner { min-height: 60px; padding: 0 16px; gap: 12px; }
+  .site-nav, .site-guest-actions, .site-actions > .nav-language { display: none; }
+  .site-actions { display: flex; margin-inline-start: auto; }
+  .site-burger { display: inline-flex; margin-inline-start: 0; flex-shrink: 0; }
+  .site-mobile { display: flex; }
+  .site-brand img { height: 34px; }
+  .site-brand span { font-size: 18px; }
+  .site-account-tools { gap: 3px; }
+  .header-tool { min-width: 44px; min-height: 44px; padding: 8px; justify-content: center; }
+  .site-actions .nav-item-label, .site-actions .header-tool-label { display: none !important; }
+  .header-notifications-panel { position: fixed !important; top: 68px !important; inset-inline-end: 12px !important; width: min(360px, calc(100vw - 24px)) !important; max-height: calc(100dvh - 84px); }
+}
+@media (max-width: 940px) {
+  .sidebar-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .skillmatch-filters { position: static; top: auto; max-height: none; overflow: visible; }
+  .skillmatch-filter-toggle { display: flex; align-items: center; width: 100%; gap: 10px; min-height: 44px; border: 0; background: transparent; color: #152238; font: inherit; font-weight: 600; cursor: pointer; text-align: start; }
+  .skillmatch-filter-toggle svg:last-child { margin-inline-start: auto; }
+  .skillmatch-filter-fields { display: none; }
+  .skillmatch-filters.is-expanded .skillmatch-filter-fields { display: block; padding-top: 18px; }
+  .skillmatch-filter-fields input:not([type="checkbox"]), .skillmatch-filter-fields select { min-height: 44px; font-size: 16px !important; }
+}
+@media (max-width: 480px) {
+  .site-header-inner { gap: 6px; padding: 0 10px; }
+  .site-brand { gap: 7px; }
+  .site-brand span { font-size: 16px; }
+  .site-brand img { height: 32px; }
+  .site-account-tools { gap: 0; }
+  .header-tool { min-width: 44px; padding: 7px; }
+  .site-burger { width: 38px; height: 40px; }
+  .home-directory, .skillmatch-page { padding-inline: 0; }
+  .talent-card { padding: 20px; }
+  .talent-card-photo { width: 72px; height: 72px; flex-basis: 72px; }
 }

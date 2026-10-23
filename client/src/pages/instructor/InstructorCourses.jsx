@@ -132,7 +132,7 @@ function InstructorCourses({ approved, notify }) {
 
   if (!approved) {
     return (
-      <div style={cardStyle}>
+      <div id="instructor-courses" style={cardStyle}>
         <h2 style={{ fontSize: '18px', color: '#1a202c', marginTop: 0 }}><InlineIcon icon={BookOpen} size={18} tone="gold" /> {t('instructorCourses.heading')}</h2>
         <p style={{ color: '#718096', margin: 0 }}>{t('instructorCourses.needs_approval')}</p>
       </div>
@@ -140,7 +140,7 @@ function InstructorCourses({ approved, notify }) {
   }
 
   return (
-    <section style={cardStyle}>
+    <section id="instructor-courses" style={cardStyle}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
         <h2 style={{ fontSize: '18px', color: '#1a202c', margin: 0 }}><InlineIcon icon={BookOpen} size={18} tone="gold" /> {t('instructorCourses.heading')}</h2>
         <button type="button" onClick={() => setEditing({})} style={buttonStyle('primary')}><InlineIcon icon={Plus} /> {t('instructorCourses.new')}</button>

@@ -91,7 +91,7 @@ function NotificationBell() {
       </button>
 
       {open && (
-        <div style={{
+        <div className="header-notifications-panel" style={{
           position: 'absolute', insetInlineEnd: 0, top: 'calc(100% + 8px)', width: '340px', maxWidth: '90vw',
           backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px',
           boxShadow: '0 10px 30px rgba(0,0,0,0.12)', zIndex: 1100, overflow: 'hidden'

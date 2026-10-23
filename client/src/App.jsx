@@ -30,6 +30,7 @@ import LegalPlaceholder from './pages/LegalPlaceholder';
 import ContactUs from './pages/ContactUs';
 import ProtectedRoute from './components/ProtectedRoute';
 import SiteHeader from './components/SiteHeader';
+import RouteScroll from './components/RouteScroll';
 import AnnouncementBanner from './components/AnnouncementBanner';
 import { isRtlLanguage } from './rtl';
 
@@ -48,6 +49,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <RouteScroll />
       <div className="app-shell" lang={i18n.language} dir={rtl ? 'rtl' : 'ltr'} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F7F6F1' }}>
 
         <SiteHeader />

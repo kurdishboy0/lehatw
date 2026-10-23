@@ -95,7 +95,14 @@ const searchStudents = async (req, res) => {
       where.AND.push({ skills: { some: { skillId: { in: skillIds } } } });
     }
     if (categoryId) {
-      where.AND.push({ skills: { some: { skill: { categoryId } } } });
+      const category = await prisma.category.findUnique({ where: { id: categoryId }, select: { name_en: true, name_ar: true, name_ckb: true } });
+      const names = [...new Set(Object.values(category || {}).filter(Boolean))];
+      // A field describes education as well as its associated skill catalog.
+      // Keep existing skill matches and include talent who actually studied it.
+      where.AND.push({ OR: [
+        { skills: { some: { skill: { categoryId } } } },
+        ...names.map(name => ({ fieldOfStudy: { contains: name, mode: 'insensitive' } }))
+      ] });
     } else if (subjectAreaId && !fieldOfStudy) {
       where.AND.push({ skills: { some: { skill: { category: { subjectAreaId } } } } });
     }

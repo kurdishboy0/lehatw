@@ -1,3 +1,4 @@
+import layoutStrings from './locales/layout';
 import i18n from 'i18next';
 import qaStrings from './locales/qa';
 import { initReactI18next } from 'react-i18next';
@@ -1324,7 +1325,7 @@ const resources = {
         heading: "پەیوەندیمان پێوە بکە",
         subtitle: "ئەو کەسانەی پشتی لێهاتووەوەن - پەیوەندیمان پێوە بکە بۆ پرسیار، ڕاوێژ، یان بیرۆکەی هاوکاری.",
         supervisor_heading: "سەرپەرشتیار و داهێنەری بیرۆکە",
-        supervisor_name: "پ.د. عباس برهان ساڵەیی",
+        supervisor_name: "پ.د. عباس برهان ساڵحی",
         supervisor_role: "پرۆفیسۆر، بەشی زیندەزانی، کۆلێژی زانست - زانکۆی سەلاحەددین - هەولێر",
         supervisor_specialization: "پسپۆڕی: فیزیۆلۆجیای مۆلیکیولی",
         supervisor_contact_note: "تکایە تەنها لە ڕێگەی ئیمەیلەوە پەیوەندی بکە.",
@@ -1694,7 +1695,7 @@ function mergeStrings(target, additions) {
   return target;
 }
 
-for (const bundle of [adminStrings, matchingStrings, accountStrings, eventStrings, instructorStrings, courseStrings, qaStrings]) {
+for (const bundle of [adminStrings, matchingStrings, accountStrings, eventStrings, instructorStrings, courseStrings, qaStrings, layoutStrings]) {
   for (const [lang, sections] of Object.entries(bundle)) {
     mergeStrings(resources[lang].translation, sections);
   }

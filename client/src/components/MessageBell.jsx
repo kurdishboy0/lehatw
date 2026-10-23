@@ -34,6 +34,7 @@ function MessageBell() {
   return (
     <Link
       to="/messages"
+      aria-label={t('nav.messaging')}
       className={`header-tool${isActive ? ' is-active' : ''}`}
     >
       <span className="header-tool-icon">

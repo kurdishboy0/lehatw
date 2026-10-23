@@ -11,8 +11,9 @@ import UserMenu from './UserMenu';
 import MessageBell from './MessageBell';
 import NotificationBell from './NotificationBell';
 import logo from '../assets/Logo.jpeg';
+import { getUserMenuItems } from '../userNavigation';
 
-const MOBILE_BREAKPOINT = 900;
+const MOBILE_BREAKPOINT = 1120;
 
 const MAIN_LINKS = [
   { to: '/', icon: House, labelKey: 'nav.home' },
@@ -129,6 +130,8 @@ function SiteHeader() {
   const [overHero, setOverHero] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [exploreOpenMobile, setExploreOpenMobile] = useState(false);
+  const mobileMenuRef = useRef(null);
+  const burgerRef = useRef(null);
 
   // Transparent for as long as the hero is still behind the bar; solid navy
   // from the moment it has scrolled past. Pages with no hero start solid.
@@ -157,8 +160,19 @@ function SiteHeader() {
     };
   }, [syncOverHero, location.pathname]);
 
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKey = (event) => { if (event.key === 'Escape') { setMenuOpen(false); burgerRef.current?.focus(); } };
+    const onPointer = (event) => { if (!mobileMenuRef.current?.contains(event.target) && !burgerRef.current?.contains(event.target)) setMenuOpen(false); };
+    const onResize = () => { if (window.innerWidth > MOBILE_BREAKPOINT) setMenuOpen(false); };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPointer);
+    window.addEventListener('resize', onResize);
+    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('pointerdown', onPointer); window.removeEventListener('resize', onResize); };
+  }, [menuOpen]);
+
   // A tap on any link inside the panel closes it.
-  const closeMenu = () => setMenuOpen(false);
+  const closeMenu = () => { setMenuOpen(false); setExploreOpenMobile(false); };
 
   const handleLogout = () => {
     logout();
@@ -203,21 +217,22 @@ function SiteHeader() {
 
         <div className="site-actions">
           {user ? (
-            <>
+            <div className="site-account-tools">
               <MessageBell />
               <NotificationBell />
               <UserMenu user={user} onLogout={handleLogout} />
-            </>
+            </div>
           ) : (
-            <>
+            <div className="site-guest-actions">
               <Link to="/login" className="nav-link">{t('nav.login')}</Link>
               <Link to="/signup" className="nav-cta">{t('nav.signup')}</Link>
-            </>
+            </div>
           )}
           {languageSelect}
         </div>
 
         <button
+          ref={burgerRef}
           type="button"
           className="site-burger"
           aria-expanded={menuOpen}
@@ -230,7 +245,7 @@ function SiteHeader() {
       </div>
 
       {menuOpen && (
-        <div className="site-mobile" id="site-mobile-menu">
+        <div ref={mobileMenuRef} className="site-mobile" id="site-mobile-menu">
           {MAIN_LINKS.map((link) => (
             <Link
               key={link.to}
@@ -273,6 +288,11 @@ function SiteHeader() {
             </div>
           )}
 
+          {user && <nav className="site-mobile-account" aria-label={t('userMenu.dashboard')}>
+            {getUserMenuItems(user, t).map(item => <Link key={item.to} to={item.to} className="site-mobile-link" onClick={closeMenu}>
+              <InlineIcon icon={item.icon} size={18} tone="gold" />{item.label}
+            </Link>)}
+          </nav>}
           <div className="site-mobile-foot">
             {user ? (
               <button type="button" className="nav-cta" onClick={handleLogout}>{t('userMenu.logout')}</button>

@@ -20,6 +20,7 @@ const TAXONOMY = [
     subjectArea: { en: 'Computer Science & IT', ar: 'علوم الحاسوب وتقنية المعلومات', ckb: 'زانستی کۆمپیوتەر و تەکنەلۆجیای زانیاری' },
     linkExisting: EXISTING_CATEGORY_NAMES,
     newCategories: [
+      require('./computer-science-data'),
       {
         en: 'Cybersecurity', ar: 'الأمن السيبراني', ckb: 'ئاسایشی سایبەری',
         skills: [

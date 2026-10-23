@@ -1,73 +1,41 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { House, Pencil, Puzzle, FileText, MessageSquare, Plus, ClipboardList, CircleCheck, Flag, Briefcase, LogOut, ChevronDown } from 'lucide-react';
+import { LogOut, ChevronDown } from 'lucide-react';
+import { getUserMenuItems } from '../userNavigation';
 import InlineIcon from './InlineIcon';
 
-const DASHBOARD_PATH = {
-  STUDENT: '/student-dashboard',
-  HR: '/hr-dashboard',
-  INSTRUCTOR: '/instructor-dashboard',
-  ADMIN: '/admin-dashboard'
-};
 
 function getFirstName(user) {
   const source = user.name || user.email.split('@')[0];
   return source.trim().split(/\s+/)[0];
 }
 
-function getMenuItems(user, t) {
-  const dashboard = DASHBOARD_PATH[user.role] || '/';
-
-  if (user.role === 'STUDENT') {
-    return [
-      { label: t('userMenu.dashboard'), to: dashboard, icon: House },
-      { label: t('userMenu.edit_profile'), to: `${dashboard}?edit=1`, icon: Pencil },
-      { label: t('userMenu.add_skills'), to: `${dashboard}?section=skills`, icon: Puzzle },
-      { label: t('userMenu.my_applications'), to: `${dashboard}?section=applications`, icon: FileText },
-      { label: t('userMenu.messages'), to: '/messages', icon: MessageSquare }
-    ];
-  }
-
-  if (user.role === 'HR') {
-    return [
-      { label: t('userMenu.dashboard'), to: dashboard, icon: House },
-      { label: t('userMenu.edit_profile'), to: `${dashboard}?edit=1`, icon: Pencil },
-      { label: t('userMenu.post_job'), to: '/hr-dashboard/post-job', icon: Plus },
-      { label: t('userMenu.my_job_posts'), to: `${dashboard}?section=jobs`, icon: ClipboardList },
-      { label: t('userMenu.messages'), to: '/messages', icon: MessageSquare }
-    ];
-  }
-
-  // ADMIN
-  return [
-    { label: t('userMenu.dashboard'), to: dashboard, icon: House },
-    { label: t('userMenu.admin_approvals'), to: `${dashboard}?tab=approvals`, icon: CircleCheck },
-    { label: t('userMenu.admin_reports'), to: `${dashboard}?tab=reports`, icon: Flag },
-    { label: t('userMenu.admin_jobs'), to: `${dashboard}?tab=jobs`, icon: Briefcase },
-    { label: t('userMenu.messages'), to: '/messages', icon: MessageSquare }
-  ];
-}
-
 function UserMenu({ user, onLogout }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  const triggerRef = useRef(null);
 
   useEffect(() => {
+    if (!open) return undefined;
     const handleClickOutside = (e) => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    const onKey = (event) => { if (event.key === 'Escape') { setOpen(false); triggerRef.current?.focus(); } };
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); document.removeEventListener('keydown', onKey); };
+  }, [open]);
 
-  const items = getMenuItems(user, t);
+  const items = getUserMenuItems(user, t);
 
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button
+        ref={triggerRef}
         onClick={() => setOpen((o) => !o)}
+        aria-label={t('nav.me')}
         className={`header-tool${open ? ' is-open' : ''}`}
         aria-haspopup="true"
         aria-expanded={open}
@@ -75,7 +43,7 @@ function UserMenu({ user, onLogout }) {
         <span className="header-tool-avatar">
           {getFirstName(user).charAt(0).toUpperCase()}
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+        <span className="header-tool-label" style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
           {t('nav.me')}
           <InlineIcon icon={ChevronDown} size={12} style={{ transform: open ? 'rotate(180deg)' : 'none' }} />
         </span>
