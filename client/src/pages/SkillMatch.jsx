@@ -2,15 +2,11 @@ import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
-import { Compass, Handshake, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { Compass, Handshake } from 'lucide-react';
 import StudentCard from '../components/TalentCard';
 import InlineIcon from '../components/InlineIcon';
 import useListFilters from '../useListFilters';
-
-const cardStyle = {
-  border: '1px solid #e2e8f0', borderRadius: '10px', padding: '20px',
-  backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-};
+import ResponsiveFilters from '../components/ResponsiveFilters';
 
 function localizedName(item, lang) {
   return item['name_' + lang] || item.name_en;
@@ -22,7 +18,6 @@ function SkillMatch() {
   const user = getUser();
 
   const [taxonomy, setTaxonomy] = useState([]);
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const { params, page, update } = useListFilters();
   const subjectAreaId = params.get('subjectAreaId') || '';
   const categoryId = params.get('categoryId') || '';
@@ -115,11 +110,7 @@ function SkillMatch() {
 
       <div className="sidebar-layout">
         {/* FILTER SIDEBAR */}
-        <aside className={`skillmatch-filters${filtersOpen ? ' is-expanded' : ''}`} style={cardStyle}>
-          <button className="skillmatch-filter-toggle" type="button" aria-expanded={filtersOpen} aria-controls="skillmatch-filter-fields" onClick={() => setFiltersOpen(value => !value)}>
-            <SlidersHorizontal size={18} />{t(filtersOpen ? 'layout.hide_filters' : 'layout.show_filters')}<ChevronDown size={17} style={{ transform: filtersOpen ? 'rotate(180deg)' : 'none' }} />
-          </button>
-          <div id="skillmatch-filter-fields" className="skillmatch-filter-fields">
+        <ResponsiveFilters className="skillmatch-filters">
           <h3 style={{ margin: '0 0 14px 0', fontSize: '15px', color: '#1a202c' }}>{t('skillMatch.browse_heading')}</h3>
 
           <input
@@ -166,8 +157,7 @@ function SkillMatch() {
               {t('skillMatch.clear_filters')}
             </button>
           )}
-          </div>
-        </aside>
+        </ResponsiveFilters>
 
         {/* RESULTS */}
         <div>

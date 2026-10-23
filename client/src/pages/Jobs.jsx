@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useId } from 'react';
 import axios from 'axios';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import { toLocalizedDigits } from '../localizeDigits';
 import { Sparkles, Check, MapPin, Clock, Building2, Briefcase, Mail, Search } from 'lucide-react';
 import InlineIcon from '../components/InlineIcon';
 import JobDeadline from '../components/JobDeadline';
+import ResponsiveFilters from '../components/ResponsiveFilters';
 
 const EMPLOYMENT_TYPES = ['Full-Time', 'Part-Time', 'Internship', 'Contract', 'Freelance'];
 const WORK_MODES = ['On-Site', 'Remote', 'Hybrid'];
@@ -45,10 +46,11 @@ function localizedCategoryName(cat, lang) {
 }
 
 function FilterSelect({ label, value, onChange, options }) {
+  const id = useId();
   return (
     <div style={{ marginBottom: '16px' }}>
-      <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#4a5568', marginBottom: '6px' }}>{label}</label>
-      <select value={value} onChange={(e) => onChange(e.target.value)} style={{ width: '100%', padding: '9px 10px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '14px', backgroundColor: '#fff' }}>
+      <label htmlFor={id} style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#4a5568', marginBottom: '6px' }}>{label}</label>
+      <select id={id} value={value} onChange={(e) => onChange(e.target.value)} style={{ width: '100%', padding: '9px 10px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '14px', backgroundColor: '#fff' }}>
         <option value="">{label}</option>
         {options.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
       </select>
@@ -217,7 +219,7 @@ function Jobs() {
         ) : (
           <div className="sidebar-layout">
             {/* FILTER SIDEBAR */}
-            <div style={{ ...cardStyle, position: 'sticky', top: '90px' }}>
+            <ResponsiveFilters className="jobs-filters">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <h3 style={{ margin: 0, fontSize: '16px', color: '#1a202c' }}>{t('jobs.filters')}</h3>
                 {hasFilters && (
@@ -230,7 +232,7 @@ function Jobs() {
               <FilterSelect label={t('jobs.filter_type')} value={employmentType} onChange={setEmploymentType} options={employmentTypeOptions} />
               <FilterSelect label={t('jobs.filter_location')} value={location} onChange={setLocation} options={locationOptions} />
               <FilterSelect label={t('jobs.filter_mode')} value={workMode} onChange={setWorkMode} options={workModeOptions} />
-            </div>
+            </ResponsiveFilters>
 
             {/* RESULTS */}
             <div>

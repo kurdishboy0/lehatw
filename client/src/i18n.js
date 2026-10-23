@@ -803,7 +803,7 @@ const resources = {
       register: {
         title: "تسجيل المواهب",
         email_placeholder: "البريد الإلكتروني",
-        phone_placeholder: "رقم الهاتف (مثال: 964 750 123 4567+)",
+        phone_placeholder: "رقم الهاتف (مثال: \u2066+964 750 123 4567\u2069)",
         password_placeholder: "كلمة المرور",
         submit: "تسجيل",
         password_error: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف كبير، ورقم، ورمز خاص.",
@@ -1359,7 +1359,7 @@ const resources = {
       register: {
         title: "خۆتۆمارکردنی بەهرەمەند",
         email_placeholder: "ئیمەیل",
-        phone_placeholder: "ژمارەی مۆبایل (نموونە: 964 750 123 4567+)",
+        phone_placeholder: "ژمارەی مۆبایل (نموونە: \u2066+964 750 123 4567\u2069)",
         password_placeholder: "وشەی نهێنی",
         submit: "تۆمارکردن",
         password_error: "وشەی نهێنی دەبێت لانیکەم ٨ پیت بێت، لەگەڵ یەک پیتی گەورە، یەک ژمارە، و یەک هێمای تایبەت.",
