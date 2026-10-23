@@ -1,3 +1,4 @@
+import PasswordVisibilityButton from '../components/PasswordVisibilityButton';
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -112,7 +113,7 @@ function Register() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-          <div style={{ position: 'relative', display: 'flex' }}>
+          <div className="password-field">
             <input
               type={showPassword ? "text" : "password"}
               placeholder={t('register.password_placeholder')}
@@ -123,39 +124,8 @@ function Register() {
               required
               style={{ padding: '12px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', width: '100%', boxSizing: 'border-box' }}
             />
-            <span style={{ position: 'absolute', insetInlineEnd: '40px', top: '12px', color: '#e53e3e', fontWeight: '700', fontSize: '15px', pointerEvents: 'none' }}>*</span>
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? t('common.hide_password') : t('common.show_password')}
-              style={{
-                position: 'absolute',
-                right: '10px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0'
-              }}
-            >
-              {showPassword ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
-                  <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
-                  <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
-                  <line x1="2" y1="2" x2="22" y2="22"></line>
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-              )}
-            </button>
+            <span className="required-asterisk" aria-hidden="true">*</span>
+            <PasswordVisibilityButton visible={showPassword} onToggle={() => setShowPassword(value => !value)} />
           </div>
           <span style={{ fontSize: '12px', color: '#718096' }}>
             {t('common.password_hint')}

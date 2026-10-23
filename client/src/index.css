@@ -103,6 +103,15 @@ a {
   line-height: 1;
 }
 
+/* Logical edges mirror controls and reserve their space in LTR and RTL. */
+.field-wrap > input { direction: inherit; padding-inline-end: 36px !important; }
+.password-field { position: relative; display: flex; }
+.password-field > input { direction: inherit; padding-inline-end: 80px !important; }
+.password-field .required-asterisk { inset-inline-end: 56px; top: 50%; transform: translateY(-50%); }
+.password-visibility-toggle { position: absolute; inset-inline-end: 4px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: #526178; cursor: pointer; }
+.password-visibility-toggle:hover { background: #15223808; color: #152238; }
+.password-visibility-toggle:focus-visible { outline: 2px solid #a87d24; outline-offset: -3px; }
+
 /* --- Responsive grid used for student/job card listings (3 columns on desktop) --- */
 .card-grid-3col {
   display: grid;
