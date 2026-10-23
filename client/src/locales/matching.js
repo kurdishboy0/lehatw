@@ -31,6 +31,9 @@ const en = {
   },
 
   skillMatch: {
+    tab_all: "All Talents",
+    tab_peers: "Peers Like You",
+    peers_error: "Couldn't load your peers. Please try refreshing the page.",
     peers_heading: "Peers like you",
     peers_intro: "Talent with skills and a field of study like yours.",
     same_field: "Same field",
@@ -102,6 +105,9 @@ const ar = {
   },
 
   skillMatch: {
+    tab_all: "جميع المواهب",
+    tab_peers: "مواهب يشبهونك",
+    peers_error: "تعذّر تحميل المواهب التي تشبهك. يُرجى تحديث الصفحة للمحاولة مجدداً.",
     peers_heading: "مواهب يشبهونك",
     peers_intro: "مواهب لديهم مهارات وتخصص يشبهان مهاراتك وتخصصك.",
     same_field: "نفس التخصص",
@@ -173,6 +179,9 @@ const ckb = {
   },
 
   skillMatch: {
+    tab_all: "هەموو بەهرەمەندان",
+    tab_peers: "بەهرەمەندانی وەک تۆ",
+    peers_error: "نەتوانرا بەهرەمەندانی وەک تۆ بار بکرێن. تکایە پەڕەکە نوێ بکەرەوە.",
     peers_heading: "بەهرەمەندانی وەک تۆ",
     peers_intro: "بەهرەمەندانێک کە توانایی و پسپۆڕییان وەک هی تۆیە.",
     same_field: "هەمان پسپۆڕی",

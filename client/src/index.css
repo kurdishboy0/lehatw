@@ -296,6 +296,11 @@ a {
 .talent-card-message { border: 1px solid #d4dce7; color: #152238; }
 .talent-card a:focus-visible { outline: 2px solid #a87d24; outline-offset: 3px; }
 .skillmatch-page { max-width: 1200px; margin: 30px auto; padding: 0 16px; }
+.skillmatch-tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 2px solid #e2e8f0; margin-bottom: 22px; }
+.skillmatch-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 16px; background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; font: inherit; font-size: 15px; font-weight: 600; color: #718096; }
+.skillmatch-tabs button[aria-selected="true"] { border-bottom-color: #c99a2e; color: #1b2a4a; font-weight: 700; }
+.skillmatch-tabs button:focus-visible { outline: 2px solid #a87d24; outline-offset: -2px; border-radius: 4px; }
+@media (max-width: 480px) { .skillmatch-tabs button { flex: 1 1 0; padding-inline: 8px; } }
 .responsive-filters { position: sticky; top: 90px; max-height: calc(100dvh - 110px); overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; background: white; box-shadow: 0 1px 3px #0000000a; }
 .responsive-filter-toggle { display: none; }
 #instructor-courses { scroll-margin-top: 90px; }

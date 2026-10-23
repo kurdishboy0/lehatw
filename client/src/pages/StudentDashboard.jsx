@@ -841,7 +841,7 @@ function StudentDashboard() {
                     </Link>
                   </div>
                 ))}
-                <Link to="/skill-match" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_peers')} <InlineIcon icon={ArrowRight} size={14} className="rtl:rotate-180" /></Link>
+                <Link to="/skill-match?tab=peers" style={{ color: '#3182ce', fontSize: '14px', fontWeight: 600 }}>{t('studentDashboard.see_all_peers')} <InlineIcon icon={ArrowRight} size={14} className="rtl:rotate-180" /></Link>
               </div>
             )}
           </div>

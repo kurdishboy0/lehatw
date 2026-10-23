@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { getUser, authHeader } from '../auth';
@@ -16,9 +16,25 @@ function SkillMatch() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const user = getUser();
+  const isStudent = user?.role === 'STUDENT';
+  const tabButtons = useRef([]);
 
   const [taxonomy, setTaxonomy] = useState([]);
   const { params, page, update } = useListFilters();
+  const tab = isStudent && params.get('tab') === 'peers' ? 'peers' : 'all';
+  const selectTab = (next) => update({ tab: next === 'peers' ? 'peers' : '' });
+  const handleTabKey = (event, index) => {
+    const forward = i18n.dir(lang) === 'rtl' ? 'ArrowLeft' : 'ArrowRight';
+    const backward = i18n.dir(lang) === 'rtl' ? 'ArrowRight' : 'ArrowLeft';
+    let next;
+    if (event.key === forward || event.key === backward) next = 1 - index;
+    else if (event.key === 'Home') next = 0;
+    else if (event.key === 'End') next = 1;
+    else return;
+    event.preventDefault();
+    selectTab(next === 1 ? 'peers' : 'all');
+    tabButtons.current[next]?.focus();
+  };
   const subjectAreaId = params.get('subjectAreaId') || '';
   const categoryId = params.get('categoryId') || '';
   const search = params.get('q') || '';
@@ -33,19 +49,25 @@ function SkillMatch() {
   const [error, setError] = useState('');
 
   const [recommended, setRecommended] = useState(null);
+  const [peersError, setPeersError] = useState(false);
 
   useEffect(() => {
     axios.get('/api/skills/taxonomy').then(res => setTaxonomy(res.data)).catch(console.error);
   }, []);
 
   useEffect(() => {
-    if (user?.role === 'STUDENT') {
-      axios.get('/api/match/similar', { headers: authHeader() })
-        .then(res => setRecommended(res.data.matches))
-        .catch(() => setRecommended([]));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!isStudent) return;
+    const controller = new AbortController();
+    axios.get('/api/match/similar', { headers: authHeader(), signal: controller.signal })
+      .then(res => setRecommended(res.data.matches))
+      .catch((error) => {
+        if (controller.signal.aborted) return;
+        // A talent account without a profile has no peers to rank yet.
+        if (error.response?.status === 404) setRecommended([]);
+        else setPeersError(true);
+      });
+    return () => controller.abort();
+  }, [isStudent]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -108,6 +130,22 @@ function SkillMatch() {
         <p style={{ color: '#718096', margin: 0 }}>{t('skillMatch.subtitle')}</p>
       </div>
 
+      {isStudent && (
+        <div className="skillmatch-tabs" role="tablist" aria-label={t('skillMatch.heading')}>
+          {['all', 'peers'].map((key, index) => (
+            <button key={key} ref={element => { tabButtons.current[index] = element; }}
+              type="button" role="tab" id={`talent-tab-${key}`} aria-controls={`talent-panel-${key}`}
+              aria-selected={tab === key} tabIndex={tab === key ? 0 : -1}
+              onClick={() => selectTab(key)} onKeyDown={event => handleTabKey(event, index)}>
+              {key === 'peers' && <InlineIcon icon={Handshake} tone="gold" />}
+              {t(`skillMatch.tab_${key}`)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div id="talent-panel-all" role={isStudent ? 'tabpanel' : undefined}
+        aria-labelledby={isStudent ? 'talent-tab-all' : undefined} hidden={tab !== 'all'}>
       <div className="sidebar-layout">
         {/* FILTER SIDEBAR */}
         <ResponsiveFilters className="skillmatch-filters">
@@ -189,12 +227,15 @@ function SkillMatch() {
           )}
         </div>
       </div>
-      {/* RECOMMENDED FOR YOU */}
-      {recommended !== null && (
-        <div style={{ marginTop: '36px' }}>
-          <h2 style={{ fontSize: '19px', color: '#1a202c', margin: '0 0 4px 0' }}><InlineIcon icon={Handshake} size={20} tone="gold" /> {t('skillMatch.peers_heading')}</h2>
+      </div>
+      {isStudent && (
+        <div id="talent-panel-peers" role="tabpanel" aria-labelledby="talent-tab-peers" hidden={tab !== 'peers'}>
           <p style={{ color: '#718096', margin: '0 0 14px 0', fontSize: '14px' }}>{t('skillMatch.peers_intro')}</p>
-          {recommended.length === 0 ? (
+          {peersError ? (
+            <p role="alert" style={{ color: '#b91c1c' }}>{t('skillMatch.peers_error')}</p>
+          ) : recommended === null ? (
+            <p role="status" style={{ color: '#718096' }}>{t('skillMatch.loading')}</p>
+          ) : recommended.length === 0 ? (
             <p style={{ color: '#718096' }}>{t('skillMatch.recommended_empty')}</p>
           ) : (
             <div className="talent-results-grid">
