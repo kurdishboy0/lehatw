@@ -62,9 +62,7 @@ function Register() {
         login(res.data.token, res.data.user);
         alert(t('register.google_success'));
 
-        if (res.data.user.role === 'STUDENT') navigate('/student-dashboard');
-        else if (res.data.user.role === 'HR') navigate('/hr-dashboard');
-        else navigate('/');
+        navigate('/', { replace: true });
       } catch (err) {
         console.error("Google Authentication Error:", err);
         setError(t('register.error_google'));

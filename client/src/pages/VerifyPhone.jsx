@@ -52,8 +52,7 @@ function VerifyPhone() {
     try {
       const res = await axios.post('/api/auth/verify-phone-otp', { email, otp });
       login(res.data.token, res.data.user);
-      const role = res.data.user.role;
-      navigate(role === 'STUDENT' ? '/student-dashboard' : role === 'HR' ? '/hr-dashboard' : '/');
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || t('verifyPhone.error_verify'));
     } finally {

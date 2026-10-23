@@ -6,8 +6,6 @@ import { useAuth } from '../useAuth';
 import { KeyRound, ArrowLeft } from 'lucide-react';
 import InlineIcon from '../components/InlineIcon';
 
-const DASHBOARD_PATH = { STUDENT: '/student-dashboard', HR: '/hr-dashboard', INSTRUCTOR: '/instructor-dashboard', ADMIN: '/admin-dashboard' };
-
 const cardStyle = {
   maxWidth: '440px', margin: '60px auto', padding: '30px', backgroundColor: 'white',
   border: '1px solid #e2e8f0', borderRadius: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
@@ -51,7 +49,7 @@ function SetPassword() {
     try {
       const res = await axios.post('/api/auth/setup', { token, password });
       login(res.data.token, res.data.user);
-      navigate(DASHBOARD_PATH[res.data.user.role] || '/');
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || t('setPassword.error_default'));
       setBusy(false);

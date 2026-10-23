@@ -13,14 +13,6 @@ import { isAccountBlock, describeAccountBlock, readStoredAccountBlock, clearStor
 // on localhost and in production alike (each must be registered on the app).
 const linkedinRedirectUri = () => `${window.location.origin}/login`;
 
-function dashboardFor(role) {
-  if (role === 'STUDENT') return '/student-dashboard';
-  if (role === 'HR') return '/hr-dashboard';
-  if (role === 'INSTRUCTOR') return '/instructor-dashboard';
-  if (role === 'ADMIN') return '/admin-dashboard';
-  return '/';
-}
-
 function Login() {
   const { t, i18n } = useTranslation();
   const [email, setEmail] = useState('');
@@ -72,7 +64,7 @@ function Login() {
         .then(res => {
           login(res.data.token, res.data.user);
           alert(t('login.linkedin_success'));
-          navigate(dashboardFor(res.data.user.role));
+          navigate('/', { replace: true });
         })
         .catch(err => {
           console.error("LinkedIn Auth Error:", err);
@@ -96,7 +88,7 @@ function Login() {
 
       login(response.data.token, response.data.user);
       alert(t('login.success'));
-      navigate(dashboardFor(response.data.user.role));
+      navigate('/', { replace: true });
     } catch (err) {
       if (err.response?.data?.code === 'PHONE_NOT_VERIFIED') {
         navigate(`/verify-phone?email=${encodeURIComponent(email)}`);
@@ -115,7 +107,7 @@ function Login() {
 
         login(res.data.token, res.data.user);
         alert(t('login.google_success'));
-        navigate(dashboardFor(res.data.user.role));
+        navigate('/', { replace: true });
       } catch (err) {
         console.error("Google Login Error:", err);
         showLoginFailure(err, t('login.error_google'));
